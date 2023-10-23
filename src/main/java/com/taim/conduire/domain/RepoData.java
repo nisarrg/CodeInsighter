@@ -21,6 +21,9 @@ public class RepoData implements Serializable {
     @Column(name = "github_repo_id")
     private Integer githubRepoId;
 
+    @Column(name = "user_id")
+    private Integer userId;
+
     @Column(name = "name")
     private String name;
 
@@ -60,14 +63,19 @@ public class RepoData implements Serializable {
     @Column(name = "open_issues_count")
     private Integer openIssuesCount;
 
-    @Column(name = "license_name")
-    private String licenseName;
-
     @Column(name = "default_branch")
     private String defaultBranch;
 
     @Column(name = "language")
     private String language;
+
+    @Column(name = "repo_created_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date repoCreatedAt;
+
+    @Column(name = "repo_updated_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date repoUpdatedAt;
 
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
@@ -77,7 +85,4 @@ public class RepoData implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id") // Map to the user_id foreign key
-    private UserData user;
 }

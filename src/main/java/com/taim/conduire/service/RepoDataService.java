@@ -6,6 +6,10 @@ import com.taim.conduire.service.common.AbstractService;
 
 public interface RepoDataService extends AbstractService<RepoData, Integer> {
 
-    RepoData fetchUserRepos(Integer userGithubId);
+    String getRepoData(UserData userData);
+
+    String dumpRepoData(UserData userData);
+
+    RepoData findByGithubRepoId(Integer githubRepoId);
 
 }

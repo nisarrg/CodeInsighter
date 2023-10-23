@@ -8,4 +8,5 @@ import java.util.List;
 public interface UserDataService extends AbstractService<UserData, Integer> {
 
     UserData findByGithubUserId(Integer githubUserId);
+
 }

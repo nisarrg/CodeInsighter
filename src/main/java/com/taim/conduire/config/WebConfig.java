@@ -1,9 +1,10 @@
 package com.taim.conduire.config;
 
-import com.taim.conduire.config.CustomFilter.CustomContentTypeFilter;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -11,15 +12,24 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/assets/**")
-                .addResourceLocations("classpath:/static/");
+        registry
+                .addResourceHandler("/static/**")
+                .addResourceLocations("classpath:/static/")
+                .setCachePeriod(3600)
+                .resourceChain(true);
+    }
+
+    @Override
+    public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+        configurer
+                .defaultContentType(MediaType.TEXT_HTML)
+                .mediaType("html", MediaType.TEXT_HTML)
+                .mediaType("css", MediaType.valueOf("text/css"))
+                .mediaType("js", MediaType.valueOf("application/javascript"));
     }
 
     @Bean
-    public FilterRegistrationBean<CustomContentTypeFilter> registerCustomContentTypeFilter() {
-        FilterRegistrationBean<CustomContentTypeFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(new CustomContentTypeFilter());
-        registrationBean.addUrlPatterns("/assets/js/*"); // Specify the URL pattern to filter
-        return registrationBean;
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }
