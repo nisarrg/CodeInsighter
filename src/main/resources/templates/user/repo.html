@@ -437,6 +437,11 @@
                         </a>
                     </li>
 
+                    <li>
+                        <a href="insights.html">Insights</a>
+                        <i data-feather="fe-bar-chart"></i>
+                    </li>
+
                 </ul>
 
             </div>
@@ -471,7 +476,7 @@
                                     <li class="breadcrumb-item active"><span th:text="${repoData.name}"></span></li>
                                 </ol>
                             </div>
-                            <h4 class="page-title"><span th:text="${repoData.name}"></span></h4>
+                            <h4 class="page-title"><span th:text="${repoData.name}"></span> Every Day Stats</h4>
                             <span id="myRepoId" style="display: none" th:text="${repoData.id}"></span>
                         </div>
                     </div>
@@ -485,13 +490,13 @@
                                 <div class="row">
                                     <div class="col-6">
                                         <div class="avatar-lg rounded-circle bg-soft-primary border-primary border">
-                                            <i class="dripicons-flag font-22 avatar-title text-primary"></i>
+                                            <i class="dripicons-list font-22 avatar-title text-primary"></i>
                                         </div>
                                     </div>
                                     <div class="col-6">
                                         <div class="text-end">
                                             <h3 class="text-dark mt-1"><span data-plugin="counterup">32</span></h3>
-                                            <p class="text-muted mb-1 text-truncate">Merge Conflicts</p>
+                                            <p class="text-muted mb-1 text-truncate">Lines of Code </p>
                                         </div>
                                     </div>
                                 </div> <!-- end row-->
@@ -505,13 +510,13 @@
                                 <div class="row">
                                     <div class="col-6">
                                         <div class="avatar-lg rounded-circle bg-soft-success border-success border">
-                                            <i class="dripicons-contract-2 font-22 avatar-title text-success"></i>
+                                            <i class="dripicons-graph-pie font-22 avatar-title text-success"></i>
                                         </div>
                                     </div>
                                     <div class="col-6">
                                         <div class="text-end">
                                             <h3 class="text-dark mt-1"><span data-plugin="counterup">127</span></h3>
-                                            <p class="text-muted mb-1 text-truncate">Merges</p>
+                                            <p class="text-muted mb-1 text-truncate">No. of Languages Used</p>
                                         </div>
                                     </div>
                                 </div> <!-- end row-->
@@ -531,7 +536,7 @@
                                     <div class="col-6">
                                         <div class="text-end">
                                             <h3 class="text-dark mt-1"><span data-plugin="counterup">5800</span></h3>
-                                            <p class="text-muted mb-1 text-truncate">New Branches</p>
+                                            <p class="text-muted mb-1 text-truncate">Pull Requests</p>
                                         </div>
                                     </div>
                                 </div> <!-- end row-->
@@ -545,13 +550,13 @@
                                 <div class="row">
                                     <div class="col-6">
                                         <div class="avatar-lg rounded-circle bg-soft-warning border-warning border">
-                                            <i class="dripicons-cloud-upload font-22 avatar-title text-warning"></i>
+                                            <i class="dripicons-link font-22 avatar-title text-warning"></i>
                                         </div>
                                     </div>
                                     <div class="col-6">
                                         <div class="text-end">
                                             <h3 class="text-dark mt-1"><span data-plugin="counterup">785</span></h3>
-                                            <p class="text-muted mb-1 text-truncate">New Commits</p>
+                                            <p class="text-muted mb-1 text-truncate">No. of Forks</p>
                                         </div>
                                     </div>
                                 </div> <!-- end row-->
@@ -577,166 +582,166 @@
                         </div> <!-- end card -->
                     </div> <!-- end col-->
 
-<!--                    <div class="col-lg-8">-->
-<!--                        <div class="card">-->
-<!--                            <div class="card-body pb-2">-->
-<!--                                <div class="float-end d-none d-md-inline-block">-->
-<!--                                    <div class="btn-group mb-2">-->
-<!--                                        <button type="button" class="btn btn-xs btn-light">Today</button>-->
-<!--                                        <button type="button" class="btn btn-xs btn-light">Weekly</button>-->
-<!--                                        <button type="button" class="btn btn-xs btn-secondary">Monthly</button>-->
-<!--                                    </div>-->
-<!--                                </div>-->
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-body pb-2">
+                                <div class="float-end d-none d-md-inline-block">
+                                    <!--<div class="btn-group mb-2">
+                                        <button type="button" class="btn btn-xs btn-light">Today</button>
+                                        <button type="button" class="btn btn-xs btn-light">Weekly</button>
+                                        <button type="button" class="btn btn-xs btn-secondary">Monthly</button>
+                                    </div>-->
+                                </div>
 
-<!--                                <h4 class="header-title mb-3">Total Number of commits per contributor</h4>-->
+                                <h4 class="header-title mb-3">Total Commits</h4>
 
-<!--                                <div dir="ltr">-->
-<!--                                    <div id="sales-analytics" class="mt-4" data-colors="#1abc9c,#4a81d4"></div>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div> &lt;!&ndash; end card &ndash;&gt;-->
-<!--                    </div> &lt;!&ndash; end col&ndash;&gt;-->
+                                <div dir="ltr">
+                                    <div id="sales-analytics" class="mt-4" data-colors="#1abc9c,#4a81d4"></div>
+                                </div>
+                            </div>
+                        </div> <!-- end card -->
+                    </div> <!-- end col-->
                 </div>
                 <!-- end row -->
 
-<!--                <div class="row">-->
-<!--                    <div class="col-xl-6">-->
-<!--                        <div class="card">-->
-<!--                            <div class="card-body">-->
-<!--                                &lt;!&ndash;<div class="dropdown float-end">-->
-<!--                                    <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"-->
-<!--                                       aria-expanded="false">-->
-<!--                                        <i class="mdi mdi-dots-vertical"></i>-->
-<!--                                    </a>-->
-<!--                                    <div class="dropdown-menu dropdown-menu-end">-->
-<!--                                        &lt;!&ndash; item&ndash;&gt;-->
-<!--                                        <a href="javascript:void(0);" class="dropdown-item">Edit Report</a>-->
-<!--                                        &lt;!&ndash; item&ndash;&gt;-->
-<!--                                        <a href="javascript:void(0);" class="dropdown-item">Export Report</a>-->
-<!--                                        &lt;!&ndash; item&ndash;&gt;-->
-<!--                                        <a href="javascript:void(0);" class="dropdown-item">Action</a>-->
-<!--                                    </div>-->
-<!--                                </div>&ndash;&gt;-->
-
-<!--                                <h4 class="header-title mb-3">Top 5 Contributors</h4>-->
-
-<!--                                <div class="table-responsive">-->
-<!--                                    <table class="table table-borderless table-hover table-nowrap table-centered m-0">-->
-
-<!--                                        <thead class="table-light">-->
-<!--                                        <tr>-->
-<!--                                            <th colspan="2">Profile</th>-->
-<!--                                            <th>Commits</th>-->
-<!--                                            <th>Merge Requests</th>-->
-<!--                                        </tr>-->
-<!--                                        </thead>-->
-<!--                                        <tbody>-->
-<!--                                        <tr>-->
-<!--                                            <td style="width: 36px;">-->
-<!--                                                <img th:src="@{/images/users/user-2.jpg}" alt="contact-img"-->
-<!--                                                     title="contact-img" class="rounded-circle avatar-sm"/>-->
-<!--                                            </td>-->
-
-<!--                                            <td>-->
-<!--                                                <h5 class="m-0 fw-normal">User 1</h5>-->
-<!--                                            </td>-->
-
-<!--                                            <td>-->
-<!--                                                127819-->
-<!--                                            </td>-->
-
-<!--                                            <td>-->
-<!--                                                126-->
-<!--                                            </td>-->
-<!--                                        </tr>-->
-
-<!--                                        <tr>-->
-<!--                                            <td style="width: 36px;">-->
-<!--                                                <img th:src="@{/images/users/user-3.jpg}" alt="contact-img"-->
-<!--                                                     title="contact-img" class="rounded-circle avatar-sm"/>-->
-<!--                                            </td>-->
-
-<!--                                            <td>-->
-<!--                                                <h5 class="m-0 fw-normal">User 2</h5>-->
-<!--                                            </td>-->
-
-<!--                                            <td>-->
-<!--                                                10321-->
-<!--                                            </td>-->
-
-<!--                                            <td>-->
-<!--                                                109-->
-<!--                                            </td>-->
-<!--                                        </tr>-->
-<!--                                        </tr>-->
-<!--                                        <tr>-->
-<!--                                            <td style="width: 36px;">-->
-<!--                                                <img th:src="@{/images/users/user-4.jpg}" alt="contact-img"-->
-<!--                                                     title="contact-img" class="rounded-circle avatar-sm"/>-->
-<!--                                            </td>-->
-
-<!--                                            <td>-->
-<!--                                                <h5 class="m-0 fw-normal">User 3</h5>-->
-<!--                                            </td>-->
-
-<!--                                            <td>-->
-<!--                                                9819-->
-<!--                                            </td>-->
-
-<!--                                            <td>-->
-<!--                                                105-->
-<!--                                            </td>-->
-<!--                                        </tr>-->
-<!--                                        </tr>-->
-<!--                                        <tr>-->
-<!--                                            <td style="width: 36px;">-->
-<!--                                                <img th:src="@{/images/users/user-5.jpg}" alt="contact-img"-->
-<!--                                                     title="contact-img" class="rounded-circle avatar-sm"/>-->
-<!--                                            </td>-->
-
-<!--                                            <td>-->
-<!--                                                <h5 class="m-0 fw-normal">User 4</h5>-->
-<!--                                            </td>-->
-
-<!--                                            <td>-->
-<!--                                                127819-->
-<!--                                            </td>-->
-
-<!--                                            <td>-->
-<!--                                                126-->
-<!--                                            </td>-->
-<!--                                        </tr>-->
-<!--                                        </tr>-->
-<!--                                        <tr>-->
-<!--                                            <td style="width: 36px;">-->
-<!--                                                <img th:src="@{/images/users/user-6.jpg}" alt="contact-img"-->
-<!--                                                     title="contact-img" class="rounded-circle avatar-sm"/>-->
-<!--                                            </td>-->
-
-<!--                                            <td>-->
-<!--                                                <h5 class="m-0 fw-normal">User 5</h5>-->
-<!--                                            </td>-->
-
-<!--                                            <td>-->
-<!--                                                127819-->
-<!--                                            </td>-->
-
-<!--                                            <td>-->
-<!--                                                126-->
-<!--                                            </td>-->
-<!--                                        </tr>-->
-<!--                                        </tr>-->
-
-<!--                                        </tbody>-->
-<!--                                    </table>-->
+                <div class="row">
+                    <div class="col-xl-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <!--<div class="dropdown float-end">
+                                    <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                                       aria-expanded="false">
+                                        <i class="mdi mdi-dots-vertical"></i>
+                                    </a>-->
+                                    <!--<div class="dropdown-menu dropdown-menu-end">
+                                        &lt;!&ndash; item &ndash;&gt;
+                                        <a href="javascript:void(0);" class="dropdown-item">Edit Report</a>
+                                        &lt;!&ndash; item&ndash;&gt;
+                                        <a href="javascript:void(0);" class="dropdown-item">Export Report</a>
+                                        &lt;!&ndash; item&ndash;&gt;
+                                        <a href="javascript:void(0);" class="dropdown-item">Action</a>
+                                    </div>-->
 <!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div> &lt;!&ndash; end col &ndash;&gt;-->
 
-<!--                    <div class="col-xl-6">-->
-<!--                        <div class="card">-->
-<!--                            <div class="card-body">-->
+                                <h4 class="header-title mb-3">Top 5 Contributors</h4>
+
+                                <div class="table-responsive">
+                                    <table class="table table-borderless table-hover table-nowrap table-centered m-0">
+
+                                        <thead class="table-light">
+                                        <tr>
+                                            <th colspan="2">Profile</th>
+                                            <th> Weekly Commits</th>
+                                            <th>Merge Requests</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td style="width: 36px;">
+                                                <img th:src="@{/images/users/user-2.jpg}" alt="contact-img"
+                                                     title="contact-img" class="rounded-circle avatar-sm"/>
+                                            </td>
+
+                                            <td>
+                                                <h5 class="m-0 fw-normal">User 1</h5>
+                                            </td>
+
+                                            <td>
+                                                127819
+                                            </td>
+
+                                            <td>
+                                                126
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td style="width: 36px;">
+                                                <img th:src="@{/images/users/user-3.jpg}" alt="contact-img"
+                                                     title="contact-img" class="rounded-circle avatar-sm"/>
+                                            </td>
+
+                                            <td>
+                                                <h5 class="m-0 fw-normal">User 2</h5>
+                                            </td>
+
+                                            <td>
+                                                10321
+                                            </td>
+
+                                            <td>
+                                                109
+                                            </td>
+                                        </tr>
+                                        </tr>
+                                        <tr>
+                                            <td style="width: 36px;">
+                                                <img th:src="@{/images/users/user-4.jpg}" alt="contact-img"
+                                                     title="contact-img" class="rounded-circle avatar-sm"/>
+                                            </td>
+
+                                            <td>
+                                                <h5 class="m-0 fw-normal">User 3</h5>
+                                            </td>
+
+                                            <td>
+                                                9819
+                                            </td>
+
+                                            <td>
+                                                105
+                                            </td>
+                                        </tr>
+                                        </tr>
+                                        <tr>
+                                            <td style="width: 36px;">
+                                                <img th:src="@{/images/users/user-5.jpg}" alt="contact-img"
+                                                     title="contact-img" class="rounded-circle avatar-sm"/>
+                                            </td>
+
+                                            <td>
+                                                <h5 class="m-0 fw-normal">User 4</h5>
+                                            </td>
+
+                                            <td>
+                                                127819
+                                            </td>
+
+                                            <td>
+                                                126
+                                            </td>
+                                        </tr>
+                                        </tr>
+                                        <tr>
+                                            <td style="width: 36px;">
+                                                <img th:src="@{/images/users/user-6.jpg}" alt="contact-img"
+                                                     title="contact-img" class="rounded-circle avatar-sm"/>
+                                            </td>
+
+                                            <td>
+                                                <h5 class="m-0 fw-normal">User 5</h5>
+                                            </td>
+
+                                            <td>
+                                                127819
+                                            </td>
+
+                                            <td>
+                                                126
+                                            </td>
+                                        </tr>
+                                        </tr>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!-- end col -->
+
+                    <div class="col-xl-6">
+                        <div class="card">
+                            <div class="card-body">
 <!--                                &lt;!&ndash; <div class="dropdown float-end">-->
 <!--                                     <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"-->
 <!--                                        aria-expanded="false">-->
@@ -752,106 +757,106 @@
 <!--                                     </div>-->
 <!--                                 </div>&ndash;&gt;-->
 
-<!--                                <h4 class="header-title mb-3">Activity History</h4>-->
+                                <h4 class="header-title mb-3">Activity History</h4>
 
-<!--                                <div class="table-responsive">-->
-<!--                                    <table class="table table-borderless table-nowrap table-hover table-centered m-0">-->
+                                <div class="table-responsive">
+                                    <table class="table table-borderless table-nowrap table-hover table-centered m-0">
 
-<!--                                        <thead class="table-light">-->
-<!--                                        <tr>-->
-<!--                                            <th>Contributor</th>-->
-<!--                                            <th>Date</th>-->
-<!--                                            <th>Action</th>-->
-<!--                                        </tr>-->
-<!--                                        </thead>-->
-<!--                                        <tbody>-->
-<!--                                        <tr>-->
-<!--                                            <td>-->
-<!--                                                <h5 class="m-0 fw-normal">User 1</h5>-->
-<!--                                            </td>-->
+                                        <thead class="table-light">
+                                        <tr>
+                                            <th>Contributor</th>
+                                            <th>Date</th>
+                                            <th>Action</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td>
+                                                <h5 class="m-0 fw-normal">User 1</h5>
+                                            </td>
 
-<!--                                            <td>-->
-<!--                                                Oct 15, 2018-->
-<!--                                            </td>-->
+                                            <td>
+                                                Oct 15, 2018
+                                            </td>
 
-<!--                                            <td>-->
-<!--                                                Commited on branch xyz-->
-<!--                                            </td>-->
-<!--                                        </tr>-->
+                                            <td>
+                                                Commited on branch xyz
+                                            </td>
+                                        </tr>
 
-<!--                                        <tr>-->
-<!--                                            <td>-->
-<!--                                                <h5 class="m-0 fw-normal">User 2</h5>-->
-<!--                                            </td>-->
+                                        <tr>
+                                            <td>
+                                                <h5 class="m-0 fw-normal">User 2</h5>
+                                            </td>
 
-<!--                                            <td>-->
-<!--                                                Oct 15, 2018-->
-<!--                                            </td>-->
+                                            <td>
+                                                Oct 15, 2018
+                                            </td>
 
-<!--                                            <td>-->
-<!--                                                Pulled from branch xyz-->
-<!--                                        </tr>-->
+                                            <td>
+                                                Pulled from branch xyz
+                                        </tr>
 
-<!--                                        <tr>-->
-<!--                                            <td>-->
-<!--                                                <h5 class="m-0 fw-normal">User 3</h5>-->
-<!--                                            </td>-->
+                                        <tr>
+                                            <td>
+                                                <h5 class="m-0 fw-normal">User 3</h5>
+                                            </td>
 
-<!--                                            <td>-->
-<!--                                                Oct 15, 2018-->
-<!--                                            </td>-->
+                                            <td>
+                                                Oct 15, 2018
+                                            </td>
 
-<!--                                            <td>-->
-<!--                                                Commited on branch xyz-->
-<!--                                        </tr>-->
+                                            <td>
+                                                Commited on branch xyz
+                                        </tr>
 
-<!--                                        <tr>-->
-<!--                                            <td>-->
-<!--                                                <h5 class="m-0 fw-normal">User 4</h5>-->
-<!--                                            </td>-->
+                                        <tr>
+                                            <td>
+                                                <h5 class="m-0 fw-normal">User 4</h5>
+                                            </td>
 
-<!--                                            <td>-->
-<!--                                                Oct 15, 2018-->
-<!--                                            </td>-->
+                                            <td>
+                                                Oct 15, 2018
+                                            </td>
 
-<!--                                            <td>-->
-<!--                                                Commited on branch xyz-->
-<!--                                        </tr>-->
+                                            <td>
+                                                Commited on branch xyz
+                                        </tr>
 
-<!--                                        <tr>-->
-<!--                                            <td>-->
-<!--                                                <h5 class="m-0 fw-normal">User 5</h5>-->
-<!--                                            </td>-->
+                                        <tr>
+                                            <td>
+                                                <h5 class="m-0 fw-normal">User 5</h5>
+                                            </td>
 
-<!--                                            <td>-->
-<!--                                                Oct 15, 2018-->
-<!--                                            </td>-->
+                                            <td>
+                                                Oct 15, 2018
+                                            </td>
 
-<!--                                            <td>-->
-<!--                                                Commited on branch xyz-->
-<!--                                        </tr>-->
+                                            <td>
+                                                Commited on branch xyz
+                                        </tr>
 
-<!--                                        <tr>-->
-<!--                                            <td>-->
-<!--                                                <h5 class="m-0 fw-normal">User 6</h5>-->
-<!--                                            </td>-->
+                                        <tr>
+                                            <td>
+                                                <h5 class="m-0 fw-normal">User 6</h5>
+                                            </td>
 
-<!--                                            <td>-->
-<!--                                                Oct 15, 2018-->
-<!--                                            </td>-->
+                                            <td>
+                                                Oct 15, 2018
+                                            </td>
 
-<!--                                            <td>-->
-<!--                                                Commited on branch xyz-->
-<!--                                        </tr>-->
+                                            <td>
+                                                Commited on branch xyz
+                                        </tr>
 
-<!--                                        </tbody>-->
-<!--                                    </table>-->
-<!--                                </div> &lt;!&ndash; end .table-responsive&ndash;&gt;-->
-<!--                            </div>-->
-<!--                        </div> &lt;!&ndash; end card&ndash;&gt;-->
-<!--                    </div> &lt;!&ndash; end col &ndash;&gt;-->
-<!--                </div>-->
-<!--                &lt;!&ndash; end row &ndash;&gt;-->
+                                        </tbody>
+                                    </table>
+                                </div> <!-- end .table-responsive-->
+                            </div>
+                        </div> <!-- end card-->
+                    </div> <!-- end col -->
+                </div>
+                <!-- end row -->
 
             </div> <!-- container -->
 
