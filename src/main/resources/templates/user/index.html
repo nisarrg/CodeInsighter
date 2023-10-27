@@ -106,14 +106,6 @@
 
                         <!-- item-->
                         <a href="javascript:void(0);" class="dropdown-item notify-item">
-                            <i class="fe-user"></i>
-                            <span>My Account</span>
-                        </a>
-
-                        <div class="dropdown-divider"></div>
-
-                        <!-- item-->
-                        <a href="javascript:void(0);" class="dropdown-item notify-item">
                             <i class="fe-log-out"></i>
                             <span>Logout</span>
                         </a>
@@ -141,7 +133,7 @@
                     <li class="menu-title">Navigation</li>
 
                     <li>
-                        <a href="#" data-bs-toggle="collapse">
+                        <a href="#" id="reposPage">
                             <i data-feather="airplay"></i>
                             <span> Repositories </span>
                         </a>
@@ -234,6 +226,10 @@
         console.log(myUserId);
         $('#projectsList').empty();
         loadProjects(myUserId);
+
+        var myUserId = $("#myUserId").text();
+        var reposPage = "/users/" + myUserId;
+        $("#reposPage").attr("href", reposPage);
     });
 
     // function redirectToRepo(repoId) {
