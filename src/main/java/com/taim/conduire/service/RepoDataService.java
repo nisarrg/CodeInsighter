@@ -5,6 +5,7 @@ import com.taim.conduire.domain.UserData;
 import com.taim.conduire.service.common.AbstractService;
 
 import java.util.List;
+import java.util.Map;
 
 public interface RepoDataService extends AbstractService<RepoData, Integer> {
 
@@ -15,5 +16,9 @@ public interface RepoDataService extends AbstractService<RepoData, Integer> {
     RepoData findByGithubRepoId(Integer githubRepoId);
 
     List<RepoData> findByUserId(Integer userId);
+
+    Map<String, Integer> getRepositoryLanguages(RepoData repoData);
+
+    Map<String, Integer> getRepoContributors(RepoData repoData);
 
 }

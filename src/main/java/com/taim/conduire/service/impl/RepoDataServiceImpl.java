@@ -19,8 +19,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class RepoDataServiceImpl implements RepoDataService {
@@ -58,6 +57,31 @@ public class RepoDataServiceImpl implements RepoDataService {
         String userRepoApiUrl = ConstantCodes.GITHUB_API_URL + ConstantCodes.GITHUB_USERS + "/" + userData.getUserName() + ConstantCodes.GITHUB_REPOS;
         System.out.println("userRepoApiUrl: " + userRepoApiUrl);
         return restTemplate.getForObject(userRepoApiUrl, String.class);
+    }
+
+//    public Map<String, Integer> getRepositoryLanguages(RepoData repoData) {
+//        String userRepoApiUrl = ConstantCodes.GITHUB_API_URL +  ConstantCodes.GITHUB_REPOS + repoData.getName() + ConstantCodes.GITHUB_LANG;
+//        System.out.println("userRepoApiUrl: " + userRepoApiUrl);
+////        String apiUrl = String.format("%s/repos/%s/%s/languages", githubApiUrl, owner, repo);
+//        return restTemplate.getForObject(userRepoApiUrl, Map.class);
+//    }
+
+    public Map<String, Integer> getRepositoryLanguages(RepoData repoData) {
+        String apiUrl = String.format("%s/repos/%s/languages", ConstantCodes.GITHUB_API_URL, repoData.getName());
+        System.out.println("apiUrl: " + apiUrl);
+        return restTemplate.getForObject(apiUrl, Map.class);
+    }
+
+    public Map<String, Integer> getRepoContributors(RepoData repoData){
+        String apiUrl = String.format("%s/repos/%s/contributors", ConstantCodes.GITHUB_API_URL, repoData.getName());
+        List<Map<String,Object>> contributors = restTemplate.getForObject(apiUrl, List.class);
+        Map<String, Integer> resultContributors = new HashMap<>();
+        for (Map<String, Object> contributor : contributors) {
+            String contributorName = (String) contributor.get("login");
+            int contributions = (Integer) contributor.get("contributions");
+            resultContributors.put(contributorName, contributions);
+        }
+        return resultContributors;
     }
 
     public String dumpRepoData(UserData userData){
