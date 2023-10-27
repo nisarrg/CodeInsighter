@@ -92,15 +92,13 @@
             <ul class="list-unstyled topnav-menu float-end mb-0">
 
                 <li class="dropdown d-none d-lg-inline-block">
-                    <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" data-toggle="fullscreen"
-                       href="#">
+                    <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" data-toggle="fullscreen" href="#">
                         <i class="fe-maximize noti-icon"></i>
                     </a>
                 </li>
 
                 <li class="dropdown notification-list topbar-dropdown">
-                    <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light" data-bs-toggle="dropdown"
-                       href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                         <img id="myImage" th:src="${userData.avatarUrl}" alt="user-image" class="rounded-circle">
                         <span id="myName" class="pro-user-name ms-1" th:text="${userData.name}">
                          <i class="mdi mdi-chevron-down"></i>
@@ -183,19 +181,18 @@
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
                                     <li class="breadcrumb-item"><a href="javascript: void(0);">User</a></li>
-                                    <li class="breadcrumb-item active"><a href="javascript: void(0);">Repositories</a>
-                                    </li>
+                                    <li class="breadcrumb-item active"><a href="javascript: void(0);">Repositories</a></li>
                                     <li class="breadcrumb-item active"><span th:text="${repoData.name}"></span></li>
                                 </ol>
                             </div>
-                            <h4 class="page-title"><span th:text="${repoData.name}"></span> Every Day Stats</h4>
+                            <h4 class="page-title"><span th:text="${repoData.name}"></span> 's Insights</h4>
                             <span id="myRepoId" style="display: none" th:text="${repoData.id}"></span>
                         </div>
                     </div>
                 </div>
                 <!-- end page title -->
 
-                <div class="row">
+                <!--<div class="row">
                     <div class="col-md-6 col-xl-3">
                         <div class="widget-rounded-circle card">
                             <div class="card-body">
@@ -211,10 +208,10 @@
                                             <p class="text-muted mb-1 text-truncate">Lines of Code </p>
                                         </div>
                                     </div>
-                                </div> <!-- end row-->
+                                </div> &lt;!&ndash; end row&ndash;&gt;
                             </div>
-                        </div> <!-- end widget-rounded-circle-->
-                    </div> <!-- end col-->
+                        </div> &lt;!&ndash; end widget-rounded-circle&ndash;&gt;
+                    </div> &lt;!&ndash; end col&ndash;&gt;
 
                     <div class="col-md-6 col-xl-3">
                         <div class="widget-rounded-circle card">
@@ -231,10 +228,10 @@
                                             <p class="text-muted mb-1 text-truncate">No. of Languages Used</p>
                                         </div>
                                     </div>
-                                </div> <!-- end row-->
+                                </div> &lt;!&ndash; end row&ndash;&gt;
                             </div>
-                        </div> <!-- end widget-rounded-circle-->
-                    </div> <!-- end col-->
+                        </div> &lt;!&ndash; end widget-rounded-circle&ndash;&gt;
+                    </div> &lt;!&ndash; end col&ndash;&gt;
 
                     <div class="col-md-6 col-xl-3">
                         <div class="widget-rounded-circle card">
@@ -251,10 +248,10 @@
                                             <p class="text-muted mb-1 text-truncate">Pull Requests</p>
                                         </div>
                                     </div>
-                                </div> <!-- end row-->
+                                </div> &lt;!&ndash; end row&ndash;&gt;
                             </div>
-                        </div> <!-- end widget-rounded-circle-->
-                    </div> <!-- end col-->
+                        </div> &lt;!&ndash; end widget-rounded-circle&ndash;&gt;
+                    </div> &lt;!&ndash; end col&ndash;&gt;
 
                     <div class="col-md-6 col-xl-3">
                         <div class="widget-rounded-circle card">
@@ -271,12 +268,12 @@
                                             <p class="text-muted mb-1 text-truncate">No. of Forks</p>
                                         </div>
                                     </div>
-                                </div> <!-- end row-->
+                                </div> &lt;!&ndash; end row&ndash;&gt;
                             </div>
-                        </div> <!-- end widget-rounded-circle-->
-                    </div> <!-- end col-->
+                        </div> &lt;!&ndash; end widget-rounded-circle&ndash;&gt;
+                    </div> &lt;!&ndash; end col&ndash;&gt;
                 </div>
-                <!-- end row-->
+                &lt;!&ndash; end row&ndash;&gt;
 
                 <div class="row">
                     <div class="col-lg-4">
@@ -291,8 +288,8 @@
 
                                 </div>
                             </div>
-                        </div> <!-- end card -->
-                    </div> <!-- end col-->
+                        </div> &lt;!&ndash; end card &ndash;&gt;
+                    </div> &lt;!&ndash; end col&ndash;&gt;
 
                     <div class="col-lg-8">
                         <div class="card">
@@ -304,144 +301,137 @@
 
 
                             </div>
-                        </div> <!-- end card -->
-                    </div> <!-- end col-->
+                        </div> &lt;!&ndash; end card &ndash;&gt;
+                    </div> &lt;!&ndash; end col&ndash;&gt;
                 </div>
-                <!-- end row -->
+                --><!-- end row -->
 
-                <div class="row">
+                <!--<div class="row">
                     <div class="col-xl-6">
                         <div class="card">
                             <div class="card-body">
-                                <!--<div class="dropdown float-end">
+                                &lt;!&ndash;<div class="dropdown float-end">
                                     <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
                                        aria-expanded="false">
                                         <i class="mdi mdi-dots-vertical"></i>
-                                    </a>-->
-                                <!--<div class="dropdown-menu dropdown-menu-end">
+                                    </a>&ndash;&gt;
+                                &lt;!&ndash;<div class="dropdown-menu dropdown-menu-end">
                                     &lt;!&ndash; item &ndash;&gt;
                                     <a href="javascript:void(0);" class="dropdown-item">Edit Report</a>
                                     &lt;!&ndash; item&ndash;&gt;
                                     <a href="javascript:void(0);" class="dropdown-item">Export Report</a>
                                     &lt;!&ndash; item&ndash;&gt;
                                     <a href="javascript:void(0);" class="dropdown-item">Action</a>
-                                </div>-->
-                                <!--                                </div>-->
+                                </div>&ndash;&gt;
+                                &lt;!&ndash;                                </div>&ndash;&gt;
 
-                                <h4 class="header-title mb-3">Weekly Commits</h4>
+                                <h4 class="header-title mb-3">Top 5 Contributors</h4>
 
                                 <div class="table-responsive">
                                     <table class="table table-borderless table-hover table-nowrap table-centered m-0">
 
                                         <thead class="table-light">
                                         <tr>
-                                            <th colspan="2">Day</th>
-                                            <th> No. Of Commits</th>
-                                            <th>                            </th>
+                                            <th colspan="2">Profile</th>
+                                            <th> Weekly Commits</th>
+                                            <th>Merge Requests</th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         <tr>
-                                            <!--                                            <td style="width: 36px;">-->
-                                            <!--                                                <img th:src="@{/images/users/user-2.jpg}" alt="contact-img"-->
-                                            <!--                                                     title="contact-img" class="rounded-circle avatar-sm"/>-->
-                                            <!--                                            </td>-->
-
-                                            <td>
-                                                <h5 class="m-0 fw-normal">Sunday</h5>
+                                            <td style="width: 36px;">
+                                                <img th:src="@{/images/users/user-2.jpg}" alt="contact-img"
+                                                     title="contact-img" class="rounded-circle avatar-sm"/>
                                             </td>
 
                                             <td>
-                                                2878
+                                                <h5 class="m-0 fw-normal">User 1</h5>
+                                            </td>
+
+                                            <td>
+                                                127819
+                                            </td>
+
+                                            <td>
+                                                126
                                             </td>
                                         </tr>
 
                                         <tr>
-                                            <!--<td style="width: 36px;">
+                                            <td style="width: 36px;">
                                                 <img th:src="@{/images/users/user-3.jpg}" alt="contact-img"
                                                      title="contact-img" class="rounded-circle avatar-sm"/>
-                                            </td>-->
-
-                                            <td>
-                                                <h5 class="m-0 fw-normal">Monday</h5>
                                             </td>
 
                                             <td>
-                                                2497
+                                                <h5 class="m-0 fw-normal">User 2</h5>
                                             </td>
 
+                                            <td>
+                                                10321
+                                            </td>
+
+                                            <td>
+                                                109
+                                            </td>
+                                        </tr>
                                         </tr>
                                         <tr>
-                                            <!--<td style="width: 36px;">
+                                            <td style="width: 36px;">
                                                 <img th:src="@{/images/users/user-4.jpg}" alt="contact-img"
                                                      title="contact-img" class="rounded-circle avatar-sm"/>
-                                            </td>-->
-
-                                            <td>
-                                                <h5 class="m-0 fw-normal">Tuesday</h5>
                                             </td>
 
                                             <td>
-                                                2712
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <!-- <td style="width: 36px;">
-                                                 <img th:src="@{/images/users/user-5.jpg}" alt="contact-img"
-                                                      title="contact-img" class="rounded-circle avatar-sm"/>
-                                             </td>-->
-
-                                            <td>
-                                                <h5 class="m-0 fw-normal">Wednesday</h5>
+                                                <h5 class="m-0 fw-normal">User 3</h5>
                                             </td>
 
                                             <td>
-                                                2830
+                                                9819
+                                            </td>
+
+                                            <td>
+                                                105
                                             </td>
                                         </tr>
+                                        </tr>
                                         <tr>
-                                            <!--<td style="width: 36px;">
+                                            <td style="width: 36px;">
+                                                <img th:src="@{/images/users/user-5.jpg}" alt="contact-img"
+                                                     title="contact-img" class="rounded-circle avatar-sm"/>
+                                            </td>
+
+                                            <td>
+                                                <h5 class="m-0 fw-normal">User 4</h5>
+                                            </td>
+
+                                            <td>
+                                                127819
+                                            </td>
+
+                                            <td>
+                                                126
+                                            </td>
+                                        </tr>
+                                        </tr>
+                                        <tr>
+                                            <td style="width: 36px;">
                                                 <img th:src="@{/images/users/user-6.jpg}" alt="contact-img"
                                                      title="contact-img" class="rounded-circle avatar-sm"/>
-                                            </td>-->
-
-                                            <td>
-                                                <h5 class="m-0 fw-normal">Thursday</h5>
                                             </td>
 
                                             <td>
-                                                2828
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <!--<td style="width: 36px;">
-                                                <img th:src="@{/images/users/user-6.jpg}" alt="contact-img"
-                                                     title="contact-img" class="rounded-circle avatar-sm"/>
-                                            </td>-->
-
-                                            <td>
-                                                <h5 class="m-0 fw-normal">Friday</h5>
+                                                <h5 class="m-0 fw-normal">User 5</h5>
                                             </td>
 
                                             <td>
-                                                2890
+                                                127819
+                                            </td>
+
+                                            <td>
+                                                126
                                             </td>
                                         </tr>
-
-                                        <tr>
-                                            <!--<td style="width: 36px;">
-                                                <img th:src="@{/images/users/user-6.jpg}" alt="contact-img"
-                                                     title="contact-img" class="rounded-circle avatar-sm"/>
-                                            </td>-->
-
-                                            <td>
-                                                <h5 class="m-0 fw-normal">Saturday</h5>
-                                            </td>
-
-                                            <td>
-                                                2512
-                                            </td>
                                         </tr>
 
                                         </tbody>
@@ -449,8 +439,8 @@
                                 </div>
                             </div>
                         </div>
-                    </div> <!-- end col -->
-
+                    </div> &lt;!&ndash; end col &ndash;&gt;
+-->
                    <!-- <div class="col-xl-6">
                         <div class="card">
                             <div class="card-body">
@@ -566,14 +556,14 @@
                                 </div> &lt;!&ndash; end .table-responsive&ndash;&gt;
                             </div>
                         </div> &lt;!&ndash; end card&ndash;&gt;
-                    </div>  end col -->
+                    </div> &lt;!&ndash; end col &ndash;&gt;
                 </div>
-                <!-- end row -->
+                &lt;!&ndash; end row &ndash;&gt;
 
-            </div> <!-- container -->
+            </div> &lt;!&ndash; container &ndash;&gt;
 
-        </div> <!-- content -->
-    </div>
+        </div> &lt;!&ndash; content &ndash;&gt;
+    </div>-->
 
     <!-- ============================================================== -->
     <!-- End Page content -->
@@ -603,7 +593,7 @@
 <script th:src="@{/js/app.min.js}"></script>
 
 <script type="text/javascript">
-    $(document).ready(function () {
+    $(document).ready(function() {
         var myRepoId = $("#myRepoId").text();
         console.log(myRepoId);
         $('#myChart').empty();
@@ -613,10 +603,10 @@
     function loadCharts(myRepoId) {
         //Pie Chart
         $.ajax({
-            type: "GET",
-            url: 'get-user-repos-lang/' + myRepoId,
+            type : "GET",
+            url : 'get-user-repos-lang/' + myRepoId,
             dataType: 'json',
-            success: function (receivedMap) {
+            success : function(receivedMap) {
                 console.log(receivedMap);
                 var xValues = Object.keys(receivedMap);
                 var yValues = Object.values(receivedMap);
@@ -630,7 +620,7 @@
                     return color;
                 }
 
-                var barColors = xValues.map(function () {
+                var barColors = xValues.map(function() {
                     return getRandomColor();
                 });
 
@@ -650,10 +640,10 @@
 
         //Bar Chart
         $.ajax({
-            type: "GET",
-            url: 'get-user-repos-contibutors/' + myRepoId,
+            type : "GET",
+            url : 'get-user-repos-contibutors/' + myRepoId,
             dataType: 'json',
-            success: function (receivedMap) {
+            success : function(receivedMap) {
                 console.log(receivedMap);
                 var xValues = Object.keys(receivedMap);
                 var yValues = Object.values(receivedMap);
@@ -667,7 +657,7 @@
                     return color;
                 }
 
-                var barColors = xValues.map(function () {
+                var barColors = xValues.map(function() {
                     return getRandomColor();
                 });
 
