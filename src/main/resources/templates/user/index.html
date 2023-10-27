@@ -10,14 +10,7 @@
     <meta content="Coderthemes" name="author" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <!-- App favicon -->
-    <link rel="shortcut icon" th:href="@{/images/favicon.ico}">
-
-    <!-- third party css -->
-    <link th:href="@{/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css}" rel="stylesheet" type="text/css" />
-    <link th:href="@{/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css}" rel="stylesheet" type="text/css" />
-    <link th:href="@{/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css}" rel="stylesheet" type="text/css" />
-    <link th:href="@{/static/libs/datatables.net-select-bs4/css//select.bootstrap4.min.css}" rel="stylesheet" type="text/css" />
-    <!-- third party css end -->
+<!--    <link rel="shortcut icon" th:href="@{/images/favicon.ico}">-->
 
     <!-- App css -->
     <link th:href="@{/css/config/default/bootstrap.min.css}" rel="stylesheet" type="text/css" id="bs-default-stylesheet" />
@@ -44,23 +37,27 @@
 
             <!-- LOGO -->
             <div class="logo-box">
-                <a href="index.html" class="logo logo-dark text-center">
+                <a href="#" class="logo logo-dark text-center">
                             <span class="logo-sm">
-                                <img th:src="@{/images/logo-sm.png}" alt="" height="22">
+<!--                                <img th:src="@{/images/insighter-logo.png}" alt="" height="100" width="100">-->
                                 <!-- <span class="logo-lg-text-light">UBold</span> -->
+                               <h5 style="color: white;">Code Insighter</h5>
                             </span>
                     <span class="logo-lg">
-                                <img th:src="@{/images/logo-dark.png}" alt="" height="20">
+<!--                                <img th:src="@{/images/insighter-logo.png}" alt="" height="100" width="100">-->
                         <!-- <span class="logo-lg-text-light">U</span> -->
+                                <h2 style="color: white;">Code Insighter</h2>
                             </span>
                 </a>
 
-                <a href="index.html" class="logo logo-light text-center">
+                <a href="#" class="logo logo-light text-center">
                             <span class="logo-sm">
-                                <img th:src="@{/images/logo-sm.png}" alt="" height="22">
+<!--                                <img th:src="@{/images/insighter-logo.png}" alt="" height="80" width="100">-->
+                                <h5 style="color: white;">Code Insighter</h5>
                             </span>
                     <span class="logo-lg">
-                                <img th:src="@{/images/logo-light.png}" alt="" height="20">
+<!--                                <img th:src="@{/images/insighter-logo.png}" alt="" height="100" width="100">-->
+                        <h2 style="color: white;">Code Insighter</h2>
                             </span>
                 </a>
             </div>
@@ -99,6 +96,7 @@
                         <span id="myName" class="pro-user-name ms-1" th:text="${userData.name}">
                          <i class="mdi mdi-chevron-down"></i>
                         </span>
+                        <span id="myUserId" style="display: none" th:text="${userData.id}"></span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end profile-dropdown ">
                         <!-- item-->
@@ -143,27 +141,10 @@
                     <li class="menu-title">Navigation</li>
 
                     <li>
-                        <a href="#sidebarDashboards" data-bs-toggle="collapse">
+                        <a href="#" data-bs-toggle="collapse">
                             <i data-feather="airplay"></i>
-                            <span class="badge bg-success rounded-pill float-end">4</span>
-                            <span> Dashboards </span>
+                            <span> Repositories </span>
                         </a>
-                        <div class="collapse" id="sidebarDashboards">
-                            <ul class="nav-second-level">
-                                <li>
-                                    <a href="index.html">Dashboard 1</a>
-                                </li>
-                                <li>
-                                    <a href="dashboard-2.html">Dashboard 2</a>
-                                </li>
-                                <li>
-                                    <a href="dashboard-3.html">Dashboard 3</a>
-                                </li>
-                                <li>
-                                    <a href="dashboard-4.html">Dashboard 4</a>
-                                </li>
-                            </ul>
-                        </div>
                     </li>
 
                 </ul>
@@ -206,29 +187,10 @@
                 <!-- end page title -->
 
 
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-body">
+                <div class="row" id="projectsList">
 
-                                <h4 class="header-title">Repos</h4>
-                                <table id="datatable-buttons" class="table table-striped dt-responsive nowrap w-100">
-                                    <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Desc</th>
-                                        <th>Lang</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-
-                            </div> <!-- end card body-->
-                        </div> <!-- end card -->
-                    </div><!-- end col-->
                 </div>
-                <!-- end row-->
+                <!-- end row -->
 
 
             </div> <!-- container -->
@@ -261,25 +223,6 @@
 <!-- App js -->
 <script type="text/javascript" th:src="@{/js/app.min.js}"></script>
 
-<!-- Datatables init -->
-<script th:src="@{/js/pages/datatables.init.js}"></script>
-
-<!-- third party js -->
-<script th:src="@{/libs/datatables.net/js/jquery.dataTables.min.js}"></script>
-<script th:src="@{/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js}"></script>
-<script th:src="@{/libs/datatables.net-responsive/js/dataTables.responsive.min.js}"></script>
-<script th:src="@{/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js}"></script>
-<script th:src="@{/libs/datatables.net-buttons/js/dataTables.buttons.min.js}"></script>
-<script th:src="@{/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js}"></script>
-<script th:src="@{/libs/datatables.net-buttons/js/buttons.html5.min.js}"></script>
-<script th:src="@{/libs/datatables.net-buttons/js/buttons.flash.min.js}"></script>
-<script th:src="@{/libs/datatables.net-buttons/js/buttons.print.min.js}"></script>
-<script th:src="@{/libs/datatables.net-keytable/js/dataTables.keyTable.min.js}"></script>
-<script th:src="@{/libs/datatables.net-select/js/dataTables.select.min.js}"></script>
-<script th:src="@{/libs/pdfmake/build/pdfmake.min.js}"></script>
-<script th:src="@{/libs/pdfmake/build/vfs_fonts.js}"></script>
-<!-- third party js ends -->
-
 <!-- Jquery js -->
 <script type="text/javascript" th:src="@{/libs/jquery/jquery.min.js}"></script>
 
@@ -287,29 +230,49 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-
-        $('#datatable-buttons').DataTable({
-            language: {
-                paginate: {
-                    previous: "<i class='mdi mdi-chevron-left'>",
-                    next: "<i class='mdi mdi-chevron-right'>"
-                },
-                "infoFiltered": ""
-            },
-            responsive: true,
-            bServerSide: true,
-            bDestroy: true,
-            bPaginate: true,
-            bProcessing: true,
-
-
-        });
-
-
+        var myUserId = $("#myUserId").text();
+        console.log(myUserId);
+        $('#projectsList').empty();
+        loadProjects(myUserId);
     });
 
+    // function redirectToRepo(repoId) {
+    //     $.ajax({
+    //         type: 'GET',
+    //         url: "/users/repo/" + repoId,
+    //         success: function(resultData) {
+    //             console.log(resultData)
+    //             location.href = "/users/repo/" + resultData;
+    //         }
+    //     });
+    // }
 
-
+    function loadProjects(myUserId) {
+        $.ajax({
+            type : "GET",
+            url : 'get-user-repos/' + myUserId,
+            dataType: 'json',
+            success : function(data) {
+                console.log(data);
+                var projectsList = ``;
+                $.each(data,function(key,val)
+                {
+                    console.log(val);
+                    projectsList=`<div class="col-lg-4">
+                                            <div class="card project-box">
+                                                <div class="card-body">
+                                                    <h4 class="mt-0"><a href="/users/repo/` + val.id + `" id="myRepo" class="text-dark">`+ val.name.split('/')[1] +`</a></h4>
+                                                    <p class="text-muted text-uppercase"><i class="mdi mdi-account-circle"></i> <small>`+ val.name.split('/')[0] +`</small></p>
+                                                    <p class="text-muted font-13 mb-3 sp-line-2">`+ val.description +`</p>
+                                                </div>
+                                            </div>
+                                        </div>`;
+                    console.log(projectsList);
+                    $(projectsList).appendTo('#projectsList');
+                });
+            }
+        });
+    }
 
 </script>
 

@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class RepoDataServiceImpl implements RepoDataService {
@@ -44,6 +45,11 @@ public class RepoDataServiceImpl implements RepoDataService {
     @Override
     public RepoData findByGithubRepoId(Integer githubRepoId) {
         return repository.findByGithubRepoId(githubRepoId);
+    }
+
+    @Override
+    public List<RepoData> findByUserId(Integer userId) {
+        return repository.findByUserId(userId);
     }
 
 
@@ -81,7 +87,7 @@ public class RepoDataServiceImpl implements RepoDataService {
                     repoData.setName(!repoObject.get("full_name").isJsonNull() ? repoObject.get("full_name").getAsString() : "");
                     repoData.setDescription(!repoObject.get("description").isJsonNull() ? repoObject.get("description").getAsString() : "");
                     repoData.setIsPrivate(repoObject.get("private").getAsBoolean());
-                    repoData.setIsFork(repoObject.get("fork").getAsBoolean());
+                    repoData.setFork(repoObject.get("fork").getAsBoolean());
                     repoData.setSize(repoObject.get("size").getAsInt());
                     repoData.setHasIssues(repoObject.get("has_issues").getAsBoolean());
                     repoData.setHasProjects(repoObject.get("has_projects").getAsBoolean());

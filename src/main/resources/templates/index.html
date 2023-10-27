@@ -9,7 +9,7 @@
     <meta content="Coderthemes" name="author" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <!-- App favicon -->
-    <link rel="shortcut icon" th:href="@{/static/images/favicon.ico}">
+<!--    <link rel="shortcut icon" th:href="@{/static/images/favicon.ico}">-->
 
     <!-- App css -->
     <link th:href="@{/static/css/config/default/bootstrap.min.css}" rel="stylesheet" type="text/css" id="bs-default-stylesheet" />
@@ -23,7 +23,7 @@
 
 </head>
 
-<body class="loading authentication-bg authentication-bg-pattern">
+<body class="loading authentication-bg-pattern" style="background-image: url('/static/images/auth-bg.png'); background-repeat: no-repeat; background-size: cover;">
 
 <div class="account-pages mt-5 mb-5">
     <div class="container">
@@ -37,13 +37,15 @@
                             <div class="auth-logo">
                                 <a th:href="@{#}" class="logo logo-dark text-center">
                                             <span class="logo-lg">
-                                                <img th:src="@{/static/images/logo-dark.png}" alt="" height="22">
+<!--                                                <img th:src="@{/static/images/insighter-logo.png}" alt="" height="22">-->
+                                          <h1>Code Insighter</h1>
                                             </span>
                                 </a>
 
                                 <a th:href="@{#}" class="logo logo-light text-center">
                                             <span class="logo-lg">
-                                                <img th:src="@{/static/images/logo-light.png}" alt="" height="22">
+<!--                                                <img th:src="@{/static/images/insighter-logo.png}" alt="" height="22">-->
+                                                <h1>Code Insighter</h1>
                                             </span>
                                 </a>
                             </div>

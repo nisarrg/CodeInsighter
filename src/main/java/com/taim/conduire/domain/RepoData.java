@@ -34,7 +34,7 @@ public class RepoData implements Serializable {
     private Boolean isPrivate;
 
     @Column(name = "fork")
-    private Boolean isFork;
+    private Boolean fork;
 
     @Column(name = "size")
     private Integer size;

@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
@@ -43,16 +44,10 @@ public class UserController {
     @Autowired
     private RepoDataService repoDataService;
 
-    @Autowired
-    RepoDataRepository repoDataRepository;
-
-//    @Autowired
-//    RepoDataDtRepository repoDataDtRepository;
-
     @GetMapping("/{user_id}")
     public String view(@PathVariable("user_id") Integer userId, Model model) {
         UserData userData = userDataService.getOne(userId);
-        System.out.println("HAHHAHAHA: " + userData);
+        System.out.println("userData: " + userData);
         String repoDump = repoDataService.dumpRepoData(userData);
         System.out.println(repoDump);
         model.addAttribute("userData", userData);
@@ -60,37 +55,13 @@ public class UserController {
     }
 
 
-//    @RequestMapping(value = "/get-user-repos-for-datatable/{user-id}", method = RequestMethod.POST)
-//    @ResponseBody
-//    public DataTablesOutput<RepoData> getUserReposForDatatable(@PathVariable("user-id") Integer userId, @RequestBody DataTablesInput input) {
-//        System.out.println("userId: " + userId + "getRepo: " + input);
-//        return repoDataDtRepository.findAll(input);
-//    }
+    @RequestMapping(value = "/get-user-repos/{user-id}", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<List<RepoData>> getUserReposFor(@PathVariable("user-id") Integer userId) {
+        System.out.println("userId: " + userId );
+        List<RepoData> repoList = repoDataService.findByUserId(userId);
 
-//    private Specification<RepoData> getUserSpecificationRepo(Integer userId) {
-//        return new Specification<RepoData>() {
-//            @Override
-//            public javax.persistence.criteria.Predicate toPredicate(Root<RepoData> root,
-//                                                                    CriteriaQuery<?> query,
-//                                                                    CriteriaBuilder criteriaBuilder) {
-//                javax.persistence.criteria.Predicate userRepoPredicate = criteriaBuilder.equal(root.get("userId"), userId);
-//                return criteriaBuilder.and(userRepoPredicate);
-//            }
-//        };
-//    }
+        return ResponseEntity.ok(repoList);
+    }
 
-//    @RequestMapping(value = "/load-user-repos", method = RequestMethod.GET)+
-//    @ResponseBody
-//    public ResponseEntity<List<RepoData>> loadUserRepos() {
-//        HashMap<String, String> category = new HashMap<String,String>();
-////        List<RepoData> listRepoData = repoDataService.findByGithubUserId();
-////        List<CategoryData> listCategoryData = categoryDataService.find();
-////        logger.debug(listCategoryData);
-//    	/*for(CategoryData categoryData : listCategoryData) {
-//    		logger.debug(categoryData);
-//    		category.put(""+categoryData.getId(), categoryData.getName());
-//    	}
-//    	logger.debug(category);*/
-//        return ResponseEntity.ok(listRepoData);
-//    }
 }

@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `collaborators` int DEFAULT NULL,
   `visible` char(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Data exporting was unselected.
 
@@ -63,15 +63,16 @@ CREATE TABLE IF NOT EXISTS `user_repos` (
   `forks` int DEFAULT NULL,
   `open_issues` int DEFAULT NULL,
   `open_issues_count` int DEFAULT NULL,
-  `license_name` varchar(255) DEFAULT NULL,
   `default_branch` varchar(255) DEFAULT NULL,
   `language` varchar(255) DEFAULT NULL,
+  `repo_created_at` datetime DEFAULT NULL,
+  `repo_updated_at` datetime DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `user_repos_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Data exporting was unselected.
 
