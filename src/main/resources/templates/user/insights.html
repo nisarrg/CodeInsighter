@@ -140,15 +140,10 @@
                     <li class="menu-title">Navigation</li>
 
                     <li>
-                        <a href="#" data-bs-toggle="collapse">
+                        <a href="#" id="reposPage">
                             <i data-feather="airplay"></i>
                             <span> Repositories </span>
                         </a>
-                    </li>
-
-                    <li>
-                        <a href="insights.html">Insights</a>
-                        <i data-feather="fe-bar-chart"></i>
                     </li>
 
                 </ul>
@@ -571,6 +566,8 @@
 
 
 </div>
+        </div>
+    </div>
 <!-- END wrapper -->
 
 
@@ -596,85 +593,10 @@
     $(document).ready(function() {
         var myRepoId = $("#myRepoId").text();
         console.log(myRepoId);
-        $('#myChart').empty();
-        loadCharts(myRepoId);
+        var myUserId = $("#myUserId").text();
+        var reposPage = "/users/" + myUserId;
+        $("#reposPage").attr("href", reposPage);
     });
-
-    function loadCharts(myRepoId) {
-        //Pie Chart
-        $.ajax({
-            type : "GET",
-            url : 'get-user-repos-lang/' + myRepoId,
-            dataType: 'json',
-            success : function(receivedMap) {
-                console.log(receivedMap);
-                var xValues = Object.keys(receivedMap);
-                var yValues = Object.values(receivedMap);
-
-                function getRandomColor() {
-                    var letters = "0123456789ABCDEF";
-                    var color = "#";
-                    for (var i = 0; i < 6; i++) {
-                        color += letters[Math.floor(Math.random() * 16)];
-                    }
-                    return color;
-                }
-
-                var barColors = xValues.map(function() {
-                    return getRandomColor();
-                });
-
-                new Chart("myChart", {
-                    type: "pie",
-                    data: {
-                        labels: xValues,
-                        datasets: [{
-                            backgroundColor: barColors,
-                            data: yValues
-                        }]
-                    }
-                });
-
-            }
-        });
-
-        //Bar Chart
-        $.ajax({
-            type : "GET",
-            url : 'get-user-repos-contibutors/' + myRepoId,
-            dataType: 'json',
-            success : function(receivedMap) {
-                console.log(receivedMap);
-                var xValues = Object.keys(receivedMap);
-                var yValues = Object.values(receivedMap);
-
-                function getRandomColor() {
-                    var letters = "0123456789ABCDEF";
-                    var color = "#";
-                    for (var i = 0; i < 6; i++) {
-                        color += letters[Math.floor(Math.random() * 16)];
-                    }
-                    return color;
-                }
-
-                var barColors = xValues.map(function() {
-                    return getRandomColor();
-                });
-
-                new Chart("myBarChart", {
-                    type: "bar",
-                    data: {
-                        labels: xValues,
-                        datasets: [{
-                            backgroundColor: barColors,
-                            data: yValues
-                        }]
-                    }
-                });
-
-            }
-        });
-    }
 
 </script>
 

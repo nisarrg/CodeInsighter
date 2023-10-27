@@ -133,7 +133,7 @@
                     <li class="menu-title">Navigation</li>
 
                     <li>
-                        <a href="#" data-bs-toggle="collapse">
+                        <a href="#" id="reposPage">
                             <i data-feather="airplay"></i>
                             <span> Repositories </span>
                         </a>
@@ -226,6 +226,10 @@
         console.log(myUserId);
         $('#projectsList').empty();
         loadProjects(myUserId);
+
+        var myUserId = $("#myUserId").text();
+        var reposPage = "/users/" + myUserId;
+        $("#reposPage").attr("href", reposPage);
     });
 
     // function redirectToRepo(repoId) {
