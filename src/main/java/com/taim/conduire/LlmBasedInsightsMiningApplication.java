@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.Map;
 
 @SpringBootApplication
-public class LlmBasedInsightsMiningApplication {
+public class    LlmBasedInsightsMiningApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(LlmBasedInsightsMiningApplication.class, args);
