@@ -1,34 +1,32 @@
 package com.taim.conduire.controller;
 
-import com.taim.conduire.model.CodeFrequencyStat;
+import com.taim.conduire.domain.FormData;
+import com.taim.conduire.service.ChatGPTService;
 import com.taim.conduire.service.JSONUtils;
 import com.taim.conduire.service.LLMService;
 import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.http.*;
 
-import javax.crypto.spec.PSource;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
-import static org.jfree.chart.ChartFactory.createBarChart;
-
 @RestController
 public class LLMController {
-
-    private final LLMService llmService;
+    @Autowired
+    private LLMService llmService;
+    @Autowired
+    private ChatGPTService chatGPTService;
 
     private JSONUtils jsonUtils;
 
@@ -42,10 +40,6 @@ public class LLMController {
     private String repo;
 
     //private String[] fileTypes = {".jpg",".class",".png","svg", "docx", "exe", "dll", "jar", "gif"};
-
-    public LLMController(LLMService llmService) {
-        this.llmService = llmService;
-    }
 
     @GetMapping("/repository/languages")
     public Map<String, Integer> getRepositoryLanguages() {
