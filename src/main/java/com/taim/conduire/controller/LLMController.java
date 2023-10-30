@@ -61,7 +61,7 @@ public class LLMController {
     @GetMapping("repository/punchtest")
     public int[] getRepositoryPunchCardtest() throws IOException {
 
-        return llmService.getRepositoryPunchCardtest();
+        return llmService.getRepositoryPunchCardtest("hello");
     }
 
     @GetMapping("repository/chart")

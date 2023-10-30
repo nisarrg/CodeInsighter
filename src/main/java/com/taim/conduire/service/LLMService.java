@@ -69,8 +69,8 @@ public class LLMService {
         return repoPunchCard;
     }
 
-    public int[] getRepositoryPunchCardtest() throws IOException {
-        String apiUrl = String.format("%s/repos/%s/%s/stats/punch_card", githubApiUrl, owner, repo);
+    public int[] getRepositoryPunchCardtest(String name) throws IOException {
+        String apiUrl = String.format("%s/repos/%s/stats/punch_card", githubApiUrl,name);
         System.out.println(apiUrl);
         String apiResponse = restTemplate.getForObject(apiUrl, String.class);
         List<List<Integer>> repoPunchCard = objectMapper.readValue(apiResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
