@@ -17,33 +17,50 @@
 # https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
 
 stages:          # List of stages for jobs, and their order of execution
-  - build
-  - test
+  - publish
   - deploy
 
-build-job:       # This job runs in the build stage, which runs first.
-  stage: build
-  script:
-    - echo "Compiling the code..."
-    - echo "Compile complete."
+publish:
+  image: docker:latest
+  stage: publish
+  tags: 
+    - deployment
+  variables:
+    # these values may need to be different if using TLS, k8s, etc.
+    # You can alternatively set defaults in your runner config
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_HOST: "tcp://docker:2375"
+  services:
+    - docker:dind
 
-unit-test-job:   # This job runs in the test stage.
-  stage: test    # It only starts when the job in the build stage completes successfully.
+ 
   script:
-    - echo "Running unit tests... This will take about 60 seconds."
-    - sleep 60
-    - echo "Code coverage is 90%"
+    - pwd 
+    - echo $SERVER_IP
+    - docker --version
+    - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PWD docker.io
+    - docker build -t docker.io/group12project/llm_insights:$CI_COMMIT_SHORT_SHA .
+    - docker push docker.io/group12project/llm_insights:$CI_COMMIT_SHORT_SHA
+  only:
+    - develop/login-authentication
 
-lint-test-job:   # This job also runs in the test stage.
-  stage: test    # It can run at the same time as unit-test-job (in parallel).
-  script:
-    - echo "Linting code... This will take about 10 seconds."
-    - sleep 10
-    - echo "No lint issues found."
 
-deploy-job:      # This job runs in the deploy stage.
-  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
-  environment: production
+deploy:
+  image: alpine:latest
+  stage: deploy
+  tags:
+    - deployment
   script:
-    - echo "Deploying application..."
-    - echo "Application successfully deployed."
+    - chmod og= $ID_RSA
+    - apk update && apk add openssh-client
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PWD docker.io"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker pull docker.io/group12project/llm_insights:$CI_COMMIT_SHORT_SHA"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker container rm -f my-app || true"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p 8073:8073 --name my-app docker.io/notabot1102/test:$CI_COMMIT_SHORT_SHA"
+  environment:
+    name: production
+    url: http://csci5308vm12:8073
+  only:
+    - develop/login-authentication
+
+
