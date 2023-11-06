@@ -21,4 +21,6 @@ public interface RepoDataService extends AbstractService<RepoData, Integer> {
 
     Map<String, Integer> getRepoContributors(RepoData repoData);
 
+    String getRepoLOC(RepoData repoData);
+
 }

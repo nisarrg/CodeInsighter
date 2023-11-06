@@ -13,29 +13,32 @@ import java.util.Date;
 @Table(name = "users")
 @Getter @Setter @ToString
 public class UserData implements Serializable {
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Access(AccessType.PROPERTY)
-    private Integer id;
+	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Access(AccessType.PROPERTY)
+	private Integer id;
 
-    @Column(name = "github_user_id")
+	@Column(name = "github_user_id")
 	private Integer githubUserId;
 
-    @Column(name = "name")
-    private String name;
+	@Column(name = "name")
+	private String name;
 
-    @Column(name = "user_name")
-    private String userName;
+	@Column(name = "user_name")
+	private String userName;
 
-    @Column(name = "email")
-    private String email;
+	@Column(name = "user_access_token")
+	private String userAccessToken;
+
+	@Column(name = "email")
+	private String email;
 
 	@Column(name = "account_type")
-    private String accountType;
+	private String accountType;
 
-    @Column(name = "avatar_url")
-    private String avatarUrl;
+	@Column(name = "avatar_url")
+	private String avatarUrl;
 
 	@Column(name = "company")
 	private String company;

@@ -15,7 +15,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 
@@ -38,14 +37,11 @@ public class UserRepoController {
     public String view(@PathVariable("repo_id") Integer repoId, Model model) {
         RepoData repoData = repoDataService.getOne(repoId);
         System.out.println("repoData: " + repoData);
-//        String repoLOCDump = repoLOCDataService.dumpRepoLOCData(repoData);
-//        System.out.println("repoLOCDump: " + repoLOCDump);
         UserData userData = userDataService.getOne(repoData.getUserId());
         model.addAttribute("userData", userData);
         model.addAttribute("repoData", repoData);
         return "user/repo";
     }
-
 
     @RequestMapping(value = "/get-user-repos-lang/{repo_id}", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
@@ -74,11 +70,16 @@ public class UserRepoController {
     public ResponseEntity<int []> getUserReposPunchCard(@PathVariable("repo_id") Integer repoID) throws IOException {
         RepoData repoData = repoDataService.getOne(repoID);
         System.out.println("repoData: " + repoData.getName());
-        //return llmService.getRepositoryPunchCardtest(repoData.getName());
         return ResponseEntity.ok(llmService.getRepositoryPunchCardtest(repoData.getName()));
-        //System.out.println("Data Contri: " + repoDataService.getRepoContributors(repoData) );
     }
 
+    @RequestMapping(value = "/get-user-repo-loc/{repo_id}", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<String> getUserReposFor(@PathVariable("repo_id") Integer repoID) {
+        RepoData repoData = repoDataService.getOne(repoID);
+        System.out.println("repoData: " + repoData);
 
+        return ResponseEntity.ok(repoDataService.getRepoLOC(repoData));
+    }
 
 }

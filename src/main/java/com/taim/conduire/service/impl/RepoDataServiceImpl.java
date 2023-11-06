@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.taim.conduire.constants.ConstantCodes;
 import com.taim.conduire.domain.RepoData;
 import com.taim.conduire.domain.UserData;
 import com.taim.conduire.repository.RepoDataRepository;
@@ -13,8 +14,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import com.taim.conduire.constants.ConstantCodes;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.text.ParseException;
@@ -23,7 +28,7 @@ import java.util.*;
 
 @Service
 public class RepoDataServiceImpl implements RepoDataService {
-	private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger();
 
     @Autowired
     private RepoDataRepository repository;
@@ -56,31 +61,111 @@ public class RepoDataServiceImpl implements RepoDataService {
     public String getRepoData(UserData userData) {
         String userRepoApiUrl = ConstantCodes.GITHUB_API_URL + ConstantCodes.GITHUB_USERS + "/" + userData.getUserName() + ConstantCodes.GITHUB_REPOS;
         System.out.println("userRepoApiUrl: " + userRepoApiUrl);
-        return restTemplate.getForObject(userRepoApiUrl, String.class);
-    }
 
-//    public Map<String, Integer> getRepositoryLanguages(RepoData repoData) {
-//        String userRepoApiUrl = ConstantCodes.GITHUB_API_URL +  ConstantCodes.GITHUB_REPOS + repoData.getName() + ConstantCodes.GITHUB_LANG;
-//        System.out.println("userRepoApiUrl: " + userRepoApiUrl);
-////        String apiUrl = String.format("%s/repos/%s/%s/languages", githubApiUrl, owner, repo);
-//        return restTemplate.getForObject(userRepoApiUrl, Map.class);
-//    }
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", userData.getUserAccessToken());
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(userRepoApiUrl, HttpMethod.GET, entity, String.class);
+
+        HttpHeaders responseHeaders = response.getHeaders();
+        int limit = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Limit"));
+        int remaining = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Remaining"));
+
+        System.out.println("Rate Limit Limit: " + limit);
+        System.out.println("Rate Limit Remaining: " + remaining);
+
+        return response.getBody();
+
+    }
 
     public Map<String, Integer> getRepositoryLanguages(RepoData repoData) {
         String apiUrl = String.format("%s/repos/%s/languages", ConstantCodes.GITHUB_API_URL, repoData.getName());
         System.out.println("apiUrl: " + apiUrl);
-        return restTemplate.getForObject(apiUrl, Map.class);
+
+        UserData userData = userDataService.getOne(repoData.getUserId());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", userData.getUserAccessToken());
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, Map.class);
+
+        HttpHeaders responseHeaders = response.getHeaders();
+        int limit = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Limit"));
+        int remaining = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Remaining"));
+
+        System.out.println("Rate Limit Limit: " + limit);
+        System.out.println("Rate Limit Remaining: " + remaining);
+
+        return response.getBody();
+    }
+
+    public String getRepoLOC(RepoData repoData) {
+
+        System.out.println("repoloc called: ");
+        String userRepoLocApiUrl = ConstantCodes.CODETABS_CLOC_API_URL + repoData.getName();
+        System.out.println("userRepoLocApiUrl: " + userRepoLocApiUrl);
+        boolean repoTooBig = false;
+        List<Map<String,Object>> locArrMap = new ArrayList<>();
+        try {
+            locArrMap = restTemplate.getForObject(userRepoLocApiUrl, List.class);
+            System.out.println("\n\nlocArrMap: " + repoData.getName() + "\t" + locArrMap + "\n\n");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            String responseBody = e.getResponseBodyAsString();
+            if (responseBody.contains("too big")) {
+                System.out.println("Repo Size > 500 MB: " + responseBody);
+                repoTooBig = true;
+            } else {
+                System.out.println("Other BadRequest Exception: " + responseBody);
+                repoTooBig = true;
+            }
+
+        } catch (Exception e) {
+            System.out.println("An error occurred: " + e.getMessage());
+            repoTooBig = true;
+        }
+        if(repoTooBig){
+            return "Repo > 500 MB";
+        } else {
+
+            Map<String, Integer> resultLoc = new HashMap<>();
+            for (Map<String, Object> loc : locArrMap) {
+                String language = (String) loc.get("language");
+                int linesOfCode = (Integer) loc.get("linesOfCode");
+                resultLoc.put(language, linesOfCode);
+            }
+            System.out.println("\nTotal Loc: " + resultLoc.get("Total"));
+
+            return "" + resultLoc.get("Total");
+        }
     }
 
     public Map<String, Integer> getRepoContributors(RepoData repoData){
         String apiUrl = String.format("%s/repos/%s/contributors", ConstantCodes.GITHUB_API_URL, repoData.getName());
-        List<Map<String,Object>> contributors = restTemplate.getForObject(apiUrl, List.class);
+
+        UserData userData = userDataService.getOne(repoData.getUserId());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", userData.getUserAccessToken());
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<List> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, List.class);
+
+        List<Map<String,Object>> contributors = response.getBody();
         Map<String, Integer> resultContributors = new HashMap<>();
         for (Map<String, Object> contributor : contributors) {
             String contributorName = (String) contributor.get("login");
             int contributions = (Integer) contributor.get("contributions");
             resultContributors.put(contributorName, contributions);
         }
+
+        HttpHeaders responseHeaders = response.getHeaders();
+        int limit = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Limit"));
+        int remaining = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Remaining"));
+
+        System.out.println("Rate Limit Limit: " + limit);
+        System.out.println("Rate Limit Remaining: " + remaining);
+
+
         return resultContributors;
     }
 
@@ -135,6 +220,4 @@ public class RepoDataServiceImpl implements RepoDataService {
 
         return "dump success";
     }
-
-
 }

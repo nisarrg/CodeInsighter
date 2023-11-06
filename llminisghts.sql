@@ -18,6 +18,25 @@ DROP DATABASE IF EXISTS `llminsights`;
 CREATE DATABASE IF NOT EXISTS `llminsights` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `llminsights`;
 
+-- Dumping structure for table llminsights.repo_loc
+DROP TABLE IF EXISTS `repo_loc`;
+CREATE TABLE IF NOT EXISTS `repo_loc` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `repo_id` int NOT NULL DEFAULT '0',
+  `language` varchar(255) DEFAULT NULL,
+  `files` int DEFAULT NULL,
+  `lines` int DEFAULT NULL,
+  `blanks` int DEFAULT NULL,
+  `comments` int DEFAULT NULL,
+  `linesOfCode` int DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `repo_id` (`repo_id`),
+  CONSTRAINT `FK_repo_loc_user_repos` FOREIGN KEY (`repo_id`) REFERENCES `user_repos` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Data exporting was unselected.
+
 -- Dumping structure for table llminsights.users
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
@@ -25,6 +44,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `github_user_id` int DEFAULT NULL,
   `user_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `user_access_token` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `account_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `avatar_url` varchar(255) DEFAULT NULL,
@@ -40,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `collaborators` int DEFAULT NULL,
   `visible` char(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Data exporting was unselected.
 
@@ -72,7 +92,7 @@ CREATE TABLE IF NOT EXISTS `user_repos` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `user_repos_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Data exporting was unselected.
 
