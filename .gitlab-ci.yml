@@ -13,19 +13,19 @@ cache:
  
 build:
   stage: build
-  image: maven:3.6.3-jdk-17
+  image: maven:3.8.4-openjdk-17
   script:
     - mvn $MAVEN_CLI_OPTS clean package
  
 test:
   stage: test
-  image: maven:3.6.3-jdk-17
+  image: maven:3.8.4-openjdk-17
   script:
     - mvn $MAVEN_CLI_OPTS test
  
 deploy:
   stage: deploy
-  image: maven:3.6.3-jdk-17
+  image: maven:3.8.4-openjdk-17
   only:
     - master  # Only deploy on the 'master' branch
   script:
