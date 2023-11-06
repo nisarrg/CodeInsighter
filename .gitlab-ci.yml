@@ -1,0 +1,33 @@
+stages:
+  - build
+  - test
+  - deploy
+ 
+variables:
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
+ 
+cache:
+  paths:
+    - .m2/repository
+    - target/
+ 
+build:
+  stage: build
+  script:
+    - mvn $MAVEN_CLI_OPTS clean package
+ 
+test:
+  stage: test
+  script:
+    - mvn $MAVEN_CLI_OPTS test
+ 
+deploy:
+  stage: deploy
+  only:
+    - master  # Only deploy on the 'master' branch
+  script:
+    - mvn $MAVEN_CLI_OPTS clean package  # Build the application
+    - mkdir -p $CI_PROJECT_DIR/artifacts  # Create a directory for artifacts
+    - cp target/*.jar $CI_PROJECT_DIR/artifacts/  # Copy the JAR file to the artifacts directory
+ 
+# You can add more deployment steps here, like deploying to a server, a container, etc.
