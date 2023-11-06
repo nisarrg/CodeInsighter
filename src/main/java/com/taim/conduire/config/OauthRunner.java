@@ -24,7 +24,7 @@ public class OauthRunner extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests(a -> a
-                .antMatchers("/", "/error", "/webjars/**", "/static/**").permitAll()
+                .antMatchers("/", "/error", "/webjars/**", "/static/**", "/LLMDemo").permitAll()
                 .anyRequest().authenticated()
 
         )

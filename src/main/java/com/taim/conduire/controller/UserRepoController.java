@@ -2,6 +2,7 @@ package com.taim.conduire.controller;
 
 import com.taim.conduire.domain.RepoData;
 import com.taim.conduire.domain.UserData;
+import com.taim.conduire.service.LLMService;
 import com.taim.conduire.service.RepoDataService;
 import com.taim.conduire.service.UserDataService;
 import org.apache.logging.log4j.LogManager;
@@ -13,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +30,9 @@ public class UserRepoController {
 
     @Autowired
     private RepoDataService repoDataService;
+
+    @Autowired
+    private LLMService llmService;
 
     @GetMapping("/{repo_id}")
     public String view(@PathVariable("repo_id") Integer repoId, Model model) {
@@ -64,6 +69,15 @@ public class UserRepoController {
         return ResponseEntity.ok(repoDataService.getRepoContributors(repoData));
     }
 
+    @RequestMapping(value = "/get-user-repos-punchcard/{repo_id}", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<int []> getUserReposPunchCard(@PathVariable("repo_id") Integer repoID) throws IOException {
+        RepoData repoData = repoDataService.getOne(repoID);
+        System.out.println("repoData: " + repoData.getName());
+        //return llmService.getRepositoryPunchCardtest(repoData.getName());
+        return ResponseEntity.ok(llmService.getRepositoryPunchCardtest(repoData.getName()));
+        //System.out.println("Data Contri: " + repoDataService.getRepoContributors(repoData) );
+    }
 
 
 
