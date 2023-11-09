@@ -27,7 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
-public class RepoDataServiceImpl implements RepoDataService {
+public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
     private static final Logger logger = LogManager.getLogger();
 
     @Autowired
@@ -59,7 +59,7 @@ public class RepoDataServiceImpl implements RepoDataService {
 
     @Override
     public String getRepoData(UserData userData) {
-        String userRepoApiUrl = ConstantCodes.GITHUB_API_URL + ConstantCodes.GITHUB_USERS + "/" + userData.getUserName() + ConstantCodes.GITHUB_REPOS;
+        String userRepoApiUrl = GITHUB_API_URL + GITHUB_USERS + "/" + userData.getUserName() + GITHUB_REPOS;
         System.out.println("userRepoApiUrl: " + userRepoApiUrl);
 
         HttpHeaders headers = new HttpHeaders();
@@ -79,7 +79,7 @@ public class RepoDataServiceImpl implements RepoDataService {
     }
 
     public Map<String, Integer> getRepositoryLanguages(RepoData repoData) {
-        String apiUrl = String.format("%s/repos/%s/languages", ConstantCodes.GITHUB_API_URL, repoData.getName());
+        String apiUrl = String.format("%s/repos/%s/languages", GITHUB_API_URL, repoData.getName());
         System.out.println("apiUrl: " + apiUrl);
 
         UserData userData = userDataService.getOne(repoData.getUserId());
@@ -102,7 +102,7 @@ public class RepoDataServiceImpl implements RepoDataService {
     public String getRepoLOC(RepoData repoData) {
 
         System.out.println("repoloc called: ");
-        String userRepoLocApiUrl = ConstantCodes.CODETABS_CLOC_API_URL + repoData.getName();
+        String userRepoLocApiUrl = CODETABS_CLOC_API_URL + repoData.getName();
         System.out.println("userRepoLocApiUrl: " + userRepoLocApiUrl);
         boolean repoTooBig = false;
         List<Map<String,Object>> locArrMap = new ArrayList<>();
@@ -141,7 +141,7 @@ public class RepoDataServiceImpl implements RepoDataService {
     }
 
     public Map<String, Integer> getRepoContributors(RepoData repoData){
-        String apiUrl = String.format("%s/repos/%s/contributors", ConstantCodes.GITHUB_API_URL, repoData.getName());
+        String apiUrl = String.format("%s/repos/%s/contributors", GITHUB_API_URL, repoData.getName());
 
         UserData userData = userDataService.getOne(repoData.getUserId());
 
@@ -196,7 +196,7 @@ public class RepoDataServiceImpl implements RepoDataService {
                     repoData.setName(!repoObject.get("full_name").isJsonNull() ? repoObject.get("full_name").getAsString() : "");
                     repoData.setDescription(!repoObject.get("description").isJsonNull() ? repoObject.get("description").getAsString() : "");
                     repoData.setIsPrivate(repoObject.get("private").getAsBoolean());
-                    repoData.setFork(repoObject.get("fork").getAsBoolean());
+                    repoData.setIsFork(repoObject.get("fork").getAsBoolean());
                     repoData.setSize(repoObject.get("size").getAsInt());
                     repoData.setHasIssues(repoObject.get("has_issues").getAsBoolean());
                     repoData.setHasProjects(repoObject.get("has_projects").getAsBoolean());

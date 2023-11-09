@@ -22,7 +22,6 @@ public class UserDataServiceImpl implements UserDataService {
         return repository;
     }
 
-
     @Override
     public UserData findByGithubUserId(Integer githubUserId) {
         return repository.findByGithubUserId(githubUserId);
