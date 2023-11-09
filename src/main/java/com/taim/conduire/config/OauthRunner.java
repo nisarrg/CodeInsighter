@@ -35,7 +35,7 @@ public class OauthRunner extends WebSecurityConfigurerAdapter {
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
         )
         .logout(l -> l
-                .logoutSuccessUrl("/login").permitAll()
+                .logoutSuccessUrl("/").permitAll()
         )
         .oauth2Login()
                 .loginPage("/") // Set the custom login page URL

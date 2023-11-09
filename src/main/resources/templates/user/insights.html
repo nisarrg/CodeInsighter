@@ -112,7 +112,7 @@
                         </div>
 
                         <!-- item-->
-                        <a href="javascript:void(0);" class="dropdown-item notify-item">
+                        <a href="javascript:void(0);" id="logout-btn" class="dropdown-item notify-item">
                             <i class="fe-log-out"></i>
                             <span>Logout</span>
                         </a>
@@ -260,6 +260,24 @@
     <script th:src="@{/js/app.min.js}"></script>
 
     <script type="text/javascript">
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (settings.type == 'POST' || settings.type == 'PUT' || settings.type == 'DELETE') {
+                    if (!(/^http:.*/.test(settings.url) || /^https:/
+                        .test(settings.url))) {
+                        // Only send the tokens to relative URLs i.e. locally.
+                        xhr.setRequestHeader("X-XSRF-TOKEN", Cookies.get('XSRF-TOKEN'));
+                    }
+                }
+            }
+        })
+
+        $('#logout-btn').on('click', function () {
+            $.post("/logout", function () {
+                location.href = "http://localhost:8080";
+            })
+        });
+
         $(document).ready(function() {
             var myRepoId = $("#myRepoId").text();
             console.log(myRepoId);
