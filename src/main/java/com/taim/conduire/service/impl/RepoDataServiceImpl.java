@@ -36,11 +36,8 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
     @Autowired
     private UserDataService userDataService;
 
-    private final RestTemplate restTemplate;
-
-    public RepoDataServiceImpl(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
+    @Autowired
+    private RestTemplate restTemplate;
 
     public JpaRepository<RepoData, Integer> getRepository() {
         return repository;
@@ -134,9 +131,9 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
                 int linesOfCode = (Integer) loc.get("linesOfCode");
                 resultLoc.put(language, linesOfCode);
             }
-            System.out.println("\nTotal Loc: " + resultLoc.get("Total"));
+            System.out.println("\nTotal Loc: " + resultLoc.get("linesOfCode"));
 
-            return "" + resultLoc.get("Total");
+            return "" + resultLoc.get("linesOfCode");
         }
     }
 

@@ -20,6 +20,13 @@ public class ChatGPTService {
 
     @Value("${openai.api.url}")
     private String apiUrl;
+
+    public ChatGPTService(RestTemplate restTemplate, String model, String apiUrl) {
+        this.restTemplate = restTemplate;
+        this.model = model;
+        this.apiUrl = apiUrl;
+    }
+
     public String chat(String prompt) {
         // create a request
         LLMRequest request = new LLMRequest(model, prompt);
