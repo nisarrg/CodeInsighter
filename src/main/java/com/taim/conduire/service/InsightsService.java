@@ -30,7 +30,7 @@ public class InsightsService implements ConstantCodes {
     @Autowired
     private RestTemplate restTemplate;
 
-    public String getRepositoryReviewComments(RepoData repoData) {
+    public Map<String, List<String>> getRepositoryReviewComments(RepoData repoData) {
         String apiUrl = String.format("%s/repos/%s", GITHUB_API_URL, repoData.getName());
         System.out.println("apiUrl: " + apiUrl);
 
@@ -71,6 +71,6 @@ public class InsightsService implements ConstantCodes {
         }
         System.out.println("reviewerComments: " + reviewerComments.size());
         System.out.println("reviewerComments: " + reviewerComments.toString());
-        return "response.getBody()";
+        return reviewerComments;
     }
 }

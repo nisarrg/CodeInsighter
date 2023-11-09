@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -61,23 +62,43 @@ public class UserRepoInsightsController {
         return "user/insights";
     }
 
-    @RequestMapping(value = "/{repo_id}/selection/{selection}/{role}", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "{repo_id}/get-insights/{repo_id}/ccm", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<String> getInsights(@PathVariable("repo_id") Integer repoID,
-                                              @PathVariable("selection") String insightSelection,
-                                              @PathVariable("role") String role) throws IOException {
+    public ResponseEntity<Map<String, String>> getInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
 
-        System.out.println("repoID: " + repoID + "insightSelection: " + insightSelection + "role: " + role);
+        System.out.println("repoID: " + repoID + "insightType CCM ");
         RepoData repoData = repoDataService.getOne(repoID);
-        System.out.println("repoData: " + repoData.getName());
-        int punchCardStats[] = llmService.getRepositoryPunchCardtest(repoData.getName());
-        insightsService.getRepositoryReviewComments(repoData);
+        Map<String, List<String>> reviewerComments = insightsService.getRepositoryReviewComments(repoData);
+        Map<String, String> roleInisghts = new HashMap<>();
 
-        String data_string = "This Data is for everyday daily commit in a week starting from Sunday to Saturday:" + punchCardStats.toString() + "\n. Consider yourself as: " + role;
-        String input_string = data_string + "Give me insights from the given data in 3-4 Sentences. Write in Technical English";
-        String result = chatGPTService.chat(input_string);
-        System.out.println("LLM Inisghts: " + result);
+        String businessAnalystPrompt = "These are open PR review comments by the reviewer:" + reviewerComments.toString() + "\n." +
+                "Can you give me some insights of Common code mistakes based upon these comments.\n" +
+                "Please consider yourself as a Business Analyst and write in Technical English.\n" +
+                "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted " +
+                "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
+                "and highlight your reasoning." ;
+        String businessAnalystInsight = chatGPTService.chat(businessAnalystPrompt);
+        roleInisghts.put("businessAnalyst", businessAnalystInsight);
 
-        return ResponseEntity.ok(result);
+        String seniorManagerPrompt = "These are open PR review comments by the reviewer:" + reviewerComments.toString() + "\n." +
+                "Can you give me some insights of Common code mistakes based upon these comments.\n" +
+                "Please consider yourself as a Senior Manager and write in Technical English.\n" +
+                "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted " +
+                "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
+                "and highlight your reasoning." ;
+        String seniorManagerInsight = chatGPTService.chat(seniorManagerPrompt);
+        roleInisghts.put("seniorManager", seniorManagerInsight);
+
+        String ctoPrompt = "These are open PR review comments by the reviewer:" + reviewerComments.toString() + "\n." +
+                "Can you give me some insights of Common code mistakes based upon these comments.\n" +
+                "Please consider yourself as a company's CTO and write in Technical English.\n" +
+                "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted " +
+                "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
+                "and highlight your reasoning." ;
+        String ctoInsight = chatGPTService.chat(ctoPrompt);
+        roleInisghts.put("cto", ctoInsight);
+        System.out.println("roleInisghts: " + roleInisghts.size());
+
+        return ResponseEntity.ok(roleInisghts);
     }
 }

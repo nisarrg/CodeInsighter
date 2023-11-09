@@ -175,9 +175,9 @@
                         <div class="page-title-box">
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
-                                    <li class="breadcrumb-item"><a href="javascript: void(0);">User</a></li>
-                                    <li class="breadcrumb-item active"><a href="javascript: void(0);">Repositories</a></li>
-                                    <li class="breadcrumb-item active"><span th:text="${repoData.name}"></span></li>
+                                    <li class="breadcrumb-item"><a th:href="${'/users/'+ userData.id}" id="reposBreadcrumb">Repositories</a></li>
+                                    <li class="breadcrumb-item"><a th:href="${'/users/repo/'+ repoData.id}" th:text="${repoData.name}"></a></li>
+                                    <li class="breadcrumb-item active"><span>Insights</span></li>
                                 </ol>
                             </div>
                             <h4 class="page-title"><span th:text="${repoData.name}"></span> 's Insights</h4>
@@ -187,77 +187,43 @@
                 </div>
                 <!-- end page title -->
                 <div class="card">
-                    <div class="card-body">
-
-                        <h4 class="header-title mb-4">ABC! </h4>
-
-                        <ul class="nav nav-pills navtab-bg nav-justified">
+                    <div class="card-body" style="position: relative">
+                        <ul class="nav nav-tabs nav-bordered">
                             <li class="nav-item">
-                                <a href="#home1" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                    Product Manager
+                                <a href="#businessAnalyst" data-bs-toggle="tab" aria-expanded="false" class="nav-link active">
+                                    Business Analyst
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#profile1" data-bs-toggle="tab" aria-expanded="true" class="nav-link active">
-                                    Tech Lead
+                                <a href="#seniorManager" data-bs-toggle="tab" aria-expanded="true" class="nav-link ">
+                                    Senior Manager
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#messages1" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                    Baigan!
+                                <a href="#cto" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                                    CTO
                                 </a>
                             </li>
                         </ul>
                         <br>
-
                         <div class="row">
-                            <div class="col-sm-3">
-                                <div class="nav flex-column nav-pills nav-pills-tab" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                                    <a class="nav-link active show mb-1" id="v-pills-home-tab" data-bs-toggle="pill" href="#v-pills-home" role="tab" aria-controls="v-pills-home"
-                                       aria-selected="true">
-                                        Insights 1</a>
-                                    <a class="nav-link mb-1" id="v-pills-profile-tab" data-bs-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile"
-                                       aria-selected="false">
-                                        Insights 2</a>
-                                    <a class="nav-link mb-1" id="v-pills-messages-tab" data-bs-toggle="pill" href="#v-pills-messages" role="tab" aria-controls="v-pills-messages"
-                                       aria-selected="false">
-                                        Insights 3</a>
-                                    <a class="nav-link mb-1" id="v-pills-settings-tab" data-bs-toggle="pill" href="#v-pills-settings" role="tab" aria-controls="v-pills-settings"
-                                       aria-selected="false">
-                                        Insights 4</a>
-                                </div>
-                            </div> <!-- end col-->
                             <div class="col-sm-9">
                                 <div class="tab-content pt-0">
-                                    <div class="tab-pane fade active show" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
-                                        <p>Cillum ad ut irure tempor velit nostrud occaecat ullamco aliqua anim Lorem sint. Veniam sint duis incididunt
-                                            do esse magna mollit excepteur laborum qui. Id id reprehenderit sit est eu aliqua occaecat quis et velit
-                                            excepteur laborum mollit dolore eiusmod. Ipsum dolor in occaecat commodo et voluptate minim reprehenderit
-                                            mollit pariatur. Deserunt non laborum enim et cillum eu deserunt excepteur ea incididunt minim occaecat.</p>
+                                    <div class="tab-pane" id="businessAnalyst">
                                     </div>
-                                    <div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
-                                        <p>Culpa dolor voluptate do laboris laboris irure reprehenderit id incididunt duis pariatur mollit aute magna
-                                            pariatur consectetur. Eu veniam duis non ut dolor deserunt commodo et minim in quis laboris ipsum velit
-                                            id veniam. Quis ut consectetur adipisicing officia excepteur non sit. Ut et elit aliquip labore Lorem
-                                            enim eu. Ullamco mollit occaecat dolore ipsum id officia mollit qui esse anim eiusmod do sint minim consectetur
-                                            qui.</p>
+                                    <div class="tab-pane show active" id="seniorManager">
                                     </div>
-                                    <div class="tab-pane fade" id="v-pills-messages" role="tabpanel" aria-labelledby="v-pills-messages-tab">
-                                        <p>Fugiat id quis dolor culpa eiusmod anim velit excepteur proident dolor aute qui magna. Ad proident laboris
-                                            ullamco esse anim Lorem Lorem veniam quis Lorem irure occaecat velit nostrud magna nulla. Velit et et
-                                            proident Lorem do ea tempor officia dolor. Reprehenderit Lorem aliquip labore est magna commodo est ea
-                                            veniam consectetur.</p>
+                                    <div class="tab-pane" id="cto">
                                     </div>
-                                    <div class="tab-pane fade" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">
-                                        <p>Eu dolore ea ullamco dolore Lorem id cupidatat excepteur reprehenderit consectetur elit id dolor proident
-                                            in cupidatat officia. Voluptate excepteur commodo labore nisi cillum duis aliqua do. Aliqua amet qui
-                                            mollit consectetur nulla mollit velit aliqua veniam nisi id do Lorem deserunt amet. Culpa ullamco sit
-                                            adipisicing labore officia magna elit nisi in aute tempor commodo eiusmod.</p>
-                                    </div>
+                                </div>
+                            </div> <!-- end col-->
+                            <div class="col-sm-3">
+                                <div class="nav flex-column nav-pills nav-pills-tab" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                    <button type="button" id="commomCodeMistakes" class="btn btn-outline-primary waves-effect waves-light">Common Code Mistakes</button>
+                                    <button type="button" id="collaborationAnalysis" class="btn btn-outline-danger waves-effect waves-light">Collaboration Analysis</button>
                                 </div>
                             </div> <!-- end col-->
                         </div> <!-- end row-->
-
                     </div>
                 </div> <!-- end card-->
             </div>
@@ -300,9 +266,40 @@
             var myUserId = $("#myUserId").text();
             var reposPage = "/users/" + myUserId;
             $("#reposPage").attr("href", reposPage);
-            var Insights = "/users/repo/" + myRepoId + "/insights/chat";
-            $("#insights").attr("action", Insights);
+            $("#reposBreadcrumb").attr("href", reposPage);
+            getInsights(myRepoId);
         });
+
+        function getInsights(myRepoId) {
+            $('#commomCodeMistakes').click(function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: 'get-insights/' + myRepoId + '/ccm',
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log(data);
+                        $.each(data,function(key,val)
+                        {
+                           if (key == "businessAnalyst"){
+                               $('#businessAnalyst').html(val);
+
+                           } else if (key == "seniorManager"){
+                               $('#seniorManager').html(val);
+
+                           } else {
+                               $('#cto').html(val);
+
+                           }
+                        });
+                    },
+                    error: function (error) {
+                        console.error('Error fetching data from the API: ', error);
+                    }
+                });
+            });
+        }
 
     </script>
 

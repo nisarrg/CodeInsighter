@@ -182,8 +182,7 @@
                         <div class="page-title-box">
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
-                                    <li class="breadcrumb-item"><a href="javascript: void(0);">User</a></li>
-                                    <li class="breadcrumb-item active"><a href="javascript: void(0);">Repositories</a>
+                                    <li class="breadcrumb-item"><a href="#" id="reposBreadcrumb">Repositories</a>
                                     </li>
                                     <li class="breadcrumb-item active"><span th:text="${repoData.name}"></span></li>
                                 </ol>
@@ -363,6 +362,7 @@
         var reposPage = "/users/" + myUserId;
         var insightsPage = "/users/repo/" + myRepoId + "/insights";
         $("#reposPage").attr("href", reposPage);
+        $("#reposBreadcrumb").attr("href", reposPage);
         $("#insightsPage").attr("href", insightsPage);
         $('#myChart').empty();
         $('#myBarChart').empty();

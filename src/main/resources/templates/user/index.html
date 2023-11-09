@@ -168,8 +168,7 @@
                         <div class="page-title-box">
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
-                                    <li class="breadcrumb-item"><a href="javascript: void(0);">User</a></li>
-                                    <li class="breadcrumb-item active">Repositories</li>
+                                    <li class="breadcrumb-item"><a href="#" id="reposBreadcrumb">Repositories</a></li>
                                 </ol>
                             </div>
                             <h4 class="page-title">Welcome <span th:text="${userData.name}"></span>!</h4>
@@ -225,23 +224,12 @@
         var myUserId = $("#myUserId").text();
         console.log(myUserId);
         $('#projectsList').empty();
-        loadProjects(myUserId);
-
         var myUserId = $("#myUserId").text();
         var reposPage = "/users/" + myUserId;
         $("#reposPage").attr("href", reposPage);
+        $("#reposBreadcrumb").attr("href", reposPage);
+        loadProjects(myUserId);
     });
-
-    // function redirectToRepo(repoId) {
-    //     $.ajax({
-    //         type: 'GET',
-    //         url: "/users/repo/" + repoId,
-    //         success: function(resultData) {
-    //             console.log(resultData)
-    //             location.href = "/users/repo/" + resultData;
-    //         }
-    //     });
-    // }
 
     function loadProjects(myUserId) {
         $.ajax({
