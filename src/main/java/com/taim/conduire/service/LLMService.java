@@ -222,7 +222,7 @@ public class LLMService {
     }
 
     public String getHelloWorld(){
-        String uri = "http://localhost:8080/hello";
+        String uri = "http://localhost:8080/hellooo";
         RestTemplate restTemplate1 = new RestTemplate();
         return restTemplate1.getForObject(uri,String.class);
     }
