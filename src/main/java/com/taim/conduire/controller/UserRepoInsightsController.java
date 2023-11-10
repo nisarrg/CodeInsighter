@@ -62,7 +62,7 @@ public class UserRepoInsightsController {
         return "user/insights";
     }
 
-    @RequestMapping(value = "{repo_id}/get-insights/{repo_id}/ccm", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/get-insights/{repo_id}/ccm", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ResponseEntity<Map<String, String>> getInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
 
