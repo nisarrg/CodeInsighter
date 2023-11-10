@@ -96,6 +96,35 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         return response.getBody();
     }
 
+    public Integer getRepositoryPRs(RepoData repoData) {
+        String apiUrl = String.format("%s/repos/%s/pulls", GITHUB_API_URL, repoData.getName());
+        System.out.println("apiUrl: " + apiUrl);
+
+        UserData userData = userDataService.getOne(repoData.getUserId());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", userData.getUserAccessToken());
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
+
+        HttpHeaders responseHeaders = response.getHeaders();
+        int limit = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Limit"));
+        int remaining = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Remaining"));
+
+        System.out.println("Rate Limit Limit: " + limit);
+        System.out.println("Rate Limit Remaining: " + remaining);
+
+        String jsonArrayString = response.getBody();;
+        System.out.println("jsonArrayString: " + jsonArrayString);
+
+        Gson gson = new Gson();
+
+        JsonArray jsonArray = gson.fromJson(jsonArrayString, JsonArray.class);
+        System.out.println("jsonArray: " + jsonArray);
+
+        return jsonArray.size();
+    }
+
     public String getRepoLOC(RepoData repoData) {
 
         System.out.println("repoloc called: ");
@@ -131,9 +160,9 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
                 int linesOfCode = (Integer) loc.get("linesOfCode");
                 resultLoc.put(language, linesOfCode);
             }
-            System.out.println("\nTotal Loc: " + resultLoc.get("linesOfCode"));
+            System.out.println("\nTotal Loc: " + resultLoc.get("Total"));
 
-            return "" + resultLoc.get("linesOfCode");
+            return "" + resultLoc.get("Total");
         }
     }
 

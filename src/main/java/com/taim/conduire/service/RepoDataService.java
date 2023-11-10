@@ -23,4 +23,6 @@ public interface RepoDataService extends AbstractService<RepoData, Integer> {
 
     String getRepoLOC(RepoData repoData);
 
+    Integer getRepositoryPRs(RepoData repoData);
+
 }

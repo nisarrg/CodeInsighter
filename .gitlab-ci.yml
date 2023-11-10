@@ -9,6 +9,7 @@ build-job:
   tags:
     - deployment
   script:
+    - java --version
     - mvn clean install
   artifacts:
     paths:

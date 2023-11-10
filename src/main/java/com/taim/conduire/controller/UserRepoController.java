@@ -82,4 +82,12 @@ public class UserRepoController {
         return ResponseEntity.ok(repoDataService.getRepoLOC(repoData));
     }
 
+    @RequestMapping(value = "/get-repo-prs/{repo_id}", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<Integer> getRepoPRsFor(@PathVariable("repo_id") Integer repoID) {
+        RepoData repoData = repoDataService.getOne(repoID);
+        System.out.println("repoData: " + repoData);
+        return ResponseEntity.ok(repoDataService.getRepositoryPRs(repoData));
+    }
+
 }
