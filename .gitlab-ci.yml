@@ -1,6 +1,18 @@
 stages:
+  - build
   - publish
   - deploy
+
+build-job:
+  stage: build
+  image: maven:latest
+  script:
+    - mvn clean install
+  artifacts:
+    paths:
+      - target/*.jar
+  only:
+    - develop/login-authentication
 
 publish-job:
   image: docker:latest
