@@ -3,13 +3,9 @@ stages:
   - publish
   - deploy
 
-before_script:
-  - apt-get update -qy
-  - apt-get install -y openjdk-17-jdk
-
 build-job:
   stage: build
-  image: adoptopenjdk:17-jdk-hotspot  # Use a Docker image with Java 17 and Maven
+  image: maven:3.8-openjdk-17  # Use a Docker image with Java 17 and Maven
   tags:
     - deployment
   script:
