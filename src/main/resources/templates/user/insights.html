@@ -27,6 +27,7 @@
 
     <!-- icons -->
     <link th:href="@{/css/icons.min.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/css/custom-insights.css}" rel="stylesheet" type="text/css"/>
 
 </head>
 
@@ -186,7 +187,7 @@
                     </div>
                 </div>
                 <!-- end page title -->
-                <div class="card">
+                <div class="card" id="insightsCard">
                     <div class="card-body" style="position: relative">
                         <ul class="nav nav-tabs nav-bordered">
                             <li class="nav-item">
@@ -226,6 +227,7 @@
                         </div> <!-- end row-->
                     </div>
                 </div> <!-- end card-->
+                <div class="spinner-border avatar-lg text-primary m-2" id= "spinner" role="status"></div>
             </div>
             <!-- end row -->
 
@@ -258,6 +260,7 @@
 
     <!-- App js-->
     <script th:src="@{/js/app.min.js}"></script>
+    <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
 
     <script type="text/javascript">
         $.ajaxSetup({
