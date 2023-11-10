@@ -3,6 +3,10 @@ stages:
   - publish
   - deploy
 
+before_script:
+  - apt-get update -qy
+  - apt-get install -y openjdk-17-jdk
+
 build-job:
   stage: build
   image: maven:latest
