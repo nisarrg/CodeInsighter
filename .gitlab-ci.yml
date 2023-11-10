@@ -9,17 +9,17 @@ before_script:
 
 build-job:
   stage: build
-  image: maven:latest
+  image: adoptopenjdk:17-jdk-hotspot  # Use a Docker image with Java 17 and Maven
   tags:
     - deployment
   script:
-    - java --version
-    - mvn clean install
+    - java --version  # Print Java version information
+    - mvn clean install  # Run Maven build
   artifacts:
     paths:
-      - target/*.jar
+      - target/*.jar  # Define artifacts to be stored after the job
   only:
-    - develop/login-authentication
+    - develop/login-authentication  # Define when the job should be executed
 
 publish-job:
   image: docker:latest
