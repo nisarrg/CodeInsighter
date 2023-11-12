@@ -1,6 +1,5 @@
 package com.taim.conduire.controller;
 
-import com.taim.conduire.domain.FormData;
 import com.taim.conduire.service.ChatGPTService;
 import com.taim.conduire.service.JSONUtils;
 import com.taim.conduire.service.LLMService;
@@ -9,7 +8,6 @@ import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.*;
@@ -47,7 +45,7 @@ public class LLMController {
     }
 
     @GetMapping("/repository/code-frequency")
-    public List<List<Integer>> getRepositoryCodeFrequency() throws IOException {
+    public List<List<Integer>>getRepositoryCodeFrequency() throws IOException {
 
         return llmService.getRepositoryCodeFrequency();
     }
@@ -57,6 +55,39 @@ public class LLMController {
 
         return llmService.getRepositoryPunchCard();
     }
+
+    /* Returns the total number of commits authored by the contributor.
+    In addition, the response includes a Weekly Hash (weeks array) with the following information:
+    w - Start of the week, given as a Unix timestamp.
+    a - Number of additions
+    d - Number of deletions
+    c - Number of commits */
+    @GetMapping("repository/contributors1")
+    public List<LLMService.WeekCommitActivity> getAllContributorCommitActivity() throws IOException {
+
+        return llmService.getAllContributorCommitActivity();
+    }
+
+    /* Returns the last year of commit activity grouped by week. The days
+     array is a group of commits per day, starting on Sunday. */
+    @GetMapping("repository/commit_activity")
+    public List<LLMService.WeekCommitActivity> getLastYearCommitActivity() {
+        return llmService.getLastYearCommitActivity();
+    }
+
+    /* Returns the total commit counts for the owner.
+       The array order is the oldest week (index 0) to most recent week.
+       The most recent week is seven days ago at UTC midnight to today at UTC midnight.
+    @GetMapping("repository/participation")
+    public List<Integer> getCommitCountsForOwner() {
+        return llmService.getCommitCountsForOwner();
+    } */
+
+    @GetMapping("repository/participation1")
+    public List<Integer> getCommitCountsForNonOwners() {
+        return llmService.getCommitCountsForNonOwners();
+    }
+
 
     @GetMapping("repository/punchtest")
     public int[] getRepositoryPunchCardtest() throws IOException {
@@ -108,6 +139,7 @@ public class LLMController {
         if(response!=null && response.getBody()!=null) {
             List<Map<String, Object>> contents = JSONUtils.parseJSONResponse(response.getBody());
 
+            assert contents != null;
             for (Map<String, Object> item : contents) {
                 String type = (String) item.get("type");
                 String name = (String) item.get("name");
@@ -139,6 +171,7 @@ public class LLMController {
             basePath = dirPath;
         }
 
+        assert contents != null;
         for (Map<String, Object> item : contents) {
             String type = (String) item.get("type");
             String path = (String) item.get("path");

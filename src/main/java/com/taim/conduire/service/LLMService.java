@@ -1,6 +1,7 @@
 package com.taim.conduire.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
@@ -22,6 +23,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
 
 @Service
 public class LLMService {
@@ -75,6 +77,172 @@ public class LLMService {
         String apiResponse = restTemplate.getForObject(apiUrl, String.class);
         List<List<Integer>> repoPunchCard = objectMapper.readValue(apiResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
         return computeWeeklyCommits(repoPunchCard);
+    }
+
+    @Getter
+    public static class WeekCommitActivity {
+        private String weekStartDate;
+        private int commits;
+        private int additions;
+        private int deletions;
+
+        public WeekCommitActivity(String weekStartDate, int commits, int additions, int deletions) {
+            this.weekStartDate = weekStartDate;
+            this.commits = commits;
+            this.additions = additions;
+            this.deletions = deletions;
+        }
+
+        public void setWeekStartDate(String weekStartDate) {
+            this.weekStartDate = weekStartDate;
+        }
+
+        public void setCommits(int commits) {
+            this.commits = commits;
+        }
+
+        public void setAdditions(int additions) {
+            this.additions = additions;
+        }
+
+        public void setDeletions(int deletions) {
+            this.deletions = deletions;
+        }
+    }
+
+    public List<WeekCommitActivity> getAllContributorCommitActivity() throws IOException {
+        String apiUrl = String.format("%s/repos/%s/%s/stats/contributors", githubApiUrl, owner, repo);
+        System.out.println(apiUrl);
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(apiUrl, String.class);
+        String apiResponse = responseEntity.getBody();
+
+        List<Map<String, Integer>> contributorData = objectMapper.readValue(apiResponse, new TypeReference<List<Map<String, Integer>>>() {});
+        return getCommitActivityData(contributorData);
+    }
+
+    private List<WeekCommitActivity> getCommitActivityData(List<Map<String, Integer>> contributorData) {
+        List<WeekCommitActivity> weeklyActivities = new ArrayList<>();
+
+        for (Map<String, Integer> weekData : contributorData) {
+            long weekStartTimestamp = weekData.get("w");
+            int additions = weekData.get("a");
+            int deletions = weekData.get("d");
+            int commits = weekData.get("c");
+
+            System.out.println("additions"+ additions);
+            // Convert the Unix timestamp to a readable date
+            String weekStartDate = convertUnixTimestampToDate(weekStartTimestamp);
+
+            WeekCommitActivity weekActivity = new WeekCommitActivity(weekStartDate, commits, additions, deletions);
+            weeklyActivities.add(weekActivity);
+        }
+
+        return weeklyActivities;
+    }
+
+    public List<Integer> getCommitCountsForNonOwners() {
+        String apiUrl = String.format("%s/repos/%s/%s/stats/participation", githubApiUrl, owner, repo);
+        System.out.println(apiUrl);
+        ResponseEntity<GitHubParticipation> responseEntity = restTemplate.getForEntity(apiUrl, GitHubParticipation.class);
+
+        GitHubParticipation participation = responseEntity.getBody();
+        return calculateNonOwnerCommitCounts(participation);
+    }
+
+    private List<Integer> calculateNonOwnerCommitCounts(GitHubParticipation participation) {
+        List<Integer> all = participation.getAll();
+        List<Integer> owner = participation.getOwner();
+
+        List<Integer> nonOwnerCommitCounts = new ArrayList<>();
+
+        for (int i = 0; i < all.size(); i++) {
+            int nonOwnerCommits = all.get(i) - owner.get(i);
+            nonOwnerCommitCounts.add(nonOwnerCommits);
+        }
+        System.out.println("non owner commits:"+nonOwnerCommitCounts);
+        return nonOwnerCommitCounts;
+    }
+
+
+@Getter
+    public static class GitHubParticipation {
+        private List<Integer> all;
+        private List<Integer> owner;
+
+        public void setAll(List<Integer> all) {
+            this.all = all;
+        }
+
+        public void setOwner(List<Integer> owner) {
+            this.owner = owner;
+        }
+
+    public List<Integer> getAll() {
+        return all;
+    }
+
+    public List<Integer> getOwner() {
+        return owner;
+    }
+    }
+
+    public List<Integer> getCommitCountsForOwner(String name) {
+        String apiUrl = String.format("%s/repos/%s/stats/participation", githubApiUrl, name);
+        System.out.println(apiUrl);
+
+        //String apiResponse = restTemplate.getForObject(apiUrl, String.class);
+        ResponseEntity<GitHubParticipation> responseEntity = restTemplate.getForEntity(apiUrl, GitHubParticipation.class);
+
+        GitHubParticipation participation = responseEntity.getBody();
+        return participation.getOwner();
+    }
+
+    public List<WeekCommitActivity> getLastYearCommitActivity() {
+        String apiUrl = String.format("%s/repos/%s/%s/stats/commit_activity", githubApiUrl, owner, repo);
+        System.out.println(apiUrl);
+        ResponseEntity<WeekCommitActivity[]> responseEntity = restTemplate.getForEntity(apiUrl, WeekCommitActivity[].class);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            return Arrays.asList(Objects.requireNonNull(responseEntity.getBody()));
+        } else {
+            // Handle the case where the request was not successful.
+            return Collections.emptyList(); // or handle the error as needed
+        }
+    }
+
+    public List<WeekCommitActivity> getComputeContributorActivity(List<Map<String, Integer>> contributorData) {
+        List<WeekCommitActivity> weeklyActivities = new ArrayList<>();
+
+        for (Map<String, Integer> weekData : contributorData) {
+            long weekStartTimestamp = weekData.get("w");
+            int additions = weekData.get("a");
+            int deletions = weekData.get("d");
+            int commits = weekData.get("c");
+
+            // Convert the Unix timestamp to a readable date
+            String weekStartDate = convertUnixTimestampToDate(weekStartTimestamp);
+
+            WeekCommitActivity weekActivity = new WeekCommitActivity(weekStartDate, commits, additions, deletions);
+            weeklyActivities.add(weekActivity);
+        }
+
+        return weeklyActivities;
+    }
+
+    private static String convertUnixTimestampToDate(long timestamp) {
+        // Adjust the timestamp to the start of the week (assuming Sunday as the first day)
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(timestamp * 1000L); // Convert to milliseconds
+        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK); // Get the day of the week
+        if (dayOfWeek != Calendar.SUNDAY) {
+            calendar.add(Calendar.DAY_OF_WEEK, -dayOfWeek + Calendar.SUNDAY); // Adjust to the previous Sunday
+        }
+
+        Date startDate = calendar.getTime();
+
+        // Format the date in a readable format
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return sdf.format(startDate);
     }
 
     public byte[] generatePieChart(Map<String,Integer> data) throws IOException{
@@ -296,5 +464,6 @@ public class LLMService {
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         return headers;
     }
+
 
 }
