@@ -128,9 +128,9 @@ public class LLMService {
         int[] weeklyCount = new int[7];
         int count = 0;
         int i=0,x=0;
-        // TODO: Ask what the heck is 23, 46, 69, ...???.
+        // TODO: Ask what is 23, 46, 69, ...???.
         // TODO: Make all those statements inside while loop common.
-        // TODO: Remove all unnecessary comments. And add meaningful comments instead of sunday, monday. Fucking senior developer.
+        // TODO: Remove all unnecessary comments. And add meaningful comments instead of sunday, monday.
         // TODO: Fix the indentation.
         //Sunday
         while(i<=23)

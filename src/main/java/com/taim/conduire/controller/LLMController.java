@@ -65,7 +65,7 @@ public class LLMController {
     }
 
     @GetMapping("repository/chart")
-    public ResponseEntity<byte[]> getLanguageChart() throws IOException{
+    public ResponseEntity<byte[]> getLanguageChart() throws IOException {
         byte[] chartImage = llmService.generatePieChart(llmService.getRepositoryLanguages());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_PNG);
@@ -73,11 +73,12 @@ public class LLMController {
         return new ResponseEntity<>(chartImage, headers, HttpStatus.OK);
 
     }
+
     @GetMapping("/download/{owner}/{repoName}")
     public ResponseEntity<byte[]> downloadRepositoryCode(
             @PathVariable String owner,
             @PathVariable String repoName) {
-        byte[] code = llmService .downloadRepositoryCode(owner, repoName);
+        byte[] code = llmService.downloadRepositoryCode(owner, repoName);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         headers.setContentDispositionFormData("attachment", repoName + ".zip");
@@ -90,46 +91,46 @@ public class LLMController {
     }
 
     @GetMapping("/test")
-    public String getTest(){
+    public String getTest() {
         return llmService.getHelloWorld();
     }
 
     @RequestMapping("/hello")
-    public String hello(){
+    public String hello() {
         return "Hello World";
     }
 
     @GetMapping("/repository/content")
-    public void getRepoContent(){
+    public void getRepoContent() {
         String basePath = "";
-        ResponseEntity<String> response = llmService.getRepositoryContents(owner,repo);
+        ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo);
         System.out.println(response);
 
         // TODO: Get an early return.
-        if(response!=null && response.getBody()!=null) {
-            List<Map<String, Object>> contents = JSONUtils.parseJSONResponse(response.getBody());
+        if (response == null || response.getBody() == null) {
+            return;
+        }
+        List<Map<String, Object>> contents = JSONUtils.parseJSONResponse(response.getBody());
 
-            for (Map<String, Object> item : contents) {
-                String type = (String) item.get("type");
-                String name = (String) item.get("name");
-                String path = (String) item.get("path");
-                System.out.println(type + "***" + name + "***" + path);
-                // TODO: split this logic or make a variable to help it understand
-                if ("file".equals(type) && !path.toLowerCase().contains("jpg") && !path.toLowerCase().contains("png") && !path.toLowerCase().contains("svg") && !path.toLowerCase().contains("class")
-                        && !path.toLowerCase().contains("docx") && !path.toLowerCase().contains("exe") && !path.toLowerCase().contains("dll")
-                        && !path.toLowerCase().contains("jar") && !path.toLowerCase().contains("gif") && !path.toLowerCase().contains("css") && !path.toLowerCase().contains("html")) {
-                    processFile(owner, repo, path, basePath);
-                }
-                else if ("dir".equals(type)) {
-                    processDirectory(owner, repo, path, basePath);
-                }
+        for (Map<String, Object> item : contents) {
+            String type = (String) item.get("type");
+            String name = (String) item.get("name");
+            String path = (String) item.get("path");
+            System.out.println(type + "***" + name + "***" + path);
+            // TODO: split this logic or make a variable to help it understand
+            if ("file".equals(type) && !path.toLowerCase().contains("jpg") && !path.toLowerCase().contains("png") && !path.toLowerCase().contains("svg") && !path.toLowerCase().contains("class")
+                    && !path.toLowerCase().contains("docx") && !path.toLowerCase().contains("exe") && !path.toLowerCase().contains("dll")
+                    && !path.toLowerCase().contains("jar") && !path.toLowerCase().contains("gif") && !path.toLowerCase().contains("css") && !path.toLowerCase().contains("html")) {
+                processFile(owner, repo, path, basePath);
+            } else if ("dir".equals(type)) {
+                processDirectory(owner, repo, path, basePath);
             }
         }
     }
 
     private void processDirectory(String owner, String repo, String dirPath, String basePath) {
         System.out.println("WE IN PROCESSDIRECTORY");
-        ResponseEntity<String> response = llmService.getRepositoryContents(owner,repo,dirPath);
+        ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo, dirPath);
         System.out.println(response.getBody());
         List<Map<String, Object>> contents = JSONUtils.parseJSONResponse(response.getBody());
         System.out.println(contents);
@@ -158,7 +159,7 @@ public class LLMController {
     private void processFile(String owner, String repo, String filePath, String basePath) {
         // TODO: Ask why these useless print statements?
         System.out.println("WE IN PROCESSFILE");
-        filePath = filePath.trim().replaceAll(" ","%20");
+        filePath = filePath.trim().replaceAll(" ", "%20");
         System.out.println(filePath);
         String currentDirectory = System.getProperty("user.dir");
         System.out.println("Current Working Directory: " + currentDirectory);
@@ -198,7 +199,7 @@ public class LLMController {
                 PrintWriter printWriter = new PrintWriter(fileWriter);
 
                 // Write the content to the file
-                printWriter.println("File Name: "+title);
+                printWriter.println("File Name: " + title);
                 printWriter.println();
                 printWriter.println("Content:");
                 printWriter.println(content);
