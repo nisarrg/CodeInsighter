@@ -60,6 +60,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         System.out.println("userRepoApiUrl: " + userRepoApiUrl);
 
         HttpHeaders headers = new HttpHeaders();
+        // TODO: Make a global constant for Authorization. Used many times.
         headers.set("Authorization", userData.getUserAccessToken());
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<String> response = restTemplate.exchange(userRepoApiUrl, HttpMethod.GET, entity, String.class);
@@ -77,6 +78,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
 
     public Map<String, Integer> getRepositoryLanguages(RepoData repoData) {
         String apiUrl = String.format("%s/repos/%s/languages", GITHUB_API_URL, repoData.getName());
+        // TODO: make a common function for these lines.
         System.out.println("apiUrl: " + apiUrl);
 
         UserData userData = userDataService.getOne(repoData.getUserId());
@@ -140,6 +142,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
             String responseBody = e.getResponseBodyAsString();
             if (responseBody.contains("too big")) {
                 System.out.println("Repo Size > 500 MB: " + responseBody);
+                // TODO: This variable can be taken out of if-else
                 repoTooBig = true;
             } else {
                 System.out.println("Other BadRequest Exception: " + responseBody);
@@ -153,7 +156,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         if(repoTooBig){
             return "Repo > 500 MB";
         } else {
-
+            // TODO: this else is unnecessary
             Map<String, Integer> resultLoc = new HashMap<>();
             for (Map<String, Object> loc : locArrMap) {
                 String language = (String) loc.get("language");
@@ -207,6 +210,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
             System.out.println("jsonArray: " + jsonArray);
 
             for (JsonElement element : jsonArray) {
+                // TODO: early return expected
                 if (element.isJsonObject()) {
                     JsonObject repoObject = element.getAsJsonObject();
                     RepoData repoData = null;

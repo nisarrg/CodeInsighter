@@ -105,6 +105,7 @@ public class LLMController {
         ResponseEntity<String> response = llmService.getRepositoryContents(owner,repo);
         System.out.println(response);
 
+        // TODO: Get an early return.
         if(response!=null && response.getBody()!=null) {
             List<Map<String, Object>> contents = JSONUtils.parseJSONResponse(response.getBody());
 
@@ -113,7 +114,7 @@ public class LLMController {
                 String name = (String) item.get("name");
                 String path = (String) item.get("path");
                 System.out.println(type + "***" + name + "***" + path);
-
+                // TODO: split this logic or make a variable to help it understand
                 if ("file".equals(type) && !path.toLowerCase().contains("jpg") && !path.toLowerCase().contains("png") && !path.toLowerCase().contains("svg") && !path.toLowerCase().contains("class")
                         && !path.toLowerCase().contains("docx") && !path.toLowerCase().contains("exe") && !path.toLowerCase().contains("dll")
                         && !path.toLowerCase().contains("jar") && !path.toLowerCase().contains("gif") && !path.toLowerCase().contains("css") && !path.toLowerCase().contains("html")) {
@@ -142,7 +143,7 @@ public class LLMController {
         for (Map<String, Object> item : contents) {
             String type = (String) item.get("type");
             String path = (String) item.get("path");
-
+            // TODO: Again make a variable to help understand what is happening.
             if ("file".equals(type) && !path.toLowerCase().contains("jpg") && !path.toLowerCase().contains("png") && !path.toLowerCase().contains("svg") && !path.toLowerCase().contains("class")
                     && !path.toLowerCase().contains("docx") && !path.toLowerCase().contains("exe") && !path.toLowerCase().contains("dll")
                     && !path.toLowerCase().contains("jar") && !path.toLowerCase().contains("gif") && !path.toLowerCase().contains("css") && !path.toLowerCase().contains("html")) {
@@ -155,6 +156,7 @@ public class LLMController {
     }
 
     private void processFile(String owner, String repo, String filePath, String basePath) {
+        // TODO: Ask why these useless print statements?
         System.out.println("WE IN PROCESSFILE");
         filePath = filePath.trim().replaceAll(" ","%20");
         System.out.println(filePath);
@@ -164,6 +166,8 @@ public class LLMController {
         System.out.println(response.getBody());
         String content = response.getBody();
         String title = filePath;
+
+        // TODO: Remove all useless comments.
         //Map<String, Object> file = JSONUtils.parseJSONResponseAsMap(response.getBody());
         /*System.out.println(file);
 
@@ -172,6 +176,7 @@ public class LLMController {
         System.out.println("Name : " + title);
         System.out.println("Content : " + content);*/
 
+        // TODO: Get an early statement.
         if (StringUtils.hasText(basePath)) {
             /*String outputDir = "output" + File.separator + basePath;
             new File(outputDir).mkdirs();
