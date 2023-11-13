@@ -192,6 +192,7 @@
                 <!-- end page title -->
                 <div class="card" id="insightsCard">
                     <div class="card-body" style="position: relative">
+                        <h4 id="insightsTitle"></h4>
                         <ul class="nav nav-tabs nav-bordered">
                             <li class="nav-item">
                                 <a href="#businessAnalyst" data-bs-toggle="tab" aria-expanded="true" class="nav-link active">
@@ -217,6 +218,7 @@
                             <div class="col-sm-3">
                                 <div class="nav flex-column nav-pills nav-pills-tab" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                                     <button type="button" id="commonCodeMistakes" class="btn btn-outline-primary waves-effect waves-light">Common Code Mistakes</button>
+                                    <br>
                                     <button type="button" id="collaborationAnalysis" class="btn btn-outline-danger waves-effect waves-light">Collaboration Analysis</button>
                                 </div>
                             </div> <!-- end col-->
@@ -308,6 +310,7 @@
                         });
                     },
                     complete: function () {
+                        $("#insightsTitle").html($('#commonCodeMistakes').text());
                         $("#spinner-div").hide(); //Request is complete so hide spinner
                     }
                 });
