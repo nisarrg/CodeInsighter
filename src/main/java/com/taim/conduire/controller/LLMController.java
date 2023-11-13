@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -100,8 +101,48 @@ public class LLMController {
         return "Hello World";
     }
 
+    private boolean isValidResponse(ResponseEntity<String> response) {
+        return response != null && response.getBody() != null && response.getStatusCode().is2xxSuccessful();
+    }
+
+    private List<Map<String, Object>> parseJSONResponse(String responseBody) {
+        return JSONUtils.parseJSONResponse(responseBody);
+    }
+
+    private boolean isValidFile(String path) {
+        List<String> validExtensions = Arrays.asList("jpg", "png", "svg", "class", "docx", "exe", "dll", "jar", "gif", "css", "html");
+        return !validExtensions.stream().anyMatch(extension -> path.toLowerCase().contains(extension));
+    }
+
+    private void processContentItem(Map<String, Object> item) {
+        String basePath = "";
+        String type = (String) item.get("type");
+        String name = (String) item.get("name");
+        String path = (String) item.get("path");
+
+        if ("file".equals(type) && isValidFile(path)) {
+            processFile(owner, repo, path, basePath);
+        } else if ("dir".equals(type)) {
+            processDirectory(owner, repo, path, basePath);
+        }
+    }
+
     @GetMapping("/repository/content")
     public void getRepoContent() {
+        ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo);
+        System.out.println(response);
+
+        if (isValidResponse(response)) {
+            List<Map<String, Object>> contents = parseJSONResponse(response.getBody());
+
+            for (Map<String, Object> item : contents) {
+                processContentItem(item);
+            }
+        }
+    }
+
+
+    /*public void getRepoContent() {
         String basePath = "";
         ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo);
         System.out.println(response);
@@ -126,7 +167,7 @@ public class LLMController {
                 processDirectory(owner, repo, path, basePath);
             }
         }
-    }
+    }*/
 
     private void processDirectory(String owner, String repo, String dirPath, String basePath) {
         System.out.println("WE IN PROCESSDIRECTORY");
