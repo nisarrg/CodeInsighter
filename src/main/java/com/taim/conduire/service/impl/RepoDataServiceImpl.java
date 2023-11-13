@@ -69,7 +69,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         int limit = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Limit"));
         int remaining = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Remaining"));
 
-        System.out.println("Rate Limit Limit: " + limit);
+        System.out.println("Rate-Limit Limit: " + limit);
         System.out.println("Rate Limit Remaining: " + remaining);
 
         return response.getBody();
