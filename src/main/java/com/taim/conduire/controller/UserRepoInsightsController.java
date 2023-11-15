@@ -49,9 +49,6 @@ public class UserRepoInsightsController {
         model.addAttribute("userData", userData);
         model.addAttribute("repoData", repoData);
         model.addAttribute("formData", formData);
-
-        String devAndPRCode = insightsService.getRepositoryPRCode(repoData);
-
         return "user/insights";
     }
 
@@ -67,7 +64,7 @@ public class UserRepoInsightsController {
 
     @RequestMapping(value = "/{repo_id}/get-insights/ccm", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> getInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
+    public ResponseEntity<Map<String, String>> getCommonCodeMistakesInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
 
         System.out.println("repoID: " + repoID + "insightType CCM ");
         RepoData repoData = repoDataService.getOne(repoID);
@@ -95,5 +92,15 @@ public class UserRepoInsightsController {
         System.out.println("roleInsights: " + roleInsights.size());
 
         return ResponseEntity.ok(roleInsights);
+    }
+    @RequestMapping(value = "/{repo_id}/get-insights/cqe", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<String> getCodeQualityEnhancementsInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
+
+        System.out.println("repoID: " + repoID + "insightType CQE");
+        RepoData repoData = repoDataService.getOne(repoID);
+        String codeQualityEnhancementInsightString = insightsService.getCodeQualityEnhancementsInsights(repoData);
+        System.out.println("codeQualityEnhancementInsightString: " + codeQualityEnhancementInsightString);
+        return ResponseEntity.ok(codeQualityEnhancementInsightString);
     }
 }

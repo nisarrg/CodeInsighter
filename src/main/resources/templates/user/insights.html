@@ -195,33 +195,60 @@
                         <h4 id="insightsTitle"></h4>
                         <ul class="nav nav-tabs nav-bordered">
                             <li class="nav-item">
-                                <a href="#businessAnalyst" data-bs-toggle="tab" aria-expanded="true" class="nav-link active">
-                                    Business Analyst
+                                <a href="#commonCodeMistakes" data-bs-toggle="tab" aria-expanded="true" class="nav-link active" id="commonCodeMistakesNav">
+                                    Common Code Mistakes
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#technicalLead" data-bs-toggle="tab" aria-expanded="false" class="nav-link ">
-                                    Technical Lead
+                                <a href="#collaborationAnalysis" data-bs-toggle="tab" aria-expanded="false" class="nav-link" id="collaborationAnalysisNav">
+                                    Collaboration Analysis
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#codeQualityEnhancement" data-bs-toggle="tab" aria-expanded="false" class="nav-link" id="codeQualityEnhancementNav">
+                                    Code Quality Enhancement
                                 </a>
                             </li>
                         </ul>
                         <br>
                         <div class="row">
-                            <div class="col-sm-9">
+                            <div class="col-sm-12">
                                 <div class="tab-content pt-0">
-                                    <div class="tab-pane show active" id="businessAnalyst">
+                                    <div class="tab-pane show active" id="commonCodeMistakes">
+                                        <div class="col-sm-12">
+                                            <h4>Common Code Mistakes</h4>
+                                            <ul class="nav nav-tabs nav-bordered">
+                                                <li class="nav-item">
+                                                    <a href="#businessAnalyst" data-bs-toggle="tab" aria-expanded="true" class="nav-link active">
+                                                        Business Analyst
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="#technicalLead" data-bs-toggle="tab" aria-expanded="false" class="nav-link ">
+                                                        Technical Lead
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                            <br>
+                                            <div class="row">
+                                                <div class="tab-content pt-0">
+                                                    <div class="tab-pane show active" id="businessAnalyst">
+                                                    </div>
+                                                    <div class="tab-pane" id="technicalLead">
+                                                    </div>
+                                                </div>
+                                            </div> <!-- end row-->
+                                        </div>
                                     </div>
-                                    <div class="tab-pane" id="technicalLead">
+                                    <div class="tab-pane" id="collaborationAnalysis">
+                                    </div>
+                                    <div class="tab-pane" id="codeQualityEnhancement">
+                                        <div class="row justify-content-center">
+                                            <div id="codeQualityEnhancementContainer"></div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div> <!-- end col-->
-                            <div class="col-sm-3">
-                                <div class="nav flex-column nav-pills nav-pills-tab" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                                    <button type="button" id="commonCodeMistakes" class="btn btn-outline-primary waves-effect waves-light">Common Code Mistakes</button>
-                                    <br>
-                                    <button type="button" id="collaborationAnalysis" class="btn btn-outline-danger waves-effect waves-light">Collaboration Analysis</button>
-                                </div>
-                            </div> <!-- end col-->
+                            </div>
                         </div> <!-- end row-->
                     </div>
                 </div> <!-- end card-->
@@ -289,34 +316,113 @@
         });
 
         function getInsights(myRepoId) {
-            $('#commonCodeMistakes').click(function () {
+            //Common Code Mistakes Insight Call
+            $('#commonCodeMistakesNav').click(function () {
                 console.log("CCM Clicked")
-                $("#spinner-div").show(); //Load button clicked show spinner
-                $.ajax({
-                    url: 'get-insights/ccm',
-                    method: 'GET',
-                    dataType: 'json',
-                    success: function (data) {
-                        console.log(data);
-                        $.each(data,function(key,val)
-                        {
-                           if (key == "businessAnalyst"){
-                               $('#businessAnalyst').html(val);
+                if ($("#businessAnalyst").html().trim().length > 0 && $("#technicalLead").html().trim().length > 0) {
+                    // Do nothing
+                    console.log("Div has content. Doing nothing.");
+                } else {
+                    $("#spinner-div").show(); //Load button clicked show spinner
+                    $.ajax({
+                        url: 'get-insights/ccm',
+                        method: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+                            console.log(data);
+                            $.each(data, function (key, val) {
+                                if (key == "businessAnalyst") {
+                                    $('#businessAnalyst').html(val);
 
-                           } else {
-                               $('#technicalLead').html(val);
+                                } else {
+                                    $('#technicalLead').html(val);
 
-                           }
-                        });
-                    },
-                    complete: function () {
-                        $("#insightsTitle").html($('#commonCodeMistakes').text());
-                        $("#spinner-div").hide(); //Request is complete so hide spinner
-                    }
-                });
+                                }
+                            });
+                        },
+                        complete: function () {
+                            $("#spinner-div").hide(); //Request is complete so hide spinner
+                        }
+                    });
+                }
+            });
+
+            //Common Quality Enhancement Insight Call
+            $('#codeQualityEnhancementNav').click(function () {
+                console.log("CQE Clicked")
+                if ($("#codeQualityEnhancementContainer").html().trim().length > 0) {
+                    // Do nothing
+                    console.log("Div has content. Doing nothing.");
+                } else {
+                    $("#spinner-div").show(); //Load button clicked show spinner
+                    $.ajax({
+                        url: 'get-insights/cqe',
+                        method: 'GET',
+                        dataType: 'json',
+                        success: function(jsonData) {
+                            if (Array.isArray(jsonData)) {
+                                jsonData.forEach((data, index) => {
+                                    var chartContainer = $("<div>").attr("id", `chart-${index}`).addClass("chart-container").appendTo("#codeQualityEnhancementContainer");
+                                    $("<h5>").html(`<span style="color: red;">${data.developer}</span> - ${data.pr_title}`).appendTo(chartContainer);
+                                    $(`<span style="font-weight:bold;">Code Improvement Suggestions: </span>`).appendTo(chartContainer);
+                                    var codeImprovementsList = $("<ul>").appendTo(chartContainer);
+                                    data.code_improvements.forEach((improvement) => {
+                                        $("<li>").text(improvement).appendTo(codeImprovementsList);
+                                    });
+                                    var canvas = $("<canvas>").appendTo(chartContainer);
+                                    var ctx = canvas[0].getContext("2d");
+                                    var barColors = data.criteria.map(function () {
+                                        return getRandomColor();
+                                    });
+                                    new Chart(ctx, {
+                                        type: 'bar',
+                                        data: {
+                                            labels: data.criteria,
+                                            datasets: [{
+                                                label: 'Score',
+                                                data: data.score,
+                                                backgroundColor: barColors,
+                                                borderColor: barColors,
+                                                borderWidth: 1
+                                            }]
+                                        },
+                                        options: {
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true,
+                                                    suggestedMin: 0,
+                                                    suggestedMax: 5
+                                                }
+                                            }
+                                        }
+                                    });
+                                });
+                            } else {
+                                // If jsonData is not a valid JSON array, display it as a string
+                                $('#codeQualityEnhancementContainer').html(`<h3>${jsonData.message}</h3>`);
+                            }
+                        },
+                        complete: function () {
+                            $("#spinner-div").hide(); //Request is complete so hide spinner
+                        },
+                        error: function(err) {
+                            $("#spinner-div").hide(); //Request is complete so hide spinner
+                            console.error('Error fetching data:', err);
+                            console.log(err.responseText);
+                        }
+                    });
+                }
             });
         }
 
+        function getRandomColor() {
+            var letters = "0123456789ABCDEF";
+            var color = "#";
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
     </script>
 
 </body>

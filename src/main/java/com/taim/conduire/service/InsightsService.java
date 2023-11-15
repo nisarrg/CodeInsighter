@@ -110,7 +110,7 @@ public class InsightsService implements ConstantCodes {
         System.out.println("reviewerComments: " + reviewerComments.toString());
         return reviewerComments;
     }
-    public String getRepositoryPRCode(RepoData repoData) {
+    public String getCodeQualityEnhancementsInsights(RepoData repoData) {
         String parentRepoName;
         Gson gson = new Gson();
         if(repoData.getIsFork()){
@@ -139,12 +139,13 @@ public class InsightsService implements ConstantCodes {
         String jsonRepoPRsString = response.getBody();
         JsonArray jsonRepoPRsArray = gson.fromJson(jsonRepoPRsString, JsonArray.class);
         System.out.println("No: of Open PR: " + jsonRepoPRsArray.size());
-        Map<String, String> devAndPRCode = new HashMap<>();
+        Map<String, List<String>> devAndPRCode = new HashMap<>();
 
         for (JsonElement element : jsonRepoPRsArray) {
             if (element.isJsonObject()) {
                 JsonObject prItemJsonObject = element.getAsJsonObject();
 
+                String prTitle = prItemJsonObject.get("title").getAsString();
                 String diffCodeUrl = prItemJsonObject.get("diff_url").getAsString();
                 ResponseEntity<String> responseDiffCode = restTemplate.exchange(diffCodeUrl, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
                 showAvailableAPIHits(responseDiffCode.getHeaders());
@@ -153,45 +154,56 @@ public class InsightsService implements ConstantCodes {
                 JsonObject sourceJsonObject = prItemJsonObject.get("user").getAsJsonObject();
                 String prDev = sourceJsonObject.get("login").getAsString();
 
-                devAndPRCode.put(prDev,devPRCode);
+                List<String> devPRTitleCodeList = new ArrayList<>();
+                devPRTitleCodeList.add(prTitle);
+                devPRTitleCodeList.add(devPRCode);
+
+                devAndPRCode.put(prDev,devPRTitleCodeList);
             }
         }
 
         System.out.println("devAndPRCode Size: " + devAndPRCode.size());
 
         String codeQualityEnhancementInsightPrompt = "The provided string is a map with \n" +
-                "developers as key and their PR Code as value\n" +
+                "developers as key and value with list of 2 strings where\n" +
+                "First string is the Title of the PR, and second string is the PR Code.\n" +
                 "Based on different criteria: Readability, Performance, Correctness, Scalability\n" +
-                "Can give a score for each critera from 0 to 5 as I want to show it in a visual graph format\n" +
+                "Can give a some Code improvements suggestions/comments and\n" +
+                "A score for each criteria from 0 to 5 as I want to show it in a visual graph format\n" +
                 "please mention for all 4 criteria (Readability, Performance, Correctness, Scalability) even if you don't find them you can score them as 0 if not found.\n" +
                 "and make your response in JSON Array format\n" +
                 "Generate a JSON array with the following pattern:\n" +
-                "\n" +
                 "[\n" +
                 "    {\n" +
                 "        \"developer\": \"<developer_name>\",\n" +
+                "        \"pr_title\": \"<title_string>\",\n" +
+                "        \"code_improvements\": [<suggestion1>, <suggestion2>, <suggestion3>],\n" +
                 "        \"score\": [<score1>, <score2>, <score3>, <score4>],\n" +
                 "        \"criteria\": [\"<criterion1>\", \"<criterion2>\", \"<criterion3>\", \"<criterion4>\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "        \"developer\": \"<developer_name>\",\n" +
+                "        \"pr_title\": \"<title_string>\",\n" +
+                "        \"code_improvements\": [<suggestion1>, <suggestion2>, <suggestion3>],\n" +
                 "        \"score\": [<score1>, <score2>, <score3>, <score4>],\n" +
                 "        \"criteria\": [\"<criterion1>\", \"<criterion2>\", \"<criterion3>\", \"<criterion4>\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "        \"developer\": \"<developer_name>\",\n" +
+                "        \"pr_title\": \"<title_string>\",\n" +
+                "        \"code_improvements\": [<suggestion1>, <suggestion2>, <suggestion3>],\n" +
                 "        \"score\": [<score1>, <score2>, <score3>, <score4>],\n" +
                 "        \"criteria\": [\"<criterion1>\", \"<criterion2>\", \"<criterion3>\", \"<criterion4>\"]\n" +
                 "    }\n" +
-                "]"+
-                "keep the score and criteria in the same order so later on it can be fetched.\n\n" ;
+                "]\n"+
+                "Keep the score and criteria in the same order so later on it can be fetched.\n\n" ;
 
         Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(codeQualityEnhancementInsightPrompt);
-        Map<String, String> devAndPRCodeWithLimit = new HashMap<>();
+        Map<String, List<String>> devAndPRCodeWithLimit = new HashMap<>();
 
-        for (Map.Entry<String, String> entry : devAndPRCode.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : devAndPRCode.entrySet()) {
 
-            String element = entry.getKey() + "=" + entry.getValue() + ",";
+            String element = entry.getKey() + "=" + entry.getValue().toString() + ",";
             if (countTokens(devAndPRCodeWithLimit.toString() + element) <= llmTokenLimitWithPrompt) {
                 devAndPRCodeWithLimit.put(entry.getKey(), entry.getValue());
                 llmTokenLimitWithPrompt -= countTokens(devAndPRCodeWithLimit.toString() + element);
@@ -199,11 +211,27 @@ public class InsightsService implements ConstantCodes {
         }
         System.out.println("devAndPRCodeWithLimit Size: " + devAndPRCodeWithLimit.size());
         System.out.println("Final code Token: " + countTokens(devAndPRCodeWithLimit.toString()));
-        String promptAmdCode = codeQualityEnhancementInsightPrompt + devAndPRCodeWithLimit.toString();
+        String codeQualityEnhancementInsightString;
+        if(devAndPRCodeWithLimit.isEmpty()){
+            System.out.println("devAndPRCodeWithLimit: " + devAndPRCodeWithLimit);
+            codeQualityEnhancementInsightString = "{\"message\":\"There are no Open PR for this Repository\"}";
+        } else {
+            String devAndPRCodeWithLimitString;
+            if(devAndPRCodeWithLimit.size() > 3){
+                devAndPRCodeWithLimitString = devAndPRCode.entrySet()
+                        .stream()
+                        .limit(3)
+                        .map(entry -> entry.getKey() + "=" + entry.getValue())
+                        .collect(Collectors.joining(", ", "{", "}"));
+            } else {
+                devAndPRCodeWithLimitString = devAndPRCodeWithLimit.toString();
+            }
+            String promptAmdCode = codeQualityEnhancementInsightPrompt + devAndPRCodeWithLimitString;
 
-        System.out.println("Final prompt + code Token: " + countTokens(promptAmdCode));
-        String codeQualityEnhancementInsightString = chatGPTService.chat(promptAmdCode);
-        System.out.println(codeQualityEnhancementInsightString);
+            System.out.println("Final prompt + code Token: " + countTokens(promptAmdCode));
+            codeQualityEnhancementInsightString = chatGPTService.chat(promptAmdCode);
+            System.out.println(codeQualityEnhancementInsightString);
+        }
 
         return codeQualityEnhancementInsightString;
     }
