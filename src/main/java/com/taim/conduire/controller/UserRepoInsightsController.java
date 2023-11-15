@@ -62,14 +62,14 @@ public class UserRepoInsightsController {
         return "user/insights";
     }
 
-    @RequestMapping(value = "/get-insights/{repo_id}/ccm", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/{repo_id}/get-insights/ccm", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ResponseEntity<Map<String, String>> getInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
 
         System.out.println("repoID: " + repoID + "insightType CCM ");
         RepoData repoData = repoDataService.getOne(repoID);
         Map<String, List<String>> reviewerComments = insightsService.getRepositoryReviewComments(repoData);
-        Map<String, String> roleInisghts = new HashMap<>();
+        Map<String, String> roleInsights = new HashMap<>();
 
         String businessAnalystPrompt = "These are open PR review comments by the reviewer:" + reviewerComments.toString() + "\n." +
                 "Can you give me some insights of Common code mistakes based upon these comments.\n" +
@@ -78,27 +78,19 @@ public class UserRepoInsightsController {
                 "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
                 "and highlight your reasoning." ;
         String businessAnalystInsight = chatGPTService.chat(businessAnalystPrompt);
-        roleInisghts.put("businessAnalyst", businessAnalystInsight);
+        roleInsights.put("businessAnalyst", businessAnalystInsight);
 
         String seniorManagerPrompt = "These are open PR review comments by the reviewer:" + reviewerComments.toString() + "\n." +
                 "Can you give me some insights of Common code mistakes based upon these comments.\n" +
-                "Please consider yourself as a Senior Manager and write in Technical English.\n" +
+                "Please consider yourself as a Technical Lead and write in Technical English.\n" +
                 "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted " +
                 "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
                 "and highlight your reasoning." ;
         String seniorManagerInsight = chatGPTService.chat(seniorManagerPrompt);
-        roleInisghts.put("seniorManager", seniorManagerInsight);
+        roleInsights.put("technicalLead", seniorManagerInsight);
 
-        String ctoPrompt = "These are open PR review comments by the reviewer:" + reviewerComments.toString() + "\n." +
-                "Can you give me some insights of Common code mistakes based upon these comments.\n" +
-                "Please consider yourself as a company's CTO and write in Technical English.\n" +
-                "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted " +
-                "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
-                "and highlight your reasoning." ;
-        String ctoInsight = chatGPTService.chat(ctoPrompt);
-        roleInisghts.put("cto", ctoInsight);
-        System.out.println("roleInisghts: " + roleInisghts.size());
+        System.out.println("roleInsights: " + roleInsights.size());
 
-        return ResponseEntity.ok(roleInisghts);
+        return ResponseEntity.ok(roleInsights);
     }
 }

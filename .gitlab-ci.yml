@@ -53,6 +53,6 @@ deploy-job:
     - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p 8073:8073 --name my-app docker.io/group12project/llm_insights:$CI_COMMIT_SHORT_SHA"
   environment:
     name: production
-    url: http://csci5308vm12:8073
+    url: http://172.17.0.73:8073
   only:
     - develop/login-authentication
