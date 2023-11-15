@@ -49,6 +49,9 @@ public class UserRepoInsightsController {
         model.addAttribute("userData", userData);
         model.addAttribute("repoData", repoData);
         model.addAttribute("formData", formData);
+
+        String devAndPRCode = insightsService.getRepositoryPRCode(repoData);
+
         return "user/insights";
     }
 

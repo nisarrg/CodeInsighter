@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class InsightsService implements ConstantCodes {
@@ -30,8 +31,44 @@ public class InsightsService implements ConstantCodes {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private ChatGPTService chatGPTService;
+
+    private HttpEntity<String> getAllHeadersEntity(String userAccessToken){
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept", "application/vnd.github+json");
+        headers.set("Authorization", "Bearer " + userAccessToken);
+        headers.set("X-GitHub-Api-Version", "2022-11-28");
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        return entity;
+    }
+
+    private void showAvailableAPIHits(HttpHeaders responseHeaders){
+        String limitHeader = responseHeaders.getFirst("X-RateLimit-Limit");
+        String remainingHeader = responseHeaders.getFirst("X-RateLimit-Remaining");
+
+        if (limitHeader != null && remainingHeader != null) {
+            try {
+                int limit = Integer.parseInt(limitHeader);
+                int remaining = Integer.parseInt(remainingHeader);
+
+                System.out.println("GitHub API Hit Limit: " + limit);
+                System.out.println("GitHub API Hit Limit Remaining: " + remaining);
+            } catch (NumberFormatException e) {
+                System.err.println("Error parsing API hit limit or remaining headers: " + e.getMessage());
+            }
+        }
+    }
+
+    private static int countTokens(String input) {
+        // Split the input string into tokens based on spaces and some common punctuation marks
+        String[] tokens = input.split("\\s+|\\p{Punct}");
+        return tokens.length;
+    }
+
     public Map<String, List<String>> getRepositoryReviewComments(RepoData repoData) {
-        String apiUrl = String.format("%s/repos/%s", GITHUB_API_URL, repoData.getName());
+        String apiUrl = GITHUB_API_URL + GITHUB_REPOS + "/" + repoData.getName();
+//        String apiUrl = String.format("%s/repos/%s", GITHUB_API_URL, repoData.getName());
         System.out.println("apiUrl: " + apiUrl);
 
         UserData userData = userDataService.getOne(repoData.getUserId());
@@ -72,5 +109,102 @@ public class InsightsService implements ConstantCodes {
         System.out.println("reviewerComments: " + reviewerComments.size());
         System.out.println("reviewerComments: " + reviewerComments.toString());
         return reviewerComments;
+    }
+    public String getRepositoryPRCode(RepoData repoData) {
+        String parentRepoName;
+        Gson gson = new Gson();
+        if(repoData.getIsFork()){
+            String repoURL = GITHUB_API_URL + GITHUB_REPOS + "/" + repoData.getName();
+            System.out.println("repoURL: " + repoURL);
+
+            UserData userData = userDataService.getOne(repoData.getUserId());
+            ResponseEntity<String> response = restTemplate.exchange(repoURL, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+            showAvailableAPIHits(response.getHeaders());
+
+            String jsonRepoString = response.getBody();;
+
+            JsonObject jsonRepoObject = gson.fromJson(jsonRepoString, JsonObject.class);
+            JsonObject sourceJsonObject = jsonRepoObject.get("source").getAsJsonObject();
+            parentRepoName = sourceJsonObject.get("full_name").getAsString();
+        } else {
+            parentRepoName = repoData.getName();
+        }
+        String repoPRDataURL = GITHUB_API_URL + GITHUB_REPOS + "/" + parentRepoName + GITHUB_PULLS + "?per_page=100&sort=popularity";
+        System.out.println("repoPRDataURL: " + repoPRDataURL);
+
+        UserData userData = userDataService.getOne(repoData.getUserId());
+        ResponseEntity<String> response = restTemplate.exchange(repoPRDataURL, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+        showAvailableAPIHits(response.getHeaders());
+
+        String jsonRepoPRsString = response.getBody();
+        JsonArray jsonRepoPRsArray = gson.fromJson(jsonRepoPRsString, JsonArray.class);
+        System.out.println("No: of Open PR: " + jsonRepoPRsArray.size());
+        Map<String, String> devAndPRCode = new HashMap<>();
+
+        for (JsonElement element : jsonRepoPRsArray) {
+            if (element.isJsonObject()) {
+                JsonObject prItemJsonObject = element.getAsJsonObject();
+
+                String diffCodeUrl = prItemJsonObject.get("diff_url").getAsString();
+                ResponseEntity<String> responseDiffCode = restTemplate.exchange(diffCodeUrl, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+                showAvailableAPIHits(responseDiffCode.getHeaders());
+                String devPRCode = responseDiffCode.getBody();
+
+                JsonObject sourceJsonObject = prItemJsonObject.get("user").getAsJsonObject();
+                String prDev = sourceJsonObject.get("login").getAsString();
+
+                devAndPRCode.put(prDev,devPRCode);
+            }
+        }
+
+        System.out.println("devAndPRCode Size: " + devAndPRCode.size());
+
+        String codeQualityEnhancementInsightPrompt = "The provided string is a map with \n" +
+                "developers as key and their PR Code as value\n" +
+                "Based on different criteria: Readability, Performance, Correctness, Scalability\n" +
+                "Can give a score for each critera from 0 to 5 as I want to show it in a visual graph format\n" +
+                "please mention for all 4 criteria (Readability, Performance, Correctness, Scalability) even if you don't find them you can score them as 0 if not found.\n" +
+                "and make your response in JSON Array format\n" +
+                "Generate a JSON array with the following pattern:\n" +
+                "\n" +
+                "[\n" +
+                "    {\n" +
+                "        \"developer\": \"<developer_name>\",\n" +
+                "        \"score\": [<score1>, <score2>, <score3>, <score4>],\n" +
+                "        \"criteria\": [\"<criterion1>\", \"<criterion2>\", \"<criterion3>\", \"<criterion4>\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"developer\": \"<developer_name>\",\n" +
+                "        \"score\": [<score1>, <score2>, <score3>, <score4>],\n" +
+                "        \"criteria\": [\"<criterion1>\", \"<criterion2>\", \"<criterion3>\", \"<criterion4>\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"developer\": \"<developer_name>\",\n" +
+                "        \"score\": [<score1>, <score2>, <score3>, <score4>],\n" +
+                "        \"criteria\": [\"<criterion1>\", \"<criterion2>\", \"<criterion3>\", \"<criterion4>\"]\n" +
+                "    }\n" +
+                "]"+
+                "keep the score and criteria in the same order so later on it can be fetched.\n\n" ;
+
+        Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(codeQualityEnhancementInsightPrompt);
+        Map<String, String> devAndPRCodeWithLimit = new HashMap<>();
+
+        for (Map.Entry<String, String> entry : devAndPRCode.entrySet()) {
+
+            String element = entry.getKey() + "=" + entry.getValue() + ",";
+            if (countTokens(devAndPRCodeWithLimit.toString() + element) <= llmTokenLimitWithPrompt) {
+                devAndPRCodeWithLimit.put(entry.getKey(), entry.getValue());
+                llmTokenLimitWithPrompt -= countTokens(devAndPRCodeWithLimit.toString() + element);
+            }
+        }
+        System.out.println("devAndPRCodeWithLimit Size: " + devAndPRCodeWithLimit.size());
+        System.out.println("Final code Token: " + countTokens(devAndPRCodeWithLimit.toString()));
+        String promptAmdCode = codeQualityEnhancementInsightPrompt + devAndPRCodeWithLimit.toString();
+
+        System.out.println("Final prompt + code Token: " + countTokens(promptAmdCode));
+        String codeQualityEnhancementInsightString = chatGPTService.chat(promptAmdCode);
+        System.out.println(codeQualityEnhancementInsightString);
+
+        return codeQualityEnhancementInsightString;
     }
 }
