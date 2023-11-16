@@ -57,7 +57,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
     @Override
     public String getRepoData(UserData userData) {
         String userRepoApiUrl = GITHUB_API_URL + GITHUB_USERS + "/" + userData.getUserName() + GITHUB_REPOS;
-        System.out.println("userRepoApiUrl: " + userRepoApiUrl);
+        logger.debug("userRepoApiUrl: " + userRepoApiUrl);
 
         HttpHeaders headers = new HttpHeaders();
         // TODO: Make a global constant for Authorization. Used many times.
@@ -69,8 +69,8 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         int limit = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Limit"));
         int remaining = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Remaining"));
 
-        System.out.println("Rate-Limit Limit: " + limit);
-        System.out.println("Rate Limit Remaining: " + remaining);
+        logger.debug("Rate-Limit Limit: ",  limit);
+        logger.debug("Rate Limit Remaining: ", remaining);
 
         return response.getBody();
 
@@ -97,6 +97,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
 
         return response.getBody();
     }
+
 
     public Integer getRepositoryPRs(RepoData repoData) {
         String apiUrl = String.format("%s/repos/%s/pulls", GITHUB_API_URL, repoData.getName());
