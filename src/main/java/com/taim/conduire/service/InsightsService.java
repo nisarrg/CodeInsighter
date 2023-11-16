@@ -111,25 +111,8 @@ public class InsightsService implements ConstantCodes {
         return reviewerComments;
     }
     public String getCodeQualityEnhancementsInsights(RepoData repoData) {
-        String parentRepoName;
+        String parentRepoName = repoDataService.getParentRepo(repoData);
         Gson gson = new Gson();
-        Boolean isFork = repoData.getIsFork();
-        if(isFork != null && isFork){
-            String repoURL = GITHUB_API_URL + GITHUB_REPOS + "/" + repoData.getName();
-            System.out.println("repoURL: " + repoURL);
-
-            UserData userData = userDataService.getOne(repoData.getUserId());
-            ResponseEntity<String> response = restTemplate.exchange(repoURL, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
-            showAvailableAPIHits(response.getHeaders());
-
-            String jsonRepoString = response.getBody();;
-
-            JsonObject jsonRepoObject = gson.fromJson(jsonRepoString, JsonObject.class);
-            JsonObject sourceJsonObject = jsonRepoObject.get("source").getAsJsonObject();
-            parentRepoName = sourceJsonObject.get("full_name").getAsString();
-        } else {
-            parentRepoName = repoData.getName();
-        }
         String repoPRDataURL = GITHUB_API_URL + GITHUB_REPOS + "/" + parentRepoName + GITHUB_PULLS + "?per_page=100&sort=popularity";
         System.out.println("repoPRDataURL: " + repoPRDataURL);
 
