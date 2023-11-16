@@ -22,10 +22,11 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-//import java.util.logging.Logger;
 import org.slf4j.Logger;
 
 
+
+// TODO --> Designite detected this class not being used --> unutilized abstraction.
 @RestController
 public class LLMController {
     @Autowired
@@ -74,6 +75,7 @@ public class LLMController {
         return llmService.getRepositoryPunchCardtest("hello");
     }
 
+    // TODO --> Design Smell : the method should be in LLMService.java
     @GetMapping("repository/chart")
     public ResponseEntity<byte[]> getLanguageChart() throws IOException {
         byte[] chartImage = llmService.generatePieChart(llmService.getRepositoryLanguages());
@@ -204,7 +206,7 @@ public class LLMController {
                 }
             }
         } catch (Exception e) {
-            // TODO: Handle exception --> NOT DOING ANYTHING FOR NOW.
+            // TODO: Handle exception --> NOT HANDLING ANYTHING FOR NOW.
             logger.error("Error processing directory: {}", e.getMessage(), e);
         }
         logger.debug("Exiting processDirectory");
@@ -352,6 +354,8 @@ public class LLMController {
 
     private byte[] generateBarChartImage(JFreeChart chart) {
         try {
+
+            //TODO --> remove magic numbers: 800, 400
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             ChartUtilities.writeChartAsPNG(byteArrayOutputStream, chart, 800, 400);
             return byteArrayOutputStream.toByteArray();
