@@ -69,8 +69,8 @@ public class UserRepoInsightsController {
         System.out.println("repoID: " + repoID + "insightType CCM ");
         RepoData repoData = repoDataService.getOne(repoID);
         Map<String, List<String>> reviewerComments = insightsService.getRepositoryReviewComments(repoData);
-        // TODO: Variable name to roleInsights
-        Map<String, String> roleInisghts = new HashMap<>();
+        // TODO: Variable name to roleInsights --> DONE
+        Map<String, String> roleInsights = new HashMap<>();
 
         String businessAnalystPrompt = "These are open PR review comments by the reviewer:" + reviewerComments.toString() + "\n." +
                 "Can you give me some insights of Common code mistakes based upon these comments.\n" +
@@ -79,7 +79,7 @@ public class UserRepoInsightsController {
                 "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
                 "and highlight your reasoning." ;
         String businessAnalystInsight = chatGPTService.chat(businessAnalystPrompt);
-        roleInisghts.put("businessAnalyst", businessAnalystInsight);
+        roleInsights.put("businessAnalyst", businessAnalystInsight);
 
         String seniorManagerPrompt = "These are open PR review comments by the reviewer:" + reviewerComments.toString() + "\n." +
                 "Can you give me some insights of Common code mistakes based upon these comments.\n" +
@@ -88,7 +88,7 @@ public class UserRepoInsightsController {
                 "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
                 "and highlight your reasoning." ;
         String seniorManagerInsight = chatGPTService.chat(seniorManagerPrompt);
-        roleInisghts.put("seniorManager", seniorManagerInsight);
+        roleInsights.put("seniorManager", seniorManagerInsight);
 
         String ctoPrompt = "These are open PR review comments by the reviewer:" + reviewerComments.toString() + "\n." +
                 "Can you give me some insights of Common code mistakes based upon these comments.\n" +
@@ -97,9 +97,9 @@ public class UserRepoInsightsController {
                 "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
                 "and highlight your reasoning." ;
         String ctoInsight = chatGPTService.chat(ctoPrompt);
-        roleInisghts.put("cto", ctoInsight);
-        System.out.println("roleInisghts: " + roleInisghts.size());
+        roleInsights.put("cto", ctoInsight);
+        System.out.println("roleInsights: " + roleInsights.size());
 
-        return ResponseEntity.ok(roleInisghts);
+        return ResponseEntity.ok(roleInsights);
     }
 }

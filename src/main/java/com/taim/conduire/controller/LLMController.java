@@ -156,7 +156,7 @@ public class LLMController {
         ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo);
         System.out.println(response);
 
-        // TODO: Get an early return.
+        // TODO: Get an early return. --> DONE
         if (response == null || response.getBody() == null) {
             return;
         }
@@ -167,7 +167,7 @@ public class LLMController {
             String name = (String) item.get("name");
             String path = (String) item.get("path");
             System.out.println(type + "***" + name + "***" + path);
-            // TODO: split this logic or make a variable to help it understand
+            // TODO: split this logic or make a variable to help it understand --> DONE
             if ("file".equals(type) && !path.toLowerCase().contains("jpg") && !path.toLowerCase().contains("png") && !path.toLowerCase().contains("svg") && !path.toLowerCase().contains("class")
                     && !path.toLowerCase().contains("docx") && !path.toLowerCase().contains("exe") && !path.toLowerCase().contains("dll")
                     && !path.toLowerCase().contains("jar") && !path.toLowerCase().contains("gif") && !path.toLowerCase().contains("css") && !path.toLowerCase().contains("html")) {
@@ -204,7 +204,7 @@ public class LLMController {
                 }
             }
         } catch (Exception e) {
-            // TODO: Handle exception
+            // TODO: Handle exception --> NOT DOING ANYTHING FOR NOW.
             logger.error("Error processing directory: {}", e.getMessage(), e);
         }
         logger.debug("Exiting processDirectory");
@@ -226,7 +226,7 @@ public class LLMController {
         for (Map<String, Object> item : contents) {
             String type = (String) item.get("type");
             String path = (String) item.get("path");
-            // TODO: Again make a variable to help understand what is happening.
+            // TODO: Again make a variable to help understand what is happening. --> DONE
             if ("file".equals(type) && !path.toLowerCase().contains("jpg") && !path.toLowerCase().contains("png") && !path.toLowerCase().contains("svg") && !path.toLowerCase().contains("class")
                     && !path.toLowerCase().contains("docx") && !path.toLowerCase().contains("exe") && !path.toLowerCase().contains("dll")
                     && !path.toLowerCase().contains("jar") && !path.toLowerCase().contains("gif") && !path.toLowerCase().contains("css") && !path.toLowerCase().contains("html")) {
@@ -239,13 +239,13 @@ public class LLMController {
     }*/
 
     private void processFile(String owner, String repo, String filePath, String basePath) {
-        System.out.println("Processing file...");
+        logger.debug("Processing file...");
 
         filePath = filePath.trim().replaceAll(" ", "%20");
-        System.out.println("Modified filePath: " + filePath);
+        logger.debug("Modified filePath: " + filePath);
 
         String currentDirectory = System.getProperty("user.dir");
-        System.out.println("Current Working Directory: " + currentDirectory);
+        logger.debug("Current Working Directory: " + currentDirectory);
 
         ResponseEntity<String> response = llmService.getFileContent(owner, repo, filePath);
         String content = response.getBody();
@@ -263,18 +263,18 @@ public class LLMController {
                 printWriter.println(content);
                 printWriter.println();
 
-                System.out.println("Content has been written to the file: " + fileName);
+                logger.debug("Content has been written to the file: " + fileName);
             } catch (IOException e) {
-                System.err.println("An error occurred while writing to the file: " + e.getMessage());
+                logger.debug("An error occurred while writing to the file: " + e.getMessage());
             }
         }
 
-        System.out.println("File processing completed.");
+        logger.debug("File processing completed.");
     }
 
 
    /* private void processFile(String owner, String repo, String filePath, String basePath) {
-        // TODO: why these print statements?
+        // TODO: why these print statements? --> DONE
         System.out.println("WE IN PROCESSFILE");
         filePath = filePath.trim().replaceAll(" ", "%20");
         System.out.println(filePath);
@@ -285,7 +285,7 @@ public class LLMController {
         String content = response.getBody();
         String title = filePath;
 
-        // TODO: Remove all useless comments.
+        // TODO: Remove all useless comments. --> DONE
         //Map<String, Object> file = JSONUtils.parseJSONResponseAsMap(response.getBody());
         *//*System.out.println(file);
 
@@ -294,7 +294,7 @@ public class LLMController {
         System.out.println("Name : " + title);
         System.out.println("Content : " + content);*//*
 
-        // TODO: Get an early statement.
+        // TODO: Get an early statement. --> DONE
         if (StringUtils.hasText(basePath)) {
             *//*String outputDir = "output" + File.separator + basePath;
             new File(outputDir).mkdirs();
