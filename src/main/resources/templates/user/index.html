@@ -242,6 +242,8 @@
     $(document).ready(function() {
         var myUserId = $("#myUserId").text();
         console.log(myUserId);
+        var myUserName = $("#myName").text();
+        console.log(myUserName);
         $('#projectsList').empty();
         var myUserId = $("#myUserId").text();
         var reposPage = "/users/" + myUserId;
@@ -256,11 +258,9 @@
             url : 'get-user-repos/' + myUserId,
             dataType: 'json',
             success : function(data) {
-                console.log(data);
                 var projectsList = ``;
                 $.each(data,function(key,val)
                 {
-                    console.log(val);
                     projectsList=`<div class="col-lg-4">
                                             <div class="card project-box">
                                                 <div class="card-body">
@@ -270,7 +270,6 @@
                                                 </div>
                                             </div>
                                         </div>`;
-                    console.log(projectsList);
                     $(projectsList).appendTo('#projectsList');
                 });
             }

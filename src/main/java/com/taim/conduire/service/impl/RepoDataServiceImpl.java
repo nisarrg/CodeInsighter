@@ -53,24 +53,29 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         return repository.findByUserId(userId);
     }
 
+    private HttpEntity<String> getAllHeadersEntity(String userAccessToken){
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept", "application/vnd.github+json");
+        headers.set("Authorization", "Bearer " + userAccessToken);
+        headers.set("X-GitHub-Api-Version", "2022-11-28");
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        return entity;
+    }
+
+    private void showAvailableAPIHits(HttpHeaders responseHeaders){
+        int limit = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Limit"));
+        int remaining = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Remaining"));
+
+        System.out.println("GitHub API Hit Limit: " + limit);
+        System.out.println("GitHub API Hit Limit Remaining: " + remaining);
+    }
 
     @Override
     public String getRepoData(UserData userData) {
         String userRepoApiUrl = GITHUB_API_URL + GITHUB_USERS + "/" + userData.getUserName() + GITHUB_REPOS;
-        logger.debug("userRepoApiUrl: " + userRepoApiUrl);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", userData.getUserAccessToken());
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<String> response = restTemplate.exchange(userRepoApiUrl, HttpMethod.GET, entity, String.class);
-
-        HttpHeaders responseHeaders = response.getHeaders();
-        int limit = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Limit"));
-        int remaining = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Remaining"));
-
-        logger.debug("Rate-Limit Limit: ",  limit);
-        logger.debug("Rate Limit Remaining: ", remaining);
-
+        System.out.println("userRepoApiUrl: " + userRepoApiUrl);
+        ResponseEntity<String> response = restTemplate.exchange(userRepoApiUrl, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+        showAvailableAPIHits(response.getHeaders());
         return response.getBody();
 
     }
@@ -81,22 +86,10 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         System.out.println("apiUrl: " + apiUrl);
 
         UserData userData = userDataService.getOne(repoData.getUserId());
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", userData.getUserAccessToken());
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, Map.class);
-
-        HttpHeaders responseHeaders = response.getHeaders();
-        int limit = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Limit"));
-        int remaining = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Remaining"));
-
-        System.out.println("Rate Limit Limit: " + limit);
-        System.out.println("Rate Limit Remaining: " + remaining);
-
+        ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), Map.class);
+        showAvailableAPIHits(response.getHeaders());
         return response.getBody();
     }
-
 
     public Integer getRepositoryPRs(RepoData repoData) {
         String apiUrl = String.format("%s/repos/%s/pulls", GITHUB_API_URL, repoData.getName());
@@ -104,18 +97,8 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
 
         UserData userData = userDataService.getOne(repoData.getUserId());
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", userData.getUserAccessToken());
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
-
-        HttpHeaders responseHeaders = response.getHeaders();
-        int limit = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Limit"));
-        int remaining = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Remaining"));
-
-        System.out.println("Rate Limit Limit: " + limit);
-        System.out.println("Rate Limit Remaining: " + remaining);
-
+        ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+        showAvailableAPIHits(response.getHeaders());
         String jsonArrayString = response.getBody();;
         System.out.println("jsonArrayString: " + jsonArrayString);
 
@@ -156,6 +139,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         if(repoTooBig){
             return "Repo > 500 MB";
         } else {
+
             Map<String, Integer> resultLoc = new HashMap<>();
             for (Map<String, Object> loc : locArrMap) {
                 String language = (String) loc.get("language");
@@ -170,14 +154,9 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
 
     public Map<String, Integer> getRepoContributors(RepoData repoData){
         String apiUrl = String.format("%s/repos/%s/contributors", GITHUB_API_URL, repoData.getName());
-
+        System.out.println("Contributors API: " + apiUrl);
         UserData userData = userDataService.getOne(repoData.getUserId());
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", userData.getUserAccessToken());
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<List> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, List.class);
-
+        ResponseEntity<List> response = restTemplate.exchange(apiUrl, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), List.class);
         List<Map<String,Object>> contributors = response.getBody();
         Map<String, Integer> resultContributors = new HashMap<>();
         for (Map<String, Object> contributor : contributors) {
@@ -185,14 +164,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
             int contributions = (Integer) contributor.get("contributions");
             resultContributors.put(contributorName, contributions);
         }
-
-        HttpHeaders responseHeaders = response.getHeaders();
-        int limit = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Limit"));
-        int remaining = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Remaining"));
-
-        System.out.println("Rate Limit Limit: " + limit);
-        System.out.println("Rate Limit Remaining: " + remaining);
-
+        showAvailableAPIHits(response.getHeaders());
 
         return resultContributors;
     }

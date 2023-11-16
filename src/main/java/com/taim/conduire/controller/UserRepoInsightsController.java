@@ -62,7 +62,7 @@ public class UserRepoInsightsController {
         return "user/insights";
     }
 
-    @RequestMapping(value = "/get-insights/{repo_id}/ccm", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/{repo_id}/get-insights/ccm", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ResponseEntity<Map<String, String>> getInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
 
@@ -83,21 +83,13 @@ public class UserRepoInsightsController {
 
         String seniorManagerPrompt = "These are open PR review comments by the reviewer:" + reviewerComments.toString() + "\n." +
                 "Can you give me some insights of Common code mistakes based upon these comments.\n" +
-                "Please consider yourself as a Senior Manager and write in Technical English.\n" +
+                "Please consider yourself as a Technical Lead and write in Technical English.\n" +
                 "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted " +
                 "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
                 "and highlight your reasoning." ;
         String seniorManagerInsight = chatGPTService.chat(seniorManagerPrompt);
-        roleInsights.put("seniorManager", seniorManagerInsight);
+        roleInsights.put("technicalLead", seniorManagerInsight);
 
-        String ctoPrompt = "These are open PR review comments by the reviewer:" + reviewerComments.toString() + "\n." +
-                "Can you give me some insights of Common code mistakes based upon these comments.\n" +
-                "Please consider yourself as a company's CTO and write in Technical English.\n" +
-                "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted " +
-                "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
-                "and highlight your reasoning." ;
-        String ctoInsight = chatGPTService.chat(ctoPrompt);
-        roleInsights.put("cto", ctoInsight);
         System.out.println("roleInsights: " + roleInsights.size());
 
         return ResponseEntity.ok(roleInsights);
