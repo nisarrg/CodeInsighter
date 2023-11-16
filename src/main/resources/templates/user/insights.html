@@ -315,6 +315,24 @@
                     }
                 });
             });
+
+            $('#collaborationAnalysis').click(function () {
+                console.log("CA Clicked")
+                $("#spinner-div").show(); //Load button clicked show spinner
+                $.ajax({
+                    url: 'get-repo-prs-collab',
+                    method: 'GET',
+                    success: function (data) {
+                        console.log(data);
+                            $('#businessAnalyst').html(data);
+                            $('#technicalLead').html(data);
+                },
+                    complete: function () {
+                        $("#insightsTitle").html($('#collaborationAnalysis').text());
+                        $("#spinner-div").hide(); //Request is complete so hide spinner
+                    }
+                });
+            });
         }
 
     </script>
