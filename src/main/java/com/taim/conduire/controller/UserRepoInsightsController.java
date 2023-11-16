@@ -13,7 +13,11 @@ import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -94,5 +98,13 @@ public class UserRepoInsightsController {
         System.out.println("roleInsights: " + roleInsights.size());
 
         return ResponseEntity.ok(roleInsights);
+    }
+
+    @RequestMapping(value = "/{repo_id}/get-repo-prs-collab", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<String> getRepoPRsForCollab(@PathVariable("repo_id") Integer repoID) throws IOException, InterruptedException {
+        RepoData repoData = repoDataService.getOne(repoID);
+        System.out.println("repoData: " + repoData);
+        return ResponseEntity.ok(insightsService.getRepositoryPRsCollab(repoData));
     }
 }

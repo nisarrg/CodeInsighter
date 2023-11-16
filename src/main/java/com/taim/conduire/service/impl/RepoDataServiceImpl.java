@@ -1,15 +1,21 @@
 package com.taim.conduire.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.taim.conduire.constants.ConstantCodes;
+import com.taim.conduire.controller.UserRepoController;
+import com.taim.conduire.controller.UserRepoInsightsController;
 import com.taim.conduire.domain.RepoData;
 import com.taim.conduire.domain.UserData;
 import com.taim.conduire.repository.RepoDataRepository;
+import com.taim.conduire.service.ChatGPTService;
 import com.taim.conduire.service.RepoDataService;
 import com.taim.conduire.service.UserDataService;
+import net.minidev.json.JSONObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +27,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -39,6 +57,11 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
     @Autowired
     private RestTemplate restTemplate;
 
+    private UserRepoInsightsController userRepoInsightsController;
+
+    @Autowired
+    private ChatGPTService chatGPTService;
+
     public JpaRepository<RepoData, Integer> getRepository() {
         return repository;
     }
@@ -53,7 +76,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         return repository.findByUserId(userId);
     }
 
-    private HttpEntity<String> getAllHeadersEntity(String userAccessToken){
+    public HttpEntity<String> getAllHeadersEntity(String userAccessToken){
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept", "application/vnd.github+json");
         headers.set("Authorization", "Bearer " + userAccessToken);
@@ -62,7 +85,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         return entity;
     }
 
-    private void showAvailableAPIHits(HttpHeaders responseHeaders){
+    public void showAvailableAPIHits(HttpHeaders responseHeaders){
         int limit = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Limit"));
         int remaining = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Remaining"));
 
