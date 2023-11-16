@@ -9,6 +9,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
+//TODO --> Design Smell: Broken Modularization
 @Entity
 @Table(name = "users")
 @Getter @Setter @ToString

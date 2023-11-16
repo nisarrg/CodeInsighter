@@ -57,6 +57,7 @@ public class LLMService {
         String apiUrl = String.format("%s/repos/%s/%s/stats/code_frequency", githubApiUrl, owner, repo);
         System.out.println(apiUrl);
         String apiResponse = restTemplate.getForObject(apiUrl, String.class);
+        // TODO --> Implementation smell: long statement
         List<List<Integer>> codeFrequencyStats = objectMapper.readValue(apiResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
         return codeFrequencyStats;
     }
@@ -65,6 +66,7 @@ public class LLMService {
         String apiUrl = String.format("%s/repos/%s/%s/stats/punch_card", githubApiUrl, owner, repo);
         System.out.println(apiUrl);
         String apiResponse = restTemplate.getForObject(apiUrl, String.class);
+        // TODO --> Implementation smell: long statement
         List<List<Integer>> repoPunchCard = objectMapper.readValue(apiResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
         computeWeeklyCommits(repoPunchCard);
         return repoPunchCard;
@@ -74,6 +76,7 @@ public class LLMService {
         String apiUrl = String.format("%s/repos/%s/stats/punch_card", githubApiUrl,name);
         System.out.println(apiUrl);
         String apiResponse = restTemplate.getForObject(apiUrl, String.class);
+        // TODO --> Implementation smell: long statement
         List<List<Integer>> repoPunchCard = objectMapper.readValue(apiResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
         return computeWeeklyCommits(repoPunchCard);
     }
@@ -97,6 +100,7 @@ public class LLMService {
         //plot.setSection(0000.35);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        // TODO --> Implementation smell: remove magic numbers: 400, 300
         ChartUtilities.writeChartAsPNG(outputStream, chart, 400, 300);
         return outputStream.toByteArray();
     }
@@ -120,7 +124,6 @@ public class LLMService {
                 true,
                 false
         );
-
         return chart;
     }
 
@@ -128,10 +131,12 @@ public class LLMService {
         int[] weeklyCount = new int[7];
         int count = 0;
         int i=0,x=0;
-        // TODO: Ask what is 23, 46, 69, ...???.
+        // TODO: Ask what is 23, 46, 69, ...???. remove magic numbers.
         // TODO: Make all those statements inside while loop common.
         // TODO: Remove all unnecessary comments. And add meaningful comments instead of sunday, monday.
         // TODO: Fix the indentation.
+        //TODO: Complex method --> cyclomatic complexity is 9
+
         //Sunday
         while(i<=23)
         {
