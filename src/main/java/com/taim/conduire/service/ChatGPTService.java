@@ -5,6 +5,7 @@ import com.taim.conduire.dto.LLMResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -22,6 +23,14 @@ public class ChatGPTService {
     private String apiUrl;
 
     public String chat(String prompt) {
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+
+        // Set the timeout in milliseconds
+        requestFactory.setReadTimeout(300000);
+
+        // Set the custom request factory to the RestTemplate
+        restTemplate.setRequestFactory(requestFactory);
+
         // create a request
         LLMRequest request = new LLMRequest(model, prompt);
         // call the API
