@@ -46,12 +46,12 @@ public class UserRepoController {
     @RequestMapping(value = "/get-user-repos-lang/{repo_id}", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ResponseEntity<Map<String, Integer>> getUserReposLangs(@PathVariable("repo_id") Integer repoID) {
-        RepoData repoData = repoDataService.getOne(repoID);
-        System.out.println("repoData: " + repoData);
-        repoDataService.getRepositoryLanguages(repoData);
-        System.out.println("repoID: " + repoID );
+         RepoData repoData = repoDataService.getOne(repoID);
+         System.out.println(" repoData: " + repoData);
+         repoDataService.getRepositoryLanguages(repoData);
+         System.out.println(" repoID: " + repoID );
 
-        return ResponseEntity.ok(repoDataService.getRepositoryLanguages(repoData));
+         return ResponseEntity.ok(repoDataService.getRepositoryLanguages(repoData));
     }
 
     @RequestMapping(value = "/get-user-repos-contibutors/{repo_id}", method = RequestMethod.GET, produces = "application/json")
@@ -60,7 +60,7 @@ public class UserRepoController {
         RepoData repoData = repoDataService.getOne(repoID);
         System.out.println("repoData: " + repoData);
         repoDataService.getRepoContributors(repoData);
-        System.out.println("Data Contri: " + repoDataService.getRepoContributors(repoData) );
+        System.out.println("Data Contri: " + repoDataService.getRepoContributors(repoData));
 
         return ResponseEntity.ok(repoDataService.getRepoContributors(repoData));
     }

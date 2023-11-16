@@ -73,18 +73,18 @@ public class LLMController {
     a - Number of additions
     d - Number of deletions
     c - Number of commits */
-    @GetMapping("repository/contributors1")
+    /*@GetMapping("repository/contributors1")
     public List<LLMService.WeekCommitActivity> getAllContributorCommitActivity() throws IOException {
 
         return llmService.getAllContributorCommitActivity();
-    }
+    }*/
 
     /* Returns the last year of commit activity grouped by week. The days
      array is a group of commits per day, starting on Sunday. */
-    @GetMapping("repository/commit_activity")
+   /* @GetMapping("repository/commit_activity")
     public List<LLMService.WeekCommitActivity> getLastYearCommitActivity() {
         return llmService.getLastYearCommitActivity();
-    }
+    }*/
 
     /* Returns the total commit counts for the owner.
        The array order is the oldest week (index 0) to most recent week.
@@ -94,11 +94,11 @@ public class LLMController {
         return llmService.getCommitCountsForOwner();
     } */
 
-    @GetMapping("repository/participation1")
+   /* @GetMapping("repository/participation1")
     public List<Integer> getCommitCountsForNonOwners() {
         return llmService.getCommitCountsForNonOwners();
     }
-
+*/
 
     @GetMapping("repository/punchtest")
     public int[] getRepositoryPunchCardtest() throws IOException {

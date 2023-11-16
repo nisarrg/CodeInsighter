@@ -82,7 +82,7 @@ public class LLMService {
         List<List<Integer>> repoPunchCard = objectMapper.readValue(apiResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
         return computeWeeklyCommits(repoPunchCard);
     }
-
+/*
     @Getter
     public static class WeekCommitActivity {
         private String weekStartDate;
@@ -248,7 +248,7 @@ public class LLMService {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return sdf.format(startDate);
     }
-
+*/
     public byte[] generatePieChart(Map<String,Integer> data) throws IOException{
         DefaultPieDataset dataset = new DefaultPieDataset();
         for (Map.Entry<String, Integer> entry : data.entrySet()) {
