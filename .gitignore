@@ -32,3 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 SmellRatingPrompt.txt
+diff1.txt
+diff2.txt
+diff3.txt
