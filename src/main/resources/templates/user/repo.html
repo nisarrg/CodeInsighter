@@ -266,7 +266,7 @@
                                     </div>
                                     <div class="col-6">
                                         <div class="text-end">
-                                            <h3 class="text-dark mt-1"><span data-plugin="counterup" th:text="${repoData.forksCount}">0</span></h3>
+                                            <h3 class="text-dark mt-1"><span data-plugin="counterup" id="forksCount">0</span></h3>
                                             <p class="text-muted mb-1 text-truncate">No. of Forks</p>
                                         </div>
                                     </div>
@@ -530,6 +530,17 @@
             success: function (totalPR) {
                 console.log(totalPR);
                 $("#pr").text(totalPR);
+            }
+        });
+
+        //Repo forks Count
+        $.ajax({
+            type: "GET",
+            url: 'get-repo-forks-count/' + myRepoId,
+            dataType: 'json',
+            success: function (totalforksCount) {
+                console.log(totalforksCount);
+                $("#forksCount").text(totalforksCount);
             }
         });
     }

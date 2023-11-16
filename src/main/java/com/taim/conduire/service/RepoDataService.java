@@ -25,4 +25,8 @@ public interface RepoDataService extends AbstractService<RepoData, Integer> {
 
     Integer getRepositoryPRs(RepoData repoData);
 
+    String getParentRepo(RepoData repoData);
+
+    Integer getRepositoryForksCount(RepoData repoData);
+
 }
