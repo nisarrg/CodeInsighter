@@ -51,6 +51,7 @@ public class InsightsService implements ConstantCodes {
             JsonObject repoSourceJsonObject = repoJsonObject.get("source").getAsJsonObject();
             String repoSourceURL = repoSourceJsonObject.get("url").getAsString();
             String prReviewCommentsURL = String.format(repoSourceURL + GITHUB_PULLS + GITHUB_COMMENTS);
+            // TODO: extract the same part form if-else
             prReviewResposne = restTemplate.exchange(prReviewCommentsURL, HttpMethod.GET, entity, String.class);
         } else {
             String prReviewCommentsURL = String.format(apiUrl + GITHUB_PULLS + GITHUB_COMMENTS);
@@ -62,6 +63,7 @@ public class InsightsService implements ConstantCodes {
         Map<String, List<String>> reviewerComments = new HashMap<>();
 
         for (JsonElement element : prReviewJsonArray) {
+            // TODO: Early return
             if (element.isJsonObject()) {
                 JsonObject reviewCommentObject = element.getAsJsonObject();
                 String reviewer = reviewCommentObject.get("user").getAsJsonObject().get("login").getAsString();

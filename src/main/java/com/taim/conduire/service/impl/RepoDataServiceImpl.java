@@ -82,6 +82,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
 
     public Map<String, Integer> getRepositoryLanguages(RepoData repoData) {
         String apiUrl = String.format("%s/repos/%s/languages", GITHUB_API_URL, repoData.getName());
+        // TODO: make a common function for these lines. --> not feasible in some cases.
         System.out.println("apiUrl: " + apiUrl);
 
         UserData userData = userDataService.getOne(repoData.getUserId());
@@ -124,11 +125,12 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
             String responseBody = e.getResponseBodyAsString();
             if (responseBody.contains("too big")) {
                 System.out.println("Repo Size > 500 MB: " + responseBody);
-                repoTooBig = true;
+                // TODO: This variable can be taken out of if-else --> DONE
             } else {
                 System.out.println("Other BadRequest Exception: " + responseBody);
-                repoTooBig = true;
             }
+            // above TO-DO refers to this variable which was inside the loop earlier
+            repoTooBig = true;
 
         } catch (Exception e) {
             System.out.println("An error occurred: " + e.getMessage());
@@ -179,6 +181,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
             System.out.println("jsonArray: " + jsonArray);
 
             for (JsonElement element : jsonArray) {
+                // TODO: early return expected --> not feasible for now.
                 if (element.isJsonObject()) {
                     JsonObject repoObject = element.getAsJsonObject();
                     RepoData repoData = null;
@@ -215,6 +218,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
         return "dump success";
     }
 }

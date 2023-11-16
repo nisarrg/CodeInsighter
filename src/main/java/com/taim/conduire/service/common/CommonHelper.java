@@ -10,9 +10,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 
+//TODO --> Design Smell: Unutilized Abstraction.
 public class CommonHelper {
-	
+
+    //TODO --> Design Smell: Deficient Encapsulation (public accessibility)
 	public static ApplicationContext ctx = null;
+
+    //TODO --> Design Smell: Deficient Encapsulation (public accessibility)
 	private static HashMap<String, ThreadPoolExecutor> poolMap = new HashMap<String, ThreadPoolExecutor>();
 	private static HashMap<String, String> nonceMap = new HashMap<String, String>();
 	private static HashMap<String, Integer> distance = new HashMap<String, Integer>();
