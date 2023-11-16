@@ -9,7 +9,7 @@
     <meta content="Coderthemes" name="author"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <!-- App favicon -->
-    <!--    <link rel="shortcut icon" th:href="@{/images/favicon.ico">-->
+    <link rel="shortcut icon" th:href="@{/static/images/favicon.ico}">
 
     <!-- Plugins css -->
     <link th:href="@{/libs/flatpickr/flatpickr.min.css}" rel="stylesheet" type="text/css"/>
@@ -45,27 +45,21 @@
             <!-- LOGO -->
             <div class="logo-box">
                 <a href="#" class="logo logo-dark text-center">
-                            <span class="logo-sm">
-<!--                                <img th:src="@{/images/insighter-logo.png}" alt="" height="100" width="100">-->
-                                <!-- <span class="logo-lg-text-light">UBold</span> -->
-                               <h5 style="color: white;">Code Insighter</h5>
-                            </span>
+                    <span class="logo-sm">
+                         <img alt="CodeInsighter" th:src="@{../../static/images/code-logo-light.png}" width="250">
+                    </span>
                     <span class="logo-lg">
-<!--                                <img th:src="@{/images/insighter-logo.png}" alt="" height="100" width="100">-->
-                        <!-- <span class="logo-lg-text-light">U</span> -->
-                                <h2 style="color: white;">Code Insighter</h2>
-                            </span>
+                        <img alt="CodeInsighter" th:src="@{../../static/images/code-logo-light.png}" width="250">
+                    </span>
                 </a>
 
                 <a href="#" class="logo logo-light text-center">
-                            <span class="logo-sm">
-<!--                                <img th:src="@{/images/insighter-logo.png}" alt="" height="80" width="100">-->
-                                <h5 style="color: white;">Code Insighter</h5>
-                            </span>
+                    <span class="logo-sm">
+                        <img alt="CodeInsighter" th:src="@{../../static/images/code-logo-light.png}" width="250">
+                    </span>
                     <span class="logo-lg">
-<!--                                <img th:src="@{/images/insighter-logo.png}" alt="" height="100" width="100">-->
-                        <h2 style="color: white;">Code Insighter</h2>
-                            </span>
+                        <img alt="CodeInsighter" th:src="@{../../static/images/code-logo-light.png}" width="250">
+                    </span>
                 </a>
             </div>
 
@@ -107,6 +101,7 @@
                         </span>
                         <span id="myUserId" style="display: none" th:text="${userData.id}"></span>
                     </a>
+
                     <div class="dropdown-menu dropdown-menu-end profile-dropdown ">
                         <!-- item-->
                         <div class="dropdown-header noti-title">
@@ -143,14 +138,16 @@
 
                     <li>
                         <a href="#" id="reposPage">
-                            <i data-feather="airplay"></i>
+                            <i class="fe-grid"></i>
                             <span> Repositories </span>
                         </a>
                     </li>
 
                     <li>
-                        <a href="#" id="insightsPage">Insights</a>
-                        <i data-feather="fe-bar-chart"></i>
+                        <a href="#" id="insightsPage">
+                            <i class="fe-bar-chart"></i>
+                            <span> Insights </span>
+                        </a>
                     </li>
 
                 </ul>
@@ -331,7 +328,9 @@
     <!-- ============================================================== -->
     <!-- End Page content -->
     <!-- ============================================================== -->
-
+    <span id="dynamicURL" style="display: none"
+          th:text="${#httpServletRequest.scheme + '://' + #httpServletRequest.serverName + ':' + #httpServletRequest.serverPort + #httpServletRequest.contextPath}">
+    </span>
 
 </div>
 <!-- END wrapper -->
@@ -369,13 +368,17 @@
         }
     })
 
-    $('#logout-btn').on('click', function () {
-        $.post("/logout", function () {
-            location.href = "http://localhost:8080";
-        })
-    });
+    function redirectToLogout(dynamicURL) {
+        $('#logout-btn').on('click', function () {
+            $.post("/logout", function () {
+                location.href = dynamicURL;
+            })
+        });
+    }
 
     $(document).ready(function () {
+        var dynamicURL = $("#dynamicURL").text();
+        redirectToLogout(dynamicURL);
         var myUserId = $("#myUserId").text();
         var myRepoId = $("#myRepoId").text();
         var reposPage = "/users/" + myUserId;

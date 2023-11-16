@@ -28,9 +28,8 @@ public class LoginController {
 
     @RequestMapping(value = "/user", method = RequestMethod.GET)
     public String user(@AuthenticationPrincipal OAuth2User principal, @RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient) {
-        System.out.println("Auth Called: " + principal);
         String accessToken = authorizedClient.getAccessToken().getTokenValue();
-        System.out.println("accessToken: " + accessToken);
+        System.out.println("User Access Token: " + accessToken);
         UserData userData = null;
 
         if(userDataService.findByGithubUserId(principal.getAttribute("id")) != null) {

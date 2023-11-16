@@ -15,8 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -61,14 +63,12 @@ public class InsightsService implements ConstantCodes {
     }
 
     private static int countTokens(String input) {
-        // Split the input string into tokens based on spaces and some common punctuation marks
         String[] tokens = input.split("\\s+|\\p{Punct}");
         return tokens.length;
     }
 
     public Map<String, List<String>> getRepositoryReviewComments(RepoData repoData) {
         String apiUrl = GITHUB_API_URL + GITHUB_REPOS + "/" + repoData.getName();
-//        String apiUrl = String.format("%s/repos/%s", GITHUB_API_URL, repoData.getName());
         System.out.println("apiUrl: " + apiUrl);
 
         UserData userData = userDataService.getOne(repoData.getUserId());
@@ -107,30 +107,12 @@ public class InsightsService implements ConstantCodes {
             }
         }
         System.out.println("reviewerComments: " + reviewerComments.size());
-        System.out.println("reviewerComments: " + reviewerComments.toString());
         return reviewerComments;
     }
     public String getCodeQualityEnhancementsInsights(RepoData repoData) {
-        String parentRepoName;
+        String parentRepoName = repoDataService.getParentRepo(repoData);
         Gson gson = new Gson();
-        Boolean isFork = repoData.getIsFork();
-        if(isFork != null && isFork){
-            String repoURL = GITHUB_API_URL + GITHUB_REPOS + "/" + repoData.getName();
-            System.out.println("repoURL: " + repoURL);
-
-            UserData userData = userDataService.getOne(repoData.getUserId());
-            ResponseEntity<String> response = restTemplate.exchange(repoURL, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
-            showAvailableAPIHits(response.getHeaders());
-
-            String jsonRepoString = response.getBody();;
-
-            JsonObject jsonRepoObject = gson.fromJson(jsonRepoString, JsonObject.class);
-            JsonObject sourceJsonObject = jsonRepoObject.get("source").getAsJsonObject();
-            parentRepoName = sourceJsonObject.get("full_name").getAsString();
-        } else {
-            parentRepoName = repoData.getName();
-        }
-        String repoPRDataURL = GITHUB_API_URL + GITHUB_REPOS + "/" + parentRepoName + GITHUB_PULLS + "?per_page=100&sort=popularity";
+        String repoPRDataURL = GITHUB_API_URL + GITHUB_REPOS + "/" + parentRepoName + GITHUB_PULLS + "?per_page=100";
         System.out.println("repoPRDataURL: " + repoPRDataURL);
 
         UserData userData = userDataService.getOne(repoData.getUserId());
@@ -155,15 +137,60 @@ public class InsightsService implements ConstantCodes {
                 JsonObject sourceJsonObject = prItemJsonObject.get("user").getAsJsonObject();
                 String prDev = sourceJsonObject.get("login").getAsString();
 
-                List<String> devPRTitleCodeList = new ArrayList<>();
-                devPRTitleCodeList.add(prTitle);
-                devPRTitleCodeList.add(devPRCode);
+                // Check if the key already exists in the map
+                if (!devAndPRCode.containsKey(prDev)) {
+                    List<String> devPRTitleCodeList = new ArrayList<>();
+                    devPRTitleCodeList.add(prTitle);
+                    devPRTitleCodeList.add(devPRCode);
 
-                devAndPRCode.put(prDev,devPRTitleCodeList);
+                    // Add the new entry to the map
+                    devAndPRCode.put(prDev, devPRTitleCodeList);
+                }
             }
         }
 
         System.out.println("devAndPRCode Size: " + devAndPRCode.size());
+
+        String codeQualityEnhancementInsightPrompt = getCodeQualityEnhancementInsightLLMPrompt();
+
+        Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(codeQualityEnhancementInsightPrompt);
+        Map<String, List<String>> devAndPRCodeWithLimit = new HashMap<>();
+
+        for (Map.Entry<String, List<String>> entry : devAndPRCode.entrySet()) {
+
+            String element = entry.getKey() + "=" + entry.getValue().toString() + ",";
+            if (countTokens(devAndPRCodeWithLimit + element) <= llmTokenLimitWithPrompt) {
+                devAndPRCodeWithLimit.put(entry.getKey(), entry.getValue());
+                llmTokenLimitWithPrompt -= countTokens(devAndPRCodeWithLimit.toString());
+            }
+        }
+        System.out.println("devAndPRCodeWithLimit Size: " + devAndPRCodeWithLimit.size());
+        System.out.println("Final code Token: " + countTokens(devAndPRCodeWithLimit.toString()));
+        String codeQualityEnhancementInsightString;
+        if (devAndPRCodeWithLimit.isEmpty()) {
+            System.out.println("devAndPRCodeWithLimit: " + devAndPRCodeWithLimit.size());
+            codeQualityEnhancementInsightString = "{\"message\":\"There are no Open PR for this Repository\"}";
+        } else {
+            String devAndPRCodeWithLimitString;
+            if (devAndPRCodeWithLimit.size() > 3) {
+                devAndPRCodeWithLimitString = devAndPRCode.entrySet()
+                        .stream()
+                        .limit(3)
+                        .map(entry -> entry.getKey() + "=" + entry.getValue())
+                        .collect(Collectors.joining(", ", "{", "}"));
+            } else {
+                devAndPRCodeWithLimitString = devAndPRCodeWithLimit.toString();
+            }
+            String promptAndCode = codeQualityEnhancementInsightPrompt + devAndPRCodeWithLimitString;
+
+            System.out.println("Final prompt + code Token: " + countTokens(promptAndCode));
+            codeQualityEnhancementInsightString = chatGPTService.chat(promptAndCode);
+        }
+
+        return codeQualityEnhancementInsightString;
+    }
+
+    public String getCodeQualityEnhancementInsightLLMPrompt() {
 
         String codeQualityEnhancementInsightPrompt = "The provided string is a map with \n" +
                 "developers as key and value with list of 2 strings where\n" +
@@ -199,41 +226,6 @@ public class InsightsService implements ConstantCodes {
                 "]\n"+
                 "Keep the score and criteria in the same order so later on it can be fetched.\n\n" ;
 
-        Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(codeQualityEnhancementInsightPrompt);
-        Map<String, List<String>> devAndPRCodeWithLimit = new HashMap<>();
-
-        for (Map.Entry<String, List<String>> entry : devAndPRCode.entrySet()) {
-
-            String element = entry.getKey() + "=" + entry.getValue().toString() + ",";
-            if (countTokens(devAndPRCodeWithLimit.toString() + element) <= llmTokenLimitWithPrompt) {
-                devAndPRCodeWithLimit.put(entry.getKey(), entry.getValue());
-                llmTokenLimitWithPrompt -= countTokens(devAndPRCodeWithLimit.toString() + element);
-            }
-        }
-        System.out.println("devAndPRCodeWithLimit Size: " + devAndPRCodeWithLimit.size());
-        System.out.println("Final code Token: " + countTokens(devAndPRCodeWithLimit.toString()));
-        String codeQualityEnhancementInsightString;
-        if(devAndPRCodeWithLimit.isEmpty()){
-            System.out.println("devAndPRCodeWithLimit: " + devAndPRCodeWithLimit);
-            codeQualityEnhancementInsightString = "{\"message\":\"There are no Open PR for this Repository\"}";
-        } else {
-            String devAndPRCodeWithLimitString;
-            if(devAndPRCodeWithLimit.size() > 3){
-                devAndPRCodeWithLimitString = devAndPRCode.entrySet()
-                        .stream()
-                        .limit(3)
-                        .map(entry -> entry.getKey() + "=" + entry.getValue())
-                        .collect(Collectors.joining(", ", "{", "}"));
-            } else {
-                devAndPRCodeWithLimitString = devAndPRCodeWithLimit.toString();
-            }
-            String promptAmdCode = codeQualityEnhancementInsightPrompt + devAndPRCodeWithLimitString;
-
-            System.out.println("Final prompt + code Token: " + countTokens(promptAmdCode));
-            codeQualityEnhancementInsightString = chatGPTService.chat(promptAmdCode);
-            System.out.println(codeQualityEnhancementInsightString);
-        }
-
-        return codeQualityEnhancementInsightString;
+        return codeQualityEnhancementInsightPrompt;
     }
 }

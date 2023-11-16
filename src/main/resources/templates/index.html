@@ -33,14 +33,16 @@
                         <div class="text-center w-75 m-auto">
                             <div class="auth-brand">
                                 <a href="#" class="logo logo-dark text-center">
-                                        <span class="logo-lg">
-                                            <img th:src="@{static/images/code-logo.png}" alt="" height="55">
-                                        </span>
+                                    <span class="logo-lg">
+                                        <img alt="CodeInsighter" th:src="@{../../static/images/code-logo.png}"
+                                             width="250">
+                                    </span>
                                 </a>
                                 <a href="#" class="logo logo-light text-center">
-                                        <span class="logo-lg">
-                                            <img th:src="@{static/images/code-logo.png}" alt="" height="55">
-                                        </span>
+                                    <span class="logo-lg">
+                                        <img alt="CodeInsighter" th:src="@{../../static/images/code-logo.png}"
+                                             width="250">
+                                    </span>
                                 </a>
                             </div>
                             <br>
@@ -54,6 +56,9 @@
                                     <span class="fe-github"></span>   Sign in with GitHub
                                 </a>
                             </div>
+                            <span id="dynamicURL" style="display: none"
+                                  th:text="${#httpServletRequest.scheme + '://' + #httpServletRequest.serverName + ':' + #httpServletRequest.serverPort + #httpServletRequest.contextPath}">
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -79,13 +84,19 @@
         }
     })
 
-    $.ajax({
-        type: 'GET',
-        url: "/user",
-        success: function(resultData) {
-            console.log(resultData)
-            location.href = "http://localhost:8080/users/" + resultData;
-        }
+    function redirectToUser(dynamicURL) {
+        $.ajax({
+            type: 'GET',
+            url: "/user",
+            success: function (resultData) {
+                location.href = dynamicURL + "/users/" + resultData;
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        var dynamicURL = $("#dynamicURL").text();
+        redirectToUser(dynamicURL);
     });
 
 </script>
