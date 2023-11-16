@@ -91,7 +91,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
     }
 
     public Integer getRepositoryPRs(RepoData repoData) {
-        String apiUrl = String.format("%s/repos/%s/pulls", GITHUB_API_URL, repoData.getName());
+        String apiUrl = String.format("%s/repos/%s/pulls", GITHUB_API_URL, getParentRepo(repoData));
         System.out.println("apiUrl: " + apiUrl);
 
         UserData userData = userDataService.getOne(repoData.getUserId());
@@ -107,6 +107,46 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         System.out.println("jsonArray: " + jsonArray);
 
         return jsonArray.size();
+    }
+
+    public Integer getRepositoryForksCount(RepoData repoData) {
+        String apiUrl = String.format("%s/repos/%s", GITHUB_API_URL, getParentRepo(repoData));
+        System.out.println("apiUrl: " + apiUrl);
+
+        UserData userData = userDataService.getOne(repoData.getUserId());
+
+        ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+        showAvailableAPIHits(response.getHeaders());
+        String jsonArrayString = response.getBody();
+        System.out.println("jsonArrayString: " + jsonArrayString);
+
+        Gson gson = new Gson();
+        JsonObject jsonObject = gson.fromJson(jsonArrayString, JsonObject.class);
+        return jsonObject.get("forks_count").getAsInt();
+    }
+
+    public String getParentRepo(RepoData repoData) {
+        String parentRepository;
+        Gson gson = new Gson();
+        Boolean isFork = repoData.getIsFork();
+
+        if(isFork != null && isFork){
+            String repoURL = GITHUB_API_URL + GITHUB_REPOS + "/" + repoData.getName();
+            System.out.println("repoURL: " + repoURL);
+
+            UserData userData = userDataService.getOne(repoData.getUserId());
+            ResponseEntity<String> response = restTemplate.exchange(repoURL, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+            showAvailableAPIHits(response.getHeaders());
+
+            String jsonRepoString = response.getBody();;
+
+            JsonObject jsonRepoObject = gson.fromJson(jsonRepoString, JsonObject.class);
+            JsonObject sourceJsonObject = jsonRepoObject.get("source").getAsJsonObject();
+            parentRepository = sourceJsonObject.get("full_name").getAsString();
+        } else {
+            parentRepository = repoData.getName();
+        }
+        return parentRepository;
     }
 
     public String getRepoLOC(RepoData repoData) {
@@ -141,12 +181,13 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
             Map<String, Integer> resultLoc = new HashMap<>();
             for (Map<String, Object> loc : locArrMap) {
                 String language = (String) loc.get("language");
-                int linesOfCode = (Integer) loc.get("linesOfCode");
+                Integer linesOfCode = (Integer) loc.get("linesOfCode");
                 resultLoc.put(language, linesOfCode);
             }
             System.out.println("\nTotal Loc: " + resultLoc.get("Total"));
 
             return "" + resultLoc.get("Total");
+
         }
     }
 
@@ -163,7 +204,6 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
             resultContributors.put(contributorName, contributions);
         }
         showAvailableAPIHits(response.getHeaders());
-
         return resultContributors;
     }
 
@@ -209,7 +249,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
                     repoData.setRepoCreatedAt(dateFormat.parse(repoObject.get("created_at").getAsString()));
                     repoData.setRepoUpdatedAt(dateFormat.parse(repoObject.get("updated_at").getAsString()));
                     repoData.setUpdatedAt(new Date());
-                    repoData = update(repoData);
+//                    repoData = update(repoData);
                 }
             }
         } catch (ParseException e) {

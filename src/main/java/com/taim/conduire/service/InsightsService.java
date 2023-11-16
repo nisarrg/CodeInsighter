@@ -34,7 +34,7 @@ public class InsightsService implements ConstantCodes {
     @Autowired
     private ChatGPTService chatGPTService;
 
-    private HttpEntity<String> getAllHeadersEntity(String userAccessToken){
+    HttpEntity<String> getAllHeadersEntity(String userAccessToken){
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept", "application/vnd.github+json");
         headers.set("Authorization", "Bearer " + userAccessToken);
@@ -43,7 +43,7 @@ public class InsightsService implements ConstantCodes {
         return entity;
     }
 
-    private void showAvailableAPIHits(HttpHeaders responseHeaders){
+    void showAvailableAPIHits(HttpHeaders responseHeaders){
         String limitHeader = responseHeaders.getFirst("X-RateLimit-Limit");
         String remainingHeader = responseHeaders.getFirst("X-RateLimit-Remaining");
 
@@ -113,7 +113,8 @@ public class InsightsService implements ConstantCodes {
     public String getCodeQualityEnhancementsInsights(RepoData repoData) {
         String parentRepoName;
         Gson gson = new Gson();
-        if(repoData.getIsFork()){
+        Boolean isFork = repoData.getIsFork();
+        if(isFork != null && isFork){
             String repoURL = GITHUB_API_URL + GITHUB_REPOS + "/" + repoData.getName();
             System.out.println("repoURL: " + repoURL);
 

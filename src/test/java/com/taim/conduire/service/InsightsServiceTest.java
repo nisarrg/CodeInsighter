@@ -11,12 +11,14 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class InsightsServiceTest implements ConstantCodes {
@@ -26,6 +28,9 @@ public class InsightsServiceTest implements ConstantCodes {
 
     @Mock
     private UserDataService userDataService;
+
+    @Mock
+    private ChatGPTService chatGPTService;
 
     @Mock
     private RestTemplate restTemplate;
@@ -39,7 +44,39 @@ public class InsightsServiceTest implements ConstantCodes {
     }
 
     @Test
-    void getRepositoryReviewComments_SuccessfulCall_ReturnsReviewerComments() {
+    public void testGetAllHeadersEntity() {
+        // Test for private method getAllHeadersEntity
+        // Invoke the method
+        HttpHeaders headers = insightsService.getAllHeadersEntity("testToken").getHeaders();
+
+        // Verify the headers set properly
+        assertEquals("application/vnd.github+json", headers.getFirst("Accept"));
+        assertEquals("Bearer testToken", headers.getFirst("Authorization"));
+        assertEquals("2022-11-28", headers.getFirst("X-GitHub-Api-Version"));
+    }
+
+    @Test
+    public void testShowAvailableAPIHits() {
+        // Test for private method showAvailableAPIHits
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("X-RateLimit-Limit", "5000");
+        responseHeaders.set("X-RateLimit-Remaining", "4999");
+
+        // Capture console output
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        insightsService.showAvailableAPIHits(responseHeaders);
+
+        // Verify the printed output contains API hit information
+        String expectedOutput = "GitHub API Hit Limit: 5000\nGitHub API Hit Limit Remaining: 4999\n";
+        // Use contains instead of direct comparison
+        assertTrue(outputStream.toString().contains("GitHub API Hit Limit: 5000"));
+        assertTrue(outputStream.toString().contains("GitHub API Hit Limit Remaining: 4999"));
+    }
+
+    @Test
+    void testGetRepositoryReviewComments_SuccessfulCall_ReturnsReviewerComments() {
         // Given
         String repoName = "testRepo";
         int userId = 1;
@@ -84,7 +121,7 @@ public class InsightsServiceTest implements ConstantCodes {
     }
 
     @Test
-    void getRepositoryReviewComments_ForkedRepo_ReturnsReviewerCommentsFromSource() {
+    void testGetRepositoryReviewComments_ForkedRepo_ReturnsReviewerCommentsFromSource() {
         // Given
         String repoName = "forkedRepo";
         int userId = 1;
@@ -129,7 +166,7 @@ public class InsightsServiceTest implements ConstantCodes {
     }
 
     @Test
-    void getRepositoryReviewComments_EmptyResponse_ReturnsEmptyMap() {
+    void testGetRepositoryReviewComments_EmptyResponse_ReturnsEmptyMap() {
         // Given
         String repoName = "emptyRepo";
         int userId = 1;
@@ -170,5 +207,52 @@ public class InsightsServiceTest implements ConstantCodes {
         // Then
         assertEquals(0, reviewerComments.size());
     }
+
+//    @Test
+//    public void testGetCodeQualityEnhancementsInsights() {
+//        // Mock necessary dependencies: RepoData, UserData, HttpHeaders, ResponseEntity, etc.
+//        RepoData repoData = new RepoData();
+//        repoData.setName("testRepo");
+//        repoData.setUserId(123);
+//
+//        UserData userData = new UserData();
+//        userData.setUserAccessToken("testToken");
+//
+//        when(userDataService.getOne(anyInt())).thenReturn(userData);
+//
+//        // Mock ResponseEntity for exchange calls
+//        String prResponseJson = "[{\"title\":\"PR Title 1\",\"diff_url\":\"https://diffurl.com\"}]";
+//        ResponseEntity<String> mockPRResponseEntity = new ResponseEntity<>(prResponseJson, HttpStatus.OK);
+//        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class)))
+//                .thenReturn(mockPRResponseEntity);
+//
+//        String diffCode = "Sample diff code for the PR";
+//        ResponseEntity<String> mockDiffCodeResponseEntity = new ResponseEntity<>(diffCode, HttpStatus.OK);
+//        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class)))
+//                .thenReturn(mockDiffCodeResponseEntity);
+//
+//        // Mock chatGPTService response
+//        String chatGPTResponse = "[{\"developer\":\"user1\",\"pr_title\":\"PR Title 1\","
+//                + "\"code_improvements\":[\"Improvement 1\",\"Improvement 2\",\"Improvement 3\"],"
+//                + "\"score\":[4,5,3,2],"
+//                + "\"criteria\":[\"Readability\",\"Performance\",\"Correctness\",\"Scalability\"]}]";
+//        when(chatGPTService.chat(anyString())).thenReturn(chatGPTResponse);
+//
+//        // Invoke the method
+//        String insights = insightsService.getCodeQualityEnhancementsInsights(repoData);
+//
+//        // Verify the behavior
+//        assertNotNull(insights);
+//        assertTrue(insights.contains("user1"));
+//        assertTrue(insights.contains("PR Title 1"));
+//        assertTrue(insights.contains("Improvement 1"));
+//        assertTrue(insights.contains("Improvement 2"));
+//        assertTrue(insights.contains("Improvement 3"));
+//        assertTrue(insights.contains("Readability"));
+//        assertTrue(insights.contains("Performance"));
+//        assertTrue(insights.contains("Correctness"));
+//        assertTrue(insights.contains("Scalability"));
+//        // Add more assertions based on the expected behavior
+//    }
 
 }
