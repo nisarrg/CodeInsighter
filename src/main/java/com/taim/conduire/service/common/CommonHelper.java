@@ -10,13 +10,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 
+//TODO --> Design Smell: Unutilized Abstraction.
 public class CommonHelper {
-	
+
+    //TODO --> Design Smell: Deficient Encapsulation (public accessibility)
 	public static ApplicationContext ctx = null;
-	private static HashMap<String, ThreadPoolExecutor> poolMap = new HashMap<String, ThreadPoolExecutor>();
-	private static HashMap<String, String> nonceMap = new HashMap<String, String>();
-	private static HashMap<String, Integer> distance = new HashMap<String, Integer>();
-	private static HashMap<String, List<String>> mapStates = new HashMap<String, List<String>>();
+
+    //TODO --> Design Smell: Deficient Encapsulation (public accessibility)
+	private static final HashMap<String, ThreadPoolExecutor> poolMap = new HashMap<String, ThreadPoolExecutor>();
+	private static final HashMap<String, String> nonceMap = new HashMap<String, String>();
+	private static final HashMap<String, Integer> distance = new HashMap<String, Integer>();
+	private static final HashMap<String, List<String>> mapStates = new HashMap<String, List<String>>();
 	
 	public static final synchronized Integer getDistance(String distanceString) {
 		return distance.get(distanceString);
@@ -40,7 +44,7 @@ public class CommonHelper {
     	nonceMap.put(shop, nonce);
     }
     
-	private static HashMap<String, Object> mapCache = new HashMap<String, Object>();
+	private static final HashMap<String, Object> mapCache = new HashMap<String, Object>();
    
 	public static UserData getUserAccount() {
         final Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();

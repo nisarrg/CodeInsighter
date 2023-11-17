@@ -81,6 +81,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
     }
 
     public Map<String, Integer> getRepositoryLanguages(RepoData repoData) {
+        // TODO: make a common function for these lines. --> not feasible in some cases.
         String repoLanguagesAPIURL = String.format("%s/repos/%s/languages", GITHUB_API_URL, repoData.getName());
         System.out.println("Languages API: " + repoLanguagesAPIURL);
 
@@ -154,11 +155,12 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
             String responseBody = e.getResponseBodyAsString();
             if (responseBody.contains("too big")) {
                 System.out.println("Repo Size > 500 MB: " + responseBody);
-                repoTooBig = true;
+                // TODO: This variable can be taken out of if-else --> DONE
             } else {
                 System.out.println("Other BadRequest Exception: " + responseBody);
-                repoTooBig = true;
             }
+            // above TO-DO refers to this variable which was inside the loop earlier
+            repoTooBig = true;
 
         } catch (Exception e) {
             System.out.println("An error occurred: " + e.getMessage());
@@ -205,6 +207,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
             JsonArray jsonArray = gson.fromJson(jsonArrayString, JsonArray.class);
 
             for (JsonElement element : jsonArray) {
+                // TODO: early return expected --> not feasible for now.
                 if (element.isJsonObject()) {
                     JsonObject repoObject = element.getAsJsonObject();
                     RepoData repoData = null;
@@ -235,11 +238,13 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
                     repoData.setRepoCreatedAt(dateFormat.parse(repoObject.get("created_at").getAsString()));
                     repoData.setRepoUpdatedAt(dateFormat.parse(repoObject.get("updated_at").getAsString()));
                     repoData.setUpdatedAt(new Date());
+                    repoData = update(repoData);
                 }
             }
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
         return "dump success";
     }
 }

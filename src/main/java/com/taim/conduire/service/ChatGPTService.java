@@ -26,6 +26,8 @@ public class ChatGPTService {
         LLMRequest request = new LLMRequest(model, prompt);
         // call the API
         LLMResponse response = restTemplate.postForObject(apiUrl, request, LLMResponse.class);
+
+        // TODO --> implementation smell: complex condition
         if (response == null || response.getChoices() == null || response.getChoices().isEmpty()) {
             return "No response";
         }

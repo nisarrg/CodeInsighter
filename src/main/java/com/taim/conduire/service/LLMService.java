@@ -35,6 +35,7 @@ public class LLMService {
     @Value("${github.repository.name}")
     private String repo;
 
+    // TODO: WTF. accessToken hardcoded.
     @Value("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")
     private String accessToken;
 
@@ -56,6 +57,7 @@ public class LLMService {
         String apiUrl = String.format("%s/repos/%s/%s/stats/code_frequency", githubApiUrl, owner, repo);
         System.out.println(apiUrl);
         String apiResponse = restTemplate.getForObject(apiUrl, String.class);
+        // TODO --> Implementation smell: long statement
         List<List<Integer>> codeFrequencyStats = objectMapper.readValue(apiResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
         return codeFrequencyStats;
     }
@@ -64,6 +66,7 @@ public class LLMService {
         String apiUrl = String.format("%s/repos/%s/%s/stats/punch_card", githubApiUrl, owner, repo);
         System.out.println(apiUrl);
         String apiResponse = restTemplate.getForObject(apiUrl, String.class);
+        // TODO --> Implementation smell: long statement
         List<List<Integer>> repoPunchCard = objectMapper.readValue(apiResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
         computeWeeklyCommits(repoPunchCard);
         return repoPunchCard;
@@ -73,6 +76,7 @@ public class LLMService {
         String apiUrl = String.format("%s/repos/%s/stats/punch_card", githubApiUrl,name);
         System.out.println(apiUrl);
         String apiResponse = restTemplate.getForObject(apiUrl, String.class);
+        // TODO --> Implementation smell: long statement
         List<List<Integer>> repoPunchCard = objectMapper.readValue(apiResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
         return computeWeeklyCommits(repoPunchCard);
     }
@@ -83,6 +87,7 @@ public class LLMService {
             dataset.setValue(entry.getKey(), entry.getValue());
         }
 
+        // TODO: Why 8tab space instead of 4?
         JFreeChart chart = ChartFactory.createPieChart(
                 "Your Pie Chart Title",
                 dataset,
@@ -95,6 +100,7 @@ public class LLMService {
         //plot.setSection(0000.35);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        // TODO --> Implementation smell: remove magic numbers: 400, 300
         ChartUtilities.writeChartAsPNG(outputStream, chart, 400, 300);
         return outputStream.toByteArray();
     }
@@ -118,7 +124,6 @@ public class LLMService {
                 true,
                 false
         );
-
         return chart;
     }
 
@@ -126,6 +131,12 @@ public class LLMService {
         int[] weeklyCount = new int[7];
         int count = 0;
         int i=0,x=0;
+        // TODO: Ask what is 23, 46, 69, ...???. remove magic numbers.
+        // TODO: Make all those statements inside while loop common.
+        // TODO: Remove all unnecessary comments. And add meaningful comments instead of sunday, monday.
+        // TODO: Fix the indentation.
+        //TODO: Complex method --> cyclomatic complexity is 9
+
         //Sunday
         while(i<=23)
         {
@@ -217,11 +228,13 @@ public class LLMService {
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             return responseEntity.getBody();
         } else {
+            // TODO: unnecessary else statement
             throw new RuntimeException("Failed to download repository code. Status code: " + responseEntity.getStatusCodeValue());
         }
     }
 
     public String getHelloWorld(){
+        // TODO: Ask purpose of this method and why is URL hardcoded??
         String uri = "http://localhost:8080/hellooo";
         RestTemplate restTemplate1 = new RestTemplate();
         return restTemplate1.getForObject(uri,String.class);
@@ -271,7 +284,7 @@ public class LLMService {
 
         RequestEntity<?> requestEntity = RequestEntity.get(uri).headers(headers).build();
         ResponseEntity<String> response = restTemplate.exchange(requestEntity, String.class);
-
+        // TODO: Flip the condition and get an early return
         if (response.getStatusCodeValue() == 200) {
             // The response contains base64-encoded content, so decode it
             String content = response.getBody();
@@ -279,9 +292,11 @@ public class LLMService {
             System.out.println(content);
             //content = content.substring(content.indexOf("content")+9,content.indexOf("encoding")-3);
             content = JSONUtils.parseJSONResponseAsTree(content);
+            // TODO: As the reason for double backslashes.
             content = content.replaceAll("\\s","");
             System.out.println(content);
             String decodedContent = new String(Base64.getDecoder().decode(content), StandardCharsets.UTF_8);
+            // TODO: "At least"?
             System.out.println("WE REACHED HERE ATLEAST!!!" + decodedContent);
             response = ResponseEntity.ok(decodedContent);
         }

@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// TODO --> Designite detected this class not being used --> unutilized abstraction.
 @Controller
 @RequestMapping("/users/repo")
 @Validated
@@ -58,6 +59,7 @@ public class UserRepoInsightsController {
         System.out.println("repoID: " + repoID + "insightType CCM ");
         RepoData repoData = repoDataService.getOne(repoID);
         Map<String, List<String>> reviewerComments = insightsService.getRepositoryReviewComments(repoData);
+        // TODO: Variable name to roleInsights --> DONE
         Map<String, String> roleInsights = new HashMap<>();
 
         String businessAnalystPrompt = "These are open PR review comments by the reviewer:" + reviewerComments.toString() + "\n." +
