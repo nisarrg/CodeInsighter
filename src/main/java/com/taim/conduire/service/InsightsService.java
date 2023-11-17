@@ -78,10 +78,8 @@ public class InsightsService implements ConstantCodes {
         ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
 
         String jsonObjectString = response.getBody();
-        System.out.println("jsonObjectString: " + jsonObjectString);
         Gson gson = new Gson();
         JsonObject repoJsonObject = gson.fromJson(jsonObjectString, JsonObject.class);
-        System.out.println("repoJsonObject: " + repoJsonObject);
         ResponseEntity<String> prReviewResposne = null;
 
         if(repoJsonObject.get("fork").getAsBoolean()){
