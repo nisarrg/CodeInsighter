@@ -15,7 +15,7 @@ build-job:
     paths:
       - target/*.jar  # Define artifacts to be stored after the job
   only:
-    - develop/login-authentication  # Define when the job should be executed
+    - main  # Define when the job should be executed
 
 publish-job:
   image: docker:latest
@@ -37,7 +37,7 @@ publish-job:
     - docker build -t docker.io/group12project/llm_insights:$CI_COMMIT_SHORT_SHA .
     - docker push docker.io/group12project/llm_insights:$CI_COMMIT_SHORT_SHA
   only:
-    - develop/login-authentication
+    - main
 
 deploy-job:
   image: alpine:latest
@@ -55,4 +55,4 @@ deploy-job:
     name: production
     url: http://172.17.0.73:8073
   only:
-    - develop/login-authentication
+    - main
