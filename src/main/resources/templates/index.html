@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Code Insighter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
+    <meta content="Coderthemes" name="author" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- App favicon -->
+    <link rel="shortcut icon" th:href="@{/static/images/favicon.ico}">
+
+    <!-- App css -->
+    <link th:href="@{/static/css/config/default/bootstrap.min.css}" rel="stylesheet" type="text/css" id="bs-default-stylesheet" />
+    <link th:href="@{/static/css/config/default/app.min.css}" rel="stylesheet" type="text/css" id="app-default-stylesheet" />
+    <link th:href="@{/static/css/fontawesome.min.css}" rel="stylesheet" type="text/css" id="fa-default-stylesheet" />
+    <link th:href="@{/static/css/config/default/bootstrap-dark.min.css}" rel="stylesheet" type="text/css" id="bs-dark-stylesheet" />
+    <link th:href="@{/static/css/config/default/app-dark.min.css}" rel="stylesheet" type="text/css" id="app-dark-stylesheet" />
+
+    <!-- icons -->
+    <link th:href="@{/static/css/icons.min.css}" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body class="authentication-bg authentication-bg-pattern" style="background-image: url('static/images/bg.jpg'); background-repeat: no-repeat; background-size: cover;">
+<div class="account-pages mt-5 mb-5">
+    <div class="container">
+        <div class="row" >
+            <div class="col-md-8 col-lg-6 col-xl-4">
+                <div class="card bg-pattern">
+                    <div class="card-body p-4">
+                        <div class="text-center w-75 m-auto">
+                            <div class="auth-brand">
+                                <a href="#" class="logo logo-dark text-center">
+                                    <span class="logo-lg">
+                                        <img alt="CodeInsighter" th:src="@{../../static/images/code-logo.png}"
+                                             width="250">
+                                    </span>
+                                </a>
+                                <a href="#" class="logo logo-light text-center">
+                                    <span class="logo-lg">
+                                        <img alt="CodeInsighter" th:src="@{../../static/images/code-logo.png}"
+                                             width="250">
+                                    </span>
+                                </a>
+                            </div>
+                            <br>
+                            <br>
+                            <br>
+                            <p class="text-muted mb-4 mt-3">Please sign in with your GitHub account.</p>
+                        </div>
+                        <div>
+                            <div class="text-center d-grid">
+                                <a class="btn btn-block btn-social btn-dark waves-effect waves-light" href="/oauth2/authorization/github">
+                                    <span class="fe-github"></span>   Sign in with GitHub
+                                </a>
+                            </div>
+                            <span id="dynamicURL" style="display: none"
+                                  th:text="${#httpServletRequest.scheme + '://' + #httpServletRequest.serverName + ':' + #httpServletRequest.serverPort + #httpServletRequest.contextPath}">
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/static/js/vendor.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/app.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/libs/jquery/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/js-cookie/js.cookie.js}"></script>
+<script type="text/javascript">
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+            if (settings.type == 'POST' || settings.type == 'PUT' || settings.type == 'DELETE') {
+                if (!(/^http:.*/.test(settings.url) || /^https:/
+                    .test(settings.url))) {
+                    // Only send the tokens to relative URLs i.e. locally.
+                    xhr.setRequestHeader("X-XSRF-TOKEN", Cookies.get('XSRF-TOKEN'));
+                }
+            }
+        }
+    })
+
+    function redirectToUser(dynamicURL) {
+        $.ajax({
+            type: 'GET',
+            url: "/user",
+            success: function (resultData) {
+                location.href = dynamicURL + "/users/" + resultData;
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        var dynamicURL = $("#dynamicURL").text();
+        redirectToUser(dynamicURL);
+    });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+
+    <meta charset="utf-8"/>
+    <title>CodeInsighter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description"/>
+    <meta content="Coderthemes" name="author"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <!-- App favicon -->
+    <link rel="shortcut icon" th:href="@{/static/images/favicon.ico}">
+
+    <!-- Plugins css -->
+    <link th:href="@{/libs/flatpickr/flatpickr.min.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/libs/selectize/css/selectize.bootstrap3.css}" rel="stylesheet" type="text/css"/>
+
+    <!-- App css -->
+    <link th:href="@{/css/config/default/bootstrap.min.css}" rel="stylesheet" type="text/css"
+          id="bs-default-stylesheet"/>
+    <link th:href="@{/css/config/default/app.min.css}" rel="stylesheet" type="text/css" id="app-default-stylesheet"/>
+
+    <link th:href="@{/css/config/default/bootstrap-dark.min.css}" rel="stylesheet" type="text/css"
+          id="bs-dark-stylesheet"/>
+    <link th:href="@{/css/config/default/app-dark.min.css}" rel="stylesheet" type="text/css"
+          id="app-dark-stylesheet"/>
+
+    <!-- icons -->
+    <link th:href="@{/css/icons.min.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/css/spinner.css}" rel="stylesheet" type="text/css"/>
+
+</head>
+
+<!-- body start -->
+<body class="loading"
+      data-layout='{"mode": "light", "width": "fluid", "menuPosition": "fixed", "sidebar": { "color": "light", "size": "default", "showuser": false}, "topbar": {"color": "dark"}, "showRightSidebarOnPageLoad": true}'>
+
+<!-- Begin page -->
+<div id="wrapper">
+
+    <!-- Topbar Start -->
+    <div class="navbar-custom">
+        <div class="container-fluid">
+
+
+            <!-- LOGO -->
+            <div class="logo-box">
+                <a href="#" class="logo logo-dark text-center">
+                    <span class="logo-sm">
+                         <img alt="CodeInsighter" th:src="@{../../../../static/images/code-logo-light.png}" width="250">
+                    </span>
+                    <span class="logo-lg">
+                        <img alt="CodeInsighter" th:src="@{../../../../static/images/code-logo-light.png}" width="250">
+                    </span>
+                </a>
+
+                <a href="#" class="logo logo-light text-center">
+                    <span class="logo-sm">
+                        <img alt="CodeInsighter" th:src="@{../../../../static/images/code-logo-light.png}" width="250">
+                    </span>
+                    <span class="logo-lg">
+                        <img alt="CodeInsighter" th:src="@{../../../../static/images/code-logo-light.png}" width="250">
+                    </span>
+                </a>
+            </div>
+
+            <ul class="list-unstyled topnav-menu topnav-menu-left m-0">
+                <li>
+                    <button class="button-menu-mobile waves-effect waves-light">
+                        <i class="fe-menu"></i>
+                    </button>
+                </li>
+
+                <li>
+                    <!-- Mobile menu toggle (Horizontal Layout)-->
+                    <a class="navbar-toggle nav-link" data-bs-toggle="collapse" data-bs-target="#topnav-menu-content">
+                        <div class="lines">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </a>
+                    <!-- End mobile menu toggle-->
+                </li>
+            </ul>
+
+            <ul class="list-unstyled topnav-menu float-end mb-0">
+
+                <li class="dropdown d-none d-lg-inline-block">
+                    <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" data-toggle="fullscreen" href="#">
+                        <i class="fe-maximize noti-icon"></i>
+                    </a>
+                </li>
+
+                <li class="dropdown notification-list topbar-dropdown">
+                    <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                        <img id="myImage" th:src="${userData.avatarUrl}" alt="user-image" class="rounded-circle">
+                        <span id="myName" class="pro-user-name ms-1" th:text="${userData.name}">
+                         <i class="mdi mdi-chevron-down"></i>
+                        </span>
+                        <span id="myUserId" style="display: none" th:text="${userData.id}"></span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end profile-dropdown ">
+                        <!-- item-->
+                        <div class="dropdown-header noti-title">
+                            <h6 class="text-overflow m-0">Welcome !</h6>
+                        </div>
+
+                        <!-- item-->
+                        <a href="javascript:void(0);" id="logout-btn" class="dropdown-item notify-item">
+                            <i class="fe-log-out"></i>
+                            <span>Logout</span>
+                        </a>
+
+                    </div>
+                </li>
+
+            </ul>
+
+            <div class="clearfix"></div>
+        </div>
+    </div>
+    <!-- end Topbar -->
+
+    <!-- ========== Left Sidebar Start ========== -->
+    <div class="left-side-menu">
+
+        <div class="h-100" data-simplebar>
+
+            <!--- Sidemenu -->
+            <div id="sidebar-menu">
+
+                <ul id="side-menu">
+
+                    <li class="menu-title">Navigation</li>
+
+                    <li>
+                        <a href="#" id="reposPage">
+                            <i class="fe-grid"></i>
+                            <span> Repositories </span>
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+            <!-- End Sidebar -->
+
+            <div class="clearfix"></div>
+
+        </div>
+        <!-- Sidebar -left -->
+
+    </div>
+    <!-- Left Sidebar End -->
+
+    <!-- ============================================================== -->
+    <!-- Start Page Content here -->
+    <!-- ============================================================== -->
+
+    <div class="content-page">
+        <div class="content">
+
+            <!-- Start Content-->
+            <div class="container-fluid">
+
+                <!-- start page title -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="page-title-box">
+                            <div class="page-title-right">
+                                <ol class="breadcrumb m-0">
+                                    <li class="breadcrumb-item"><a th:href="${'/users/'+ userData.id}" id="reposBreadcrumb">Repositories</a></li>
+                                    <li class="breadcrumb-item"><a th:href="${'/users/repo/'+ repoData.id}" th:text="${repoData.name}"></a></li>
+                                    <li class="breadcrumb-item active"><span>Insights</span></li>
+                                </ol>
+                            </div>
+                            <h4 class="page-title"><span th:text="${repoData.name}"></span> 's Insights</h4>
+                            <span id="myRepoId" style="display: none" th:text="${repoData.id}"></span>
+                        </div>
+                    </div>
+                </div>
+                <div id="spinner-div" style="display:none;" class="pt-5">
+                    <div class="spinner-border avatar-lg text-primary m-2" role="status"></div>
+                </div>
+                <!-- end page title -->
+                <div class="card" id="insightsCard">
+                    <div class="card-body" style="position: relative">
+                        <h4 id="insightsTitle"></h4>
+                        <ul class="nav nav-tabs nav-bordered">
+                            <li class="nav-item">
+                                <a href="#commonCodeMistakes" data-bs-toggle="tab" aria-expanded="true" class="nav-link active" id="commonCodeMistakesNav">
+                                    Common Code Mistakes
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#collaborationAnalysis" data-bs-toggle="tab" aria-expanded="false" class="nav-link" id="collaborationAnalysisNav">
+                                    Collaboration Analysis
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#codeQualityEnhancement" data-bs-toggle="tab" aria-expanded="false" class="nav-link" id="codeQualityEnhancementNav">
+                                    Code Quality Enhancement
+                                </a>
+                            </li>
+                        </ul>
+                        <br>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="tab-content pt-0">
+                                    <div class="tab-pane show active" id="commonCodeMistakes">
+                                        <div class="col-sm-12">
+                                            <h4>Common Code Mistakes</h4>
+                                            <ul class="nav nav-tabs nav-bordered">
+                                                <li class="nav-item">
+                                                    <a href="#businessAnalyst" data-bs-toggle="tab" aria-expanded="true" class="nav-link active">
+                                                        Business Analyst
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="#technicalLead" data-bs-toggle="tab" aria-expanded="false" class="nav-link ">
+                                                        Technical Lead
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                            <br>
+                                            <div class="row">
+                                                <div class="tab-content pt-0">
+                                                    <div class="tab-pane show active" id="businessAnalyst">
+                                                    </div>
+                                                    <div class="tab-pane" id="technicalLead">
+                                                    </div>
+                                                </div>
+                                            </div> <!-- end row-->
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane" id="collaborationAnalysis">
+                                    </div>
+                                    <div class="tab-pane" id="codeQualityEnhancement">
+                                        <div class="row justify-content-center">
+                                            <div id="codeQualityEnhancementContainer"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> <!-- end row-->
+                    </div>
+                </div> <!-- end card-->
+            </div>
+            <!-- end row -->
+
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- End Page content -->
+            <!-- ============================================================== -->
+
+        <span id="dynamicURL" style="display: none"
+              th:text="${#httpServletRequest.scheme + '://' + #httpServletRequest.serverName + ':' + #httpServletRequest.serverPort + #httpServletRequest.contextPath}">
+        </span>
+        </div>
+    </div>
+    <!-- END wrapper -->
+
+
+    <!-- Vendor js -->
+    <script th:src="@{/js/vendor.min.js}"></script>
+
+    <!-- Plugins js-->
+    <script th:src="@{/libs/flatpickr/flatpickr.min.js}"></script>
+    <script th:src="@{/libs/apexcharts/apexcharts.min.js}"></script>
+
+    <script th:src="@{/libs/selectize/js/standalone/selectize.min.js}"></script>
+
+    <!-- Chart js -->
+    <script type="text/javascript" th:src="@{/libs/chart.js/Chart.min.js}"></script>
+
+    <!-- Dashboar 1 init js-->
+    <script th:src="@{/js/pages/dashboard-1.init.js}"></script>
+
+    <!-- App js-->
+    <script th:src="@{/js/app.min.js}"></script>
+    <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
+
+    <script type="text/javascript">
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (settings.type == 'POST' || settings.type == 'PUT' || settings.type == 'DELETE') {
+                    if (!(/^http:.*/.test(settings.url) || /^https:/
+                        .test(settings.url))) {
+                        // Only send the tokens to relative URLs i.e. locally.
+                        xhr.setRequestHeader("X-XSRF-TOKEN", Cookies.get('XSRF-TOKEN'));
+                    }
+                }
+            }
+        })
+
+        function redirectToLogout(dynamicURL) {
+            $('#logout-btn').on('click', function () {
+                $.post("/logout", function () {
+                    location.href = dynamicURL;
+                })
+            });
+        }
+
+        $(document).ready(function() {
+            var dynamicURL = $("#dynamicURL").text();
+            redirectToLogout(dynamicURL);
+            var myRepoId = $("#myRepoId").text();
+            var myUserId = $("#myUserId").text();
+            var reposPage = "/users/" + myUserId;
+            $("#reposPage").attr("href", reposPage);
+            $("#reposBreadcrumb").attr("href", reposPage);
+            getInsights(myRepoId);
+        });
+
+        function getInsights(myRepoId) {
+            //Common Code Mistakes Insight Call
+            $('#commonCodeMistakesNav').click(function () {
+                console.log("CCM Clicked")
+                if ($("#businessAnalyst").html().trim().length > 0 && $("#technicalLead").html().trim().length > 0) {
+                    // Do nothing
+                    console.log("Div has content. Doing nothing.");
+                } else {
+                    $("#spinner-div").show(); //Load button clicked show spinner
+                    $.ajax({
+                        url: 'get-insights/ccm',
+                        method: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+                            console.log(data);
+                            $.each(data, function (key, val) {
+                                if (key == "businessAnalyst") {
+                                    $('#businessAnalyst').html(val);
+
+                                } else {
+                                    $('#technicalLead').html(val);
+
+                                }
+                            });
+                        },
+                        complete: function () {
+                            $("#spinner-div").hide(); //Request is complete so hide spinner
+                        }
+                    });
+                }
+            });
+
+            //Common Quality Enhancement Insight Call
+            $('#codeQualityEnhancementNav').click(function () {
+                console.log("CQE Clicked")
+                if ($("#codeQualityEnhancementContainer").html().trim().length > 0) {
+                    // Do nothing
+                    console.log("Div has content. Doing nothing.");
+                } else {
+                    $("#spinner-div").show(); //Load button clicked show spinner
+                    $.ajax({
+                        url: 'get-insights/cqe',
+                        method: 'GET',
+                        dataType: 'json',
+                        success: function(jsonData) {
+                            if (Array.isArray(jsonData)) {
+                                jsonData.forEach((data, index) => {
+                                    var chartContainer = $("<div>").attr("id", `chart-${index}`).addClass("chart-container").appendTo("#codeQualityEnhancementContainer");
+                                    $("<h5>").html(`<span style="color: red;">${data.developer}</span> - ${data.pr_title}`).appendTo(chartContainer);
+                                    $(`<span style="font-weight:bold;">Code Improvement Suggestions: </span>`).appendTo(chartContainer);
+                                    var codeImprovementsList = $("<ul>").appendTo(chartContainer);
+                                    data.code_improvements.forEach((improvement) => {
+                                        $("<li>").text(improvement).appendTo(codeImprovementsList);
+                                    });
+                                    var canvas = $("<canvas>").appendTo(chartContainer);
+                                    var ctx = canvas[0].getContext("2d");
+                                    var barColors = data.criteria.map(function () {
+                                        return getRandomColor();
+                                    });
+                                    new Chart(ctx, {
+                                        type: 'bar',
+                                        data: {
+                                            labels: data.criteria,
+                                            datasets: [{
+                                                label: 'Score',
+                                                data: data.score,
+                                                backgroundColor: barColors,
+                                                borderColor: barColors,
+                                                borderWidth: 1
+                                            }]
+                                        },
+                                        options: {
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true,
+                                                    suggestedMin: 0,
+                                                    suggestedMax: 5
+                                                }
+                                            }
+                                        }
+                                    });
+                                });
+                            } else {
+                                // If jsonData is not a valid JSON array, display it as a string
+                                $('#codeQualityEnhancementContainer').html(`<h3>${jsonData.message}</h3>`);
+                            }
+                        },
+                        complete: function () {
+                            $("#spinner-div").hide(); //Request is complete so hide spinner
+                        },
+                        error: function(err) {
+                            $("#spinner-div").hide(); //Request is complete so hide spinner
+                            console.error('Error fetching data:', err);
+                            console.log(err.responseText);
+                        }
+                    });
+                }
+            });
+        }
+
+        function getRandomColor() {
+            var letters = "0123456789ABCDEF";
+            var color = "#";
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+    </script>
+
+</body>
+</html>

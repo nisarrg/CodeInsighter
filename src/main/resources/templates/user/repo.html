@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+
+    <meta charset="utf-8"/>
+    <title>CodeInsighter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description"/>
+    <meta content="Coderthemes" name="author"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <!-- App favicon -->
+    <link rel="shortcut icon" th:href="@{/static/images/favicon.ico}">
+
+    <!-- Plugins css -->
+    <link th:href="@{/libs/flatpickr/flatpickr.min.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/libs/selectize/css/selectize.bootstrap3.css}" rel="stylesheet" type="text/css"/>
+
+    <!-- App css -->
+    <link th:href="@{/css/config/default/bootstrap.min.css}" rel="stylesheet" type="text/css"
+          id="bs-default-stylesheet"/>
+    <link th:href="@{/css/config/default/app.min.css}" rel="stylesheet" type="text/css" id="app-default-stylesheet"/>
+
+    <link th:href="@{/css/config/default/bootstrap-dark.min.css}" rel="stylesheet" type="text/css"
+          id="bs-dark-stylesheet"/>
+    <link th:href="@{/css/config/default/app-dark.min.css}" rel="stylesheet" type="text/css"
+          id="app-dark-stylesheet"/>
+
+    <!-- icons -->
+    <link th:href="@{/css/icons.min.css}" rel="stylesheet" type="text/css"/>
+
+</head>
+
+<!-- body start -->
+<body class="loading"
+      data-layout='{"mode": "light", "width": "fluid", "menuPosition": "fixed", "sidebar": { "color": "light", "size": "default", "showuser": false}, "topbar": {"color": "dark"}, "showRightSidebarOnPageLoad": true}'>
+
+<!-- Begin page -->
+<div id="wrapper">
+
+    <!-- Topbar Start -->
+    <div class="navbar-custom">
+        <div class="container-fluid">
+
+
+            <!-- LOGO -->
+            <div class="logo-box">
+                <a href="#" class="logo logo-dark text-center">
+                    <span class="logo-sm">
+                         <img alt="CodeInsighter" th:src="@{../../static/images/code-logo-light.png}" width="250">
+                    </span>
+                    <span class="logo-lg">
+                        <img alt="CodeInsighter" th:src="@{../../static/images/code-logo-light.png}" width="250">
+                    </span>
+                </a>
+
+                <a href="#" class="logo logo-light text-center">
+                    <span class="logo-sm">
+                        <img alt="CodeInsighter" th:src="@{../../static/images/code-logo-light.png}" width="250">
+                    </span>
+                    <span class="logo-lg">
+                        <img alt="CodeInsighter" th:src="@{../../static/images/code-logo-light.png}" width="250">
+                    </span>
+                </a>
+            </div>
+
+            <ul class="list-unstyled topnav-menu topnav-menu-left m-0">
+                <li>
+                    <button class="button-menu-mobile waves-effect waves-light">
+                        <i class="fe-menu"></i>
+                    </button>
+                </li>
+
+                <li>
+                    <!-- Mobile menu toggle (Horizontal Layout)-->
+                    <a class="navbar-toggle nav-link" data-bs-toggle="collapse" data-bs-target="#topnav-menu-content">
+                        <div class="lines">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </a>
+                    <!-- End mobile menu toggle-->
+                </li>
+            </ul>
+
+            <ul class="list-unstyled topnav-menu float-end mb-0">
+
+                <li class="dropdown d-none d-lg-inline-block">
+                    <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" data-toggle="fullscreen"
+                       href="#">
+                        <i class="fe-maximize noti-icon"></i>
+                    </a>
+                </li>
+
+                <li class="dropdown notification-list topbar-dropdown">
+                    <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light" data-bs-toggle="dropdown"
+                       href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                        <img id="myImage" th:src="${userData.avatarUrl}" alt="user-image" class="rounded-circle">
+                        <span id="myName" class="pro-user-name ms-1" th:text="${userData.name}">
+                         <i class="mdi mdi-chevron-down"></i>
+                        </span>
+                        <span id="myUserId" style="display: none" th:text="${userData.id}"></span>
+                    </a>
+
+                    <div class="dropdown-menu dropdown-menu-end profile-dropdown ">
+                        <!-- item-->
+                        <div class="dropdown-header noti-title">
+                            <h6 class="text-overflow m-0">Welcome !</h6>
+                        </div>
+
+                        <!-- item-->
+                        <a href="javascript:void(0);" id="logout-btn" class="dropdown-item notify-item">
+                            <i class="fe-log-out"></i>
+                            <span>Logout</span>
+                        </a>
+
+                    </div>
+                </li>
+
+            </ul>
+
+            <div class="clearfix"></div>
+        </div>
+    </div>
+    <!-- end Topbar -->
+
+    <!-- ========== Left Sidebar Start ========== -->
+    <div class="left-side-menu">
+
+        <div class="h-100" data-simplebar>
+
+            <!--- Sidemenu -->
+            <div id="sidebar-menu">
+
+                <ul id="side-menu">
+
+                    <li class="menu-title">Navigation</li>
+
+                    <li>
+                        <a href="#" id="reposPage">
+                            <i class="fe-grid"></i>
+                            <span> Repositories </span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="#" id="insightsPage">
+                            <i class="fe-bar-chart"></i>
+                            <span> Insights </span>
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+            <!-- End Sidebar -->
+
+            <div class="clearfix"></div>
+
+        </div>
+        <!-- Sidebar -left -->
+
+    </div>
+    <!-- Left Sidebar End -->
+
+    <!-- ============================================================== -->
+    <!-- Start Page Content here -->
+    <!-- ============================================================== -->
+
+    <div class="content-page">
+        <div class="content">
+
+            <!-- Start Content-->
+            <div class="container-fluid">
+
+                <!-- start page title -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="page-title-box">
+                            <div class="page-title-right">
+                                <ol class="breadcrumb m-0">
+                                    <li class="breadcrumb-item"><a href="#" id="reposBreadcrumb">Repositories</a>
+                                    </li>
+                                    <li class="breadcrumb-item active"><span th:text="${repoData.name}"></span></li>
+                                </ol>
+                            </div>
+                            <h4 class="page-title"><span th:text="${repoData.name}"></span> Every Day Stats</h4>
+                            <span id="myRepoId" style="display: none" th:text="${repoData.id}"></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- end page title -->
+
+                <div class="row">
+                    <div class="col-md-6 col-xl-3">
+                        <div class="widget-rounded-circle card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="avatar-lg rounded-circle bg-soft-primary border-primary border">
+                                            <i class="dripicons-list font-22 avatar-title text-primary"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-end">
+                                            <h3 class="text-dark mt-1"><span data-plugin="counterup" id="loc">0</span></h3>
+                                            <p class="text-muted mb-1 text-truncate">Lines of Code </p>
+                                        </div>
+                                    </div>
+                                </div> <!-- end row-->
+                            </div>
+                        </div> <!-- end widget-rounded-circle-->
+                    </div> <!-- end col-->
+
+                    <div class="col-md-6 col-xl-3">
+                        <div class="widget-rounded-circle card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="avatar-lg rounded-circle bg-soft-success border-success border">
+                                            <i class="dripicons-graph-pie font-22 avatar-title text-success"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-end">
+                                            <h3 class="text-dark mt-1"><span data-plugin="counterup" id="languages">0</span></h3>
+                                            <p class="text-muted mb-1 text-truncate">No. of Languages Used</p>
+                                        </div>
+                                    </div>
+                                </div> <!-- end row-->
+                            </div>
+                        </div> <!-- end widget-rounded-circle-->
+                    </div> <!-- end col-->
+
+                    <div class="col-md-6 col-xl-3">
+                        <div class="widget-rounded-circle card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="avatar-lg rounded-circle bg-soft-info border-info border">
+                                            <i class="dripicons-network-1 font-22 avatar-title text-info"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-end">
+                                            <h3 class="text-dark mt-1"><span data-plugin="counterup" id="pr">0</span></h3>
+                                            <p class="text-muted mb-1 text-truncate">Pull Requests</p>
+                                        </div>
+                                    </div>
+                                </div> <!-- end row-->
+                            </div>
+                        </div> <!-- end widget-rounded-circle-->
+                    </div> <!-- end col-->
+
+                    <div class="col-md-6 col-xl-3">
+                        <div class="widget-rounded-circle card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="avatar-lg rounded-circle bg-soft-warning border-warning border">
+                                            <i class="dripicons-link font-22 avatar-title text-warning"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-end">
+                                            <h3 class="text-dark mt-1"><span data-plugin="counterup" id="forksCount">0</span></h3>
+                                            <p class="text-muted mb-1 text-truncate">No. of Forks</p>
+                                        </div>
+                                    </div>
+                                </div> <!-- end row-->
+                            </div>
+                        </div> <!-- end widget-rounded-circle-->
+                    </div> <!-- end col-->
+                </div>
+                <!-- end row-->
+
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-body pb-2">
+                                <h4 class="header-title mb-0">Distribution of Languages Used</h4>
+                                <div class="widget-chart text-center" dir="ltr">
+                                    <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+                                </div>
+                            </div>
+                        </div> <!-- end card -->
+                    </div> <!-- end col-->
+
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-body pb-2">
+                                <h4 class="header-title mb-3">Total Commits</h4>
+                                <canvas id="myBarChart" style="width:100%;max-width:600px"></canvas>
+                            </div>
+                        </div> <!-- end card -->
+                    </div> <!-- end col-->
+                </div>
+                <!-- end row -->
+
+                <div class="row">
+                    <div class="col-xl-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="header-title mb-3">Weekly Commits</h4>
+                                <div class="table-responsive">
+                                    <table class="table table-borderless table-hover table-nowrap table-centered m-0">
+
+                                        <thead class="table-light">
+                                        <tr>
+                                            <th colspan="1">Day</th>
+                                            <th> No. Of Commits</th>
+                                            <th> </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id = "table-body">
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!-- end col -->
+                </div><!-- end row -->
+            </div> <!-- container -->
+        </div> <!-- content -->
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- End Page content -->
+    <!-- ============================================================== -->
+    <span id="dynamicURL" style="display: none"
+          th:text="${#httpServletRequest.scheme + '://' + #httpServletRequest.serverName + ':' + #httpServletRequest.serverPort + #httpServletRequest.contextPath}">
+    </span>
+
+</div>
+<!-- END wrapper -->
+
+
+<!-- Vendor js -->
+<script th:src="@{/js/vendor.min.js}"></script>
+
+<!-- Plugins js-->
+<script th:src="@{/libs/flatpickr/flatpickr.min.js}"></script>
+<script th:src="@{/libs/apexcharts/apexcharts.min.js}"></script>
+
+<script th:src="@{/libs/selectize/js/standalone/selectize.min.js}"></script>
+
+<!-- Chart js -->
+<script type="text/javascript" th:src="@{/libs/chart.js/Chart.min.js}"></script>
+
+<!-- Dashboar 1 init js-->
+<script th:src="@{/js/pages/dashboard-1.init.js}"></script>
+
+<!-- App js-->
+<script th:src="@{/js/app.min.js}"></script>
+<script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
+
+<script type="text/javascript">
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+            if (settings.type == 'POST' || settings.type == 'PUT' || settings.type == 'DELETE') {
+                if (!(/^http:.*/.test(settings.url) || /^https:/
+                    .test(settings.url))) {
+                    // Only send the tokens to relative URLs i.e. locally.
+                    xhr.setRequestHeader("X-XSRF-TOKEN", Cookies.get('XSRF-TOKEN'));
+                }
+            }
+        }
+    })
+
+    function redirectToLogout(dynamicURL) {
+        $('#logout-btn').on('click', function () {
+            $.post("/logout", function () {
+                location.href = dynamicURL;
+            })
+        });
+    }
+
+    $(document).ready(function () {
+        var dynamicURL = $("#dynamicURL").text();
+        redirectToLogout(dynamicURL);
+        var myUserId = $("#myUserId").text();
+        var myRepoId = $("#myRepoId").text();
+        var reposPage = "/users/" + myUserId;
+        var insightsPage = "/users/repo/" + myRepoId + "/insights";
+        $("#reposPage").attr("href", reposPage);
+        $("#reposBreadcrumb").attr("href", reposPage);
+        $("#insightsPage").attr("href", insightsPage);
+        $('#myChart').empty();
+        $('#myBarChart').empty();
+        loadChartsAndStats(myRepoId);
+        fetchDataAndDisplay(myRepoId);
+    });
+
+    async function fetchDataAndDisplay(myRepoId) {
+        $.ajax({
+            type: "GET",
+            url: 'get-user-repos-punchcard/' + myRepoId,
+            dataType: 'json',
+            success: function displayArrayContents(array) {
+                const table = document.getElementById('table-body');
+
+                let x = 0;
+                let day = '';
+                for (const item of array) {
+                    //create row
+                    const row = document.createElement('tr');
+
+                    //create column to display day, add class and format it with heading 5
+                    day = document.createElement("td");
+                    var classNameWithSpaces = "m-0 fw-normal";
+
+                    // Split the class name string by spaces, trim any leading/trailing spaces, and join with single spaces
+                    var sanitizedClassName = classNameWithSpaces.split(' ').map(function(className) {
+                        return className.trim();
+                    }).join(' ');
+                    day.className = sanitizedClassName;
+                    const h5tag = document.createElement('h5');
+                    day.appendChild(h5tag);
+
+                    //setting value of day column
+                    if(x == 0){
+                        day.textContent = 'Sunday';
+                    }
+                    else if (x == 1)
+                        day.textContent = 'Monday';
+                    else if (x == 2 )
+                        day.textContent = 'Tuesday';
+                    else if (x == 3 )
+                        day.textContent = 'Wednesday';
+                    else if (x == 4 )
+                        day.textContent = 'Thursday';
+                    else if (x == 5 )
+                        day.textContent = 'Friday';
+                    else if (x == 6 )
+                        day.textContent = 'Saturday';
+
+                    //Creating another columna and setting it's value to no. of commits
+                    const NoCommit = document.createElement('td');
+                    NoCommit.textContent = item;
+
+                    //Add the two columns created to the row
+                    row.appendChild(day);
+                    row.appendChild(NoCommit);
+
+                    //Add the row created to the table
+                    table.appendChild(row);
+                    x++;
+                }
+            }
+        });
+    }
+
+    function getRandomColor() {
+        var letters = "0123456789ABCDEF";
+        var color = "#";
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    function loadChartsAndStats(myRepoId) {
+        //Pie Chart
+        $.ajax({
+            type: "GET",
+            url: 'get-user-repos-lang/' + myRepoId,
+            dataType: 'json',
+            success: function (receivedMap) {
+                console.log(receivedMap);
+                var xValues = Object.keys(receivedMap);
+                var yValues = Object.values(receivedMap);
+                var lengthOfXValues = xValues.length;
+                console.log("lengthOfXValues: " + lengthOfXValues);
+                $("#languages").text(lengthOfXValues);
+                var barColors = xValues.map(function () {
+                    return getRandomColor();
+                });
+                new Chart("myChart", {
+                    type: "pie",
+                    data: {
+                        labels: xValues,
+                        datasets: [{
+                            backgroundColor: barColors,
+                            data: yValues
+                        }]
+                    }
+                });
+            }
+        });
+
+        //Bar Chart
+        $.ajax({
+            type: "GET",
+            url: 'get-user-repos-contibutors/' + myRepoId,
+            dataType: 'json',
+            success: function (receivedMap) {
+                console.log(receivedMap);
+                var xValues = Object.keys(receivedMap);
+                var yValues = Object.values(receivedMap);
+                var barColors = xValues.map(function () {
+                    return getRandomColor();
+                });
+                new Chart("myBarChart", {
+                    type: "bar",
+                    data: {
+                        labels: xValues,
+                        datasets: [{
+                            backgroundColor: barColors,
+                            data: yValues
+                        }]
+                    }
+                });
+            }
+        });
+
+        //Repo Loc
+        $.ajax({
+            type: "GET",
+            url: 'get-user-repo-loc/' + myRepoId,
+            dataType: 'json',
+            success: function (TotalLoc) {
+                console.log(TotalLoc);
+                $("#loc").text(TotalLoc);
+            }
+        });
+
+        //Repo PRs
+        $.ajax({
+            type: "GET",
+            url: 'get-repo-prs/' + myRepoId,
+            dataType: 'json',
+            success: function (totalPR) {
+                console.log(totalPR);
+                $("#pr").text(totalPR);
+            }
+        });
+
+        //Repo forks Count
+        $.ajax({
+            type: "GET",
+            url: 'get-repo-forks-count/' + myRepoId,
+            dataType: 'json',
+            success: function (totalforksCount) {
+                console.log(totalforksCount);
+                $("#forksCount").text(totalforksCount);
+            }
+        });
+    }
+
+</script>
+
+</body>
+</html>
