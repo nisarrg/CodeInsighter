@@ -81,45 +81,75 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
     }
 
     public Map<String, Integer> getRepositoryLanguages(RepoData repoData) {
-        String apiUrl = String.format("%s/repos/%s/languages", GITHUB_API_URL, repoData.getName());
         // TODO: make a common function for these lines. --> not feasible in some cases.
-        System.out.println("apiUrl: " + apiUrl);
+        String repoLanguagesAPIURL = String.format("%s/repos/%s/languages", GITHUB_API_URL, repoData.getName());
+        System.out.println("Languages API: " + repoLanguagesAPIURL);
 
         UserData userData = userDataService.getOne(repoData.getUserId());
-        ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(repoLanguagesAPIURL, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), Map.class);
         showAvailableAPIHits(response.getHeaders());
         return response.getBody();
     }
 
     public Integer getRepositoryPRs(RepoData repoData) {
-        String apiUrl = String.format("%s/repos/%s/pulls", GITHUB_API_URL, repoData.getName());
-        System.out.println("apiUrl: " + apiUrl);
+        String repoPRApiURL = String.format("%s/repos/%s/pulls", GITHUB_API_URL, getParentRepo(repoData));
+        System.out.println("Repository PR API: " + repoPRApiURL);
 
         UserData userData = userDataService.getOne(repoData.getUserId());
 
-        ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+        ResponseEntity<String> response = restTemplate.exchange(repoPRApiURL, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
         showAvailableAPIHits(response.getHeaders());
-        String jsonArrayString = response.getBody();;
-        System.out.println("jsonArrayString: " + jsonArrayString);
-
+        String jsonArrayString = response.getBody();
         Gson gson = new Gson();
-
         JsonArray jsonArray = gson.fromJson(jsonArrayString, JsonArray.class);
-        System.out.println("jsonArray: " + jsonArray);
-
         return jsonArray.size();
     }
 
-    public String getRepoLOC(RepoData repoData) {
+    public Integer getRepositoryForksCount(RepoData repoData) {
+        String parenRepoApiURL = String.format("%s/repos/%s", GITHUB_API_URL, getParentRepo(repoData));
+        System.out.println("Parent Repo API: " + parenRepoApiURL);
 
-        System.out.println("repoloc called: ");
+        UserData userData = userDataService.getOne(repoData.getUserId());
+
+        ResponseEntity<String> response = restTemplate.exchange(parenRepoApiURL, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+        showAvailableAPIHits(response.getHeaders());
+        String jsonArrayString = response.getBody();
+        Gson gson = new Gson();
+        JsonObject jsonObject = gson.fromJson(jsonArrayString, JsonObject.class);
+        return jsonObject.get("forks_count").getAsInt();
+    }
+
+    public String getParentRepo(RepoData repoData) {
+        String parentRepository;
+        Gson gson = new Gson();
+        Boolean isFork = repoData.getIsFork();
+
+        if(isFork != null && isFork){
+            String repoURL = GITHUB_API_URL + GITHUB_REPOS + "/" + repoData.getName();
+            System.out.println("repoURL: " + repoURL);
+
+            UserData userData = userDataService.getOne(repoData.getUserId());
+            ResponseEntity<String> response = restTemplate.exchange(repoURL, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+            showAvailableAPIHits(response.getHeaders());
+
+            String jsonRepoString = response.getBody();
+
+            JsonObject jsonRepoObject = gson.fromJson(jsonRepoString, JsonObject.class);
+            JsonObject sourceJsonObject = jsonRepoObject.get("source").getAsJsonObject();
+            parentRepository = sourceJsonObject.get("full_name").getAsString();
+        } else {
+            parentRepository = repoData.getName();
+        }
+        return parentRepository;
+    }
+
+    public String getRepoLOC(RepoData repoData) {
         String userRepoLocApiUrl = CODETABS_CLOC_API_URL + repoData.getName();
-        System.out.println("userRepoLocApiUrl: " + userRepoLocApiUrl);
+        System.out.println("Repo LOC API: " + userRepoLocApiUrl);
         boolean repoTooBig = false;
         List<Map<String,Object>> locArrMap = new ArrayList<>();
         try {
             locArrMap = restTemplate.getForObject(userRepoLocApiUrl, List.class);
-            System.out.println("\n\nlocArrMap: " + repoData.getName() + "\t" + locArrMap + "\n\n");
 
         } catch (HttpClientErrorException.BadRequest e) {
             String responseBody = e.getResponseBodyAsString();
@@ -143,12 +173,13 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
             Map<String, Integer> resultLoc = new HashMap<>();
             for (Map<String, Object> loc : locArrMap) {
                 String language = (String) loc.get("language");
-                int linesOfCode = (Integer) loc.get("linesOfCode");
+                Integer linesOfCode = (Integer) loc.get("linesOfCode");
                 resultLoc.put(language, linesOfCode);
             }
             System.out.println("\nTotal Loc: " + resultLoc.get("Total"));
 
             return "" + resultLoc.get("Total");
+
         }
     }
 
@@ -165,20 +196,15 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
             resultContributors.put(contributorName, contributions);
         }
         showAvailableAPIHits(response.getHeaders());
-
         return resultContributors;
     }
 
     public String dumpRepoData(UserData userData){
         try {
             String jsonArrayString = getRepoData(userData);
-            System.out.println("jsonArrayString: " + jsonArrayString);
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-
             Gson gson = new Gson();
-
             JsonArray jsonArray = gson.fromJson(jsonArrayString, JsonArray.class);
-            System.out.println("jsonArray: " + jsonArray);
 
             for (JsonElement element : jsonArray) {
                 // TODO: early return expected --> not feasible for now.

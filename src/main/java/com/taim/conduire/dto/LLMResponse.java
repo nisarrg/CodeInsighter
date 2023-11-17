@@ -3,7 +3,8 @@ package com.taim.conduire.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.util.*;
+
+import java.util.List;
 
 //TODO --> Design Smell: Unnecessary Abstraction
 @Data

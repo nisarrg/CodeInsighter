@@ -13,13 +13,15 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.*;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
@@ -39,204 +41,309 @@ public class RepoDataServiceImplTest {
     private RepoDataServiceImpl repoDataService;
 
     @Test
-    void testFindByGithubRepoId() {
-        // Arrange
-        Integer githubRepoId = 123;
-        RepoData expectedRepoData = new RepoData();
-        when(repository.findByGithubRepoId(githubRepoId)).thenReturn(expectedRepoData);
+    public void testFindByGithubRepoId_Positive() {
+        // Mock RepoData object with ID 1
+        RepoData mockRepoData = new RepoData();
+        mockRepoData.setGithubRepoId(1);
 
-        // Act
-        RepoData actualRepoData = repoDataService.findByGithubRepoId(githubRepoId);
+        when(repository.findByGithubRepoId(1)).thenReturn(mockRepoData);
 
-        // Assert
-        assertEquals(expectedRepoData, actualRepoData);
+        RepoData foundRepoData = repoDataService.findByGithubRepoId(1);
+
+        assertEquals(mockRepoData, foundRepoData);
     }
 
     @Test
-    void testFindByUserId() {
-        // Arrange
-        Integer userId = 456;
-        List<RepoData> expectedRepoDataList = new ArrayList<>();
-        when(repository.findByUserId(userId)).thenReturn(expectedRepoDataList);
+    public void testFindByGithubRepoId_Negative() {
+        when(repository.findByGithubRepoId(2)).thenReturn(null);
 
-        // Act
-        List<RepoData> actualRepoDataList = repoDataService.findByUserId(userId);
+        RepoData foundRepoData = repoDataService.findByGithubRepoId(2);
 
-        // Assert
-        assertEquals(expectedRepoDataList, actualRepoDataList);
+        assertNull(foundRepoData);
     }
 
     @Test
-    void testGetRepoData() {
-        // Arrange
+    public void testFindByUserId_Positive() {
+        // Mocking user ID and creating a list of RepoData for that user
+        int userId = 123;
+        List<RepoData> repoList = new ArrayList<>();
+        repoList.add(new RepoData());
+        repoList.add(new RepoData());
+
+        when(repository.findByUserId(userId)).thenReturn(repoList);
+
+        List<RepoData> foundRepoList = repoDataService.findByUserId(userId);
+
+        assertEquals(2, foundRepoList.size());
+    }
+
+    @Test
+    public void testFindByUserId_Negative() {
+        // Mocking user ID and providing an empty list of RepoData
+        int userId = 456;
+        List<RepoData> emptyRepoList = new ArrayList<>();
+
+        when(repository.findByUserId(userId)).thenReturn(emptyRepoList);
+
+        List<RepoData> foundRepoList = repoDataService.findByUserId(userId);
+
+        assertTrue(foundRepoList.isEmpty());
+    }
+
+    @Test
+    public void testGetRepoData_Positive() {
+        // Mocking UserData object
         UserData userData = new UserData();
-        userData.setUserName("testUser");
-        userData.setUserAccessToken("testAccessToken");
-        String expectedResponseBody = "testResponseBody";
+        userData.setUserName("exampleUser");
+        userData.setUserAccessToken("exampleToken");
 
+        // Mocking a response from GitHub API
+        String responseBody = "[{\"id\":1,\"name\":\"repo1\"},{\"id\":2,\"name\":\"repo2\"}]";
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set("X-RateLimit-Limit", "100");
-        responseHeaders.set("X-RateLimit-Remaining", "50");
+        responseHeaders.set("X-RateLimit-Limit", "5000");
+        responseHeaders.set("X-RateLimit-Remaining", "4999");
+        ResponseEntity<String> responseEntity = ResponseEntity.ok().headers(responseHeaders).body(responseBody);
 
-        ResponseEntity<String> mockResponseEntity = new ResponseEntity<>(expectedResponseBody, responseHeaders, HttpStatus.OK);
-        when(restTemplate.exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), eq(String.class)))
-                .thenReturn(mockResponseEntity);
+        when(restTemplate.exchange(anyString(), any(), any(), eq(String.class)))
+                .thenReturn(responseEntity);
 
-        // Act
-        String result = repoDataService.getRepoData(userData);
+        String repoData = repoDataService.getRepoData(userData);
 
-        // Assert
-        assertEquals(expectedResponseBody, result);
+        assertNotNull(repoData);
+        // Assertions based on the expected response from the GitHub API
+        assertTrue(repoData.contains("repo1"));
+        assertTrue(repoData.contains("repo2"));
     }
 
     @Test
-    void testGetRepositoryLanguages() {
-        // Arrange
+    public void testGetRepoData_Negative() {
+        // Mocking UserData object with missing access token
+        UserData userData = new UserData();
+        userData.setUserName("exampleUser");
+        // No access token set
+
+        // Simulating a failure in retrieving data from GitHub API by throwing an exception
+        when(restTemplate.exchange(anyString(), any(), any(), eq(String.class)))
+                .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND)); // Simulate 404 Not Found
+
+        String repoData;
+        try {
+            repoData = repoDataService.getRepoData(userData);
+            fail("Expected an exception due to API call failure, but no exception was thrown.");
+        } catch (HttpClientErrorException e) {
+            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+            // Add further assertions or handling based on the expected behavior when the API call fails
+        } catch (Exception e) {
+            fail("Unexpected exception type: " + e.getClass().getSimpleName());
+        }
+    }
+
+    @Test
+    public void testGetRepositoryLanguages_Positive() {
+        // Mocking RepoData object
         RepoData repoData = new RepoData();
-        repoData.setName("testRepo");
+        repoData.setName("exampleRepo");
+        repoData.setUserId(1);
 
+        // Mocking UserData and ResponseEntity
         UserData userData = new UserData();
-        userData.setUserAccessToken("testAccessToken");
-        repoData.setUserId(1); // Set a valid user ID for the repoData
-
-        Map<String, Integer> expectedLanguages = new HashMap<>();
-        expectedLanguages.put("Java", 1000);
-        expectedLanguages.put("Python", 500);
+        userData.setUserAccessToken("dummyAccessToken");
 
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set("X-RateLimit-Limit", "100");
-        responseHeaders.set("X-RateLimit-Remaining", "50");
+        responseHeaders.set("X-RateLimit-Limit", "5000");
+        responseHeaders.set("X-RateLimit-Remaining", "4999");
 
-        ResponseEntity<Map> mockResponseEntity = new ResponseEntity<>(expectedLanguages, responseHeaders, HttpStatus.OK);
-        when(restTemplate.exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), eq(Map.class)))
-                .thenReturn(mockResponseEntity);
+        Map<String, Integer> languagesMap = Collections.singletonMap("Java", 100); // Example language map
 
-        // Adjust the user ID in the following line
-        when(userDataService.getOne(eq(1))).thenReturn(userData); // Mocking userDataService
+        ResponseEntity<Map> responseEntity = ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(languagesMap);
 
-        // Act
+        // Mocking UserDataService and RestTemplate
+        when(userDataService.getOne(anyInt())).thenReturn(userData);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(Map.class)))
+                .thenReturn(responseEntity);
+
+        // Call the method to test
         Map<String, Integer> result = repoDataService.getRepositoryLanguages(repoData);
 
-        // Assert
-        assertEquals(expectedLanguages, result);
+        // Assertions
+        assertNotNull(result);
+        assertTrue(result.containsKey("Java"));
+        assertEquals(100, result.get("Java"));
     }
-
-//    @Test
-//    void testGetRepoLOC() {
-//        // Arrange
-//        RepoData repoData = new RepoData();
-//        repoData.setName("testRepo");
-//
-//        List<Map<String, Object>> mockLocArrMap = new ArrayList<>();
-//        Map<String, Object> mockLocMap1 = new HashMap<>();
-//        mockLocMap1.put("Java", "Java");
-//        mockLocMap1.put("Total", 1000);
-//        mockLocArrMap.add(mockLocMap1);
-//
-//        // Adjust the return type to match the actual implementation
-//        when(restTemplate.getForObject(anyString(), eq(List.class))).thenReturn(mockLocArrMap);
-//
-//        // Act
-//        String result = repoDataService.getRepoLOC(repoData);
-//
-//        // Assert
-//        assertEquals("1000", result);
-//    }
 
     @Test
-    void testGetRepoContributors() {
-        // Arrange
+    public void testGetRepositoryLanguages_Negative() {
+        // Mocking RepoData object for a non-existent repository
         RepoData repoData = new RepoData();
-        repoData.setName("testRepo");
-        repoData.setUserId(1); // Set a valid user ID
+        repoData.setName("nonexistentRepo");
+        repoData.setUserId(1);
 
-        UserData userData = new UserData();
-        userData.setUserAccessToken("testAccessToken");
-
-        List<Map<String, Object>> mockContributors = new ArrayList<>();
-        Map<String, Object> mockContributor1 = new HashMap<>();
-        mockContributor1.put("login", "contributor1");
-        mockContributor1.put("contributions", 10);
-        mockContributors.add(mockContributor1);
-
+        // Mocking a non-existent repository response from GitHub API
+        String apiUrl = "https://api.github.com/repos/username/nonexistentRepo/languages";
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set("X-RateLimit-Limit", "100");
-        responseHeaders.set("X-RateLimit-Remaining", "50");
+        responseHeaders.set("X-RateLimit-Limit", "5000");
+        responseHeaders.set("X-RateLimit-Remaining", "4999");
+        ResponseEntity<Map> responseEntity = ResponseEntity.notFound().headers(responseHeaders).build();
 
-        ResponseEntity<List> mockResponseEntity = new ResponseEntity<>(mockContributors, responseHeaders, HttpStatus.OK);
-        when(restTemplate.exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), eq(List.class)))
-                .thenReturn(mockResponseEntity);
+        when(userDataService.getOne(anyInt())).thenReturn(new UserData());
 
-        when(userDataService.getOne(eq(1))).thenReturn(userData);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(Map.class)))
+                .thenReturn(responseEntity);
 
-        // Act
-        Map<String, Integer> result = repoDataService.getRepoContributors(repoData);
+        // Call the method to test
+        Map<String, Integer> languages = repoDataService.getRepositoryLanguages(repoData);
 
-        // Assert
-        assertEquals(mockContributors.size(), result.size());
-        assertEquals(10, result.get("contributor1"));
+        // Assertions
+        assertNull(languages);
+    }
+
+    @Test
+    public void testGetParentRepo_Positive() {
+        // Mocking RepoData object for a forked repository
+        RepoData forkedRepoData = new RepoData();
+        forkedRepoData.setName("forkedRepo");
+        forkedRepoData.setUserId(1);
+        forkedRepoData.setIsFork(true);
+
+        // Mocking a response from GitHub API for a forked repository's parent
+        String apiUrl = "https://api.github.com/repos/username/forkedRepo";
+        String responseBody = "{\"source\": {\"full_name\": \"username/parentRepo\"}}";
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("X-RateLimit-Limit", "5000");
+        responseHeaders.set("X-RateLimit-Remaining", "4999");
+        ResponseEntity<String> responseEntity = ResponseEntity.ok().headers(responseHeaders).body(responseBody);
+
+        when(userDataService.getOne(1)).thenReturn(new UserData());
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class)))
+                .thenReturn(responseEntity);
+
+        String parentRepo = repoDataService.getParentRepo(forkedRepoData);
+
+        assertNotNull(parentRepo);
+        assertEquals("username/parentRepo", parentRepo);
+        // Add assertions based on the expected response from the GitHub API for a forked repository
+    }
+
+    @Test
+    public void testGetParentRepo_Negative() {
+        // Mocking RepoData object for a non-forked repository
+        RepoData nonForkedRepoData = new RepoData();
+        nonForkedRepoData.setName("nonForkedRepo");
+        nonForkedRepoData.setUserId(1);
+        nonForkedRepoData.setIsFork(false);
+
+        // The method should return the same name as it's not a forked repository
+        String parentRepo = repoDataService.getParentRepo(nonForkedRepoData);
+
+        assertNotNull(parentRepo);
+        assertEquals("nonForkedRepo", parentRepo);
+        // Add assertions or handling for the scenario when the repository is not a fork
+    }
+
+    @Test
+    public void testGetRepoLOC_Positive() {
+        // Mocking RepoData object
+        RepoData repoData = new RepoData();
+        repoData.setName("exampleRepo");
+        repoData.setUserId(1);
+
+        // Mocking a response from the external API for repository lines of code (LOC)
+        String apiUrl = "https://api.codetabs.com/v1/loc?github=exampleRepo";
+        List<Map<String, Object>> locArrMap = new ArrayList<>();
+        Map<String, Object> language1 = new HashMap<>();
+        language1.put("language", "Total");
+        language1.put("linesOfCode", 1000);
+        locArrMap.add(language1);
+
+        when(restTemplate.getForObject(apiUrl, List.class)).thenReturn(locArrMap);
+
+        String repoLOC = repoDataService.getRepoLOC(repoData);
+
+        assertNotNull(repoLOC);
+        assertEquals("1000", repoLOC);
+    }
+
+    @Test
+    public void testGetRepoLOC_Negative() {
+        // Mocking RepoData object
+        RepoData repoData = new RepoData();
+        repoData.setName("largeRepo");
+        repoData.setUserId(1);
+
+        // Simulating an error response from the external API for a large repository
+        String apiUrl = "https://api.codetabs.com/v1/loc?github=username/largeRepo";
+
+        when(userDataService.getOne(1)).thenReturn(new UserData());
+        when(restTemplate.getForObject(apiUrl, List.class)).thenThrow(new RuntimeException("Repository > 500 MB"));
+
+        String repoLOC = repoDataService.getRepoLOC(repoData);
+
+        assertEquals("Repo > 500 MB", repoLOC);
+        // Add assertions or handling for the scenario when the repository size exceeds the limit or the API call fails
+    }
+
+    @Test
+    public void testGetRepoContributors_Positive() {
+        // Mocking RepoData object
+        RepoData repoData = new RepoData();
+        repoData.setName("exampleRepo");
+        repoData.setUserId(1);
+
+        // Mocking a response from GitHub API for repository contributors
+        String apiUrl = "https://api.github.com/repos/username/exampleRepo/contributors";
+        List<Map<String, Object>> contributors = Arrays.asList(
+                createContributorMap("John", 10),
+                createContributorMap("Alice", 15)
+        );
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("X-RateLimit-Limit", "5000");
+        responseHeaders.set("X-RateLimit-Remaining", "4999");
+        ResponseEntity<List> responseEntity = ResponseEntity.ok().headers(responseHeaders).body(contributors);
+
+        when(userDataService.getOne(1)).thenReturn(new UserData());
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(List.class)))
+                .thenReturn(responseEntity);
+
+        Map<String, Integer> repoContributors = repoDataService.getRepoContributors(repoData);
+
+        assertNotNull(repoContributors);
+        assertEquals(2, repoContributors.size());
+        assertTrue(repoContributors.containsKey("John"));
+        assertTrue(repoContributors.containsKey("Alice"));
+        assertEquals(10, repoContributors.get("John"));
+        assertEquals(15, repoContributors.get("Alice"));
     }
 
 //    @Test
-//    void testDumpRepoData() throws ParseException {
-//        // Arrange
-//        UserData userData = new UserData();
-//        userData.setId(789);
-//        userData.setUserName("testUser");
-//        userData.setUserAccessToken("testAccessToken");
+//    public void testGetRepoContributors_Negative() {
+//        // Mocking RepoData object
+//        RepoData repoData = new RepoData();
+//        repoData.setName("nonexistentRepo");
+//        repoData.setUserId(1);
 //
-//        String jsonArrayString = "[{\"id\": 123, \"full_name\": \"testUser/testRepo\", \"description\": \"Test Repo\", \"private\": false, \"fork\": false, \"size\": 100, \"has_issues\": true, \"has_projects\": true, \"has_downloads\": true, \"has_wiki\": true, \"forks_count\": 5, \"forks\": 3, \"open_issues\": 2, \"open_issues_count\": 2, \"default_branch\": \"main\", \"language\": \"Java\", \"created_at\": \"2023-01-01T12:00:00Z\", \"updated_at\": \"2023-01-02T12:00:00Z\"}]";
+//        // Setting contributors to null to simulate the scenario when API response doesn't contain contributors
+//        List<Map<String, Object>> contributors = null;
 //
-//        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-//        Date repoCreatedAt = dateFormat.parse("2023-01-01T12:00:00Z");
-//        Date repoUpdatedAt = dateFormat.parse("2023-01-02T12:00:00Z");
-//
-//        RepoData expectedRepoData = new RepoData();
-//        expectedRepoData.setGithubRepoId(123);
-//        expectedRepoData.setUserId(789);
-//        expectedRepoData.setName("testUser/testRepo");
-//        expectedRepoData.setDescription("Test Repo");
-//        expectedRepoData.setIsPrivate(false);
-//        expectedRepoData.setIsFork(false);
-//        expectedRepoData.setSize(100);
-//        expectedRepoData.setHasIssues(true);
-//        expectedRepoData.setHasProjects(true);
-//        expectedRepoData.setHasDownloads(true);
-//        expectedRepoData.setHasWiki(true);
-//        expectedRepoData.setForksCount(5);
-//        expectedRepoData.setForks(3);
-//        expectedRepoData.setOpenIssues(2);
-//        expectedRepoData.setOpenIssuesCount(2);
-//        expectedRepoData.setDefaultBranch("main");
-//        expectedRepoData.setLanguage("Java");
-//        expectedRepoData.setRepoCreatedAt(repoCreatedAt);
-//        expectedRepoData.setRepoUpdatedAt(repoUpdatedAt);
-//        expectedRepoData.setCreatedAt(new Date());
-//        expectedRepoData.setUpdatedAt(new Date());
-//
-//        when(repoDataService.getRepoData(userData)).thenReturn(jsonArrayString);
-//        when(repository.findByGithubRepoId(123)).thenReturn(null);
-//        when(repository.save(any(RepoData.class))).thenReturn(expectedRepoData);
-//
-//        // Mock the response for restTemplate.exchange
+//        // Mocking a response from GitHub API with null contributors
+//        String apiUrl = "https://api.github.com/repos/username/nonexistentRepo/contributors";
 //        HttpHeaders responseHeaders = new HttpHeaders();
-//        responseHeaders.set("X-RateLimit-Limit", "100");
-//        responseHeaders.set("X-RateLimit-Remaining", "50");
+//        responseHeaders.set("X-RateLimit-Limit", "5000");
+//        responseHeaders.set("X-RateLimit-Remaining", "4999");
+//        ResponseEntity<List> responseEntity = ResponseEntity.ok().headers(responseHeaders).body(null);
 //
-//        // Adjust the response entity type to match the method signature (String.class)
-//        ResponseEntity<String> mockResponseEntity = new ResponseEntity<>(jsonArrayString, responseHeaders, HttpStatus.OK);
+//        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(List.class)))
+//                .thenReturn(responseEntity);
 //
-//        // Mock the behavior of restTemplate.exchange more precisely
-//        when(restTemplate.exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), eq(String.class)))
-//                .thenReturn(mockResponseEntity);
+//        Map<String, Integer> repoContributors = repoDataService.getRepoContributors(repoData);
 //
-//        // Act
-//        String result = repoDataService.dumpRepoData(userData);
-//
-//        // Assert
-//        assertEquals("dump success", result);
-//        Mockito.verify(repository, Mockito.times(1)).save(any(RepoData.class));
+//        assertNotNull(repoContributors);
+//        assertTrue(repoContributors.isEmpty());
+//        // Add assertions or handling for the scenario when the repository doesn't exist or the GitHub API call fails
 //    }
 
-
+    private Map<String, Object> createContributorMap(String name, int contributions) {
+        return Map.of("login", name, "contributions", contributions);
+    }
 }

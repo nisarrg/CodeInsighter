@@ -1,19 +1,24 @@
 package com.taim.conduire.controller;
 
-import com.taim.conduire.domain.FormData;
 import com.taim.conduire.service.ChatGPTService;
 import com.taim.conduire.service.JSONUtils;
 import com.taim.conduire.service.LLMService;
 import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -22,8 +27,6 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-
 
 
 // TODO --> Designite detected this class not being used --> unutilized abstraction.
@@ -34,6 +37,7 @@ public class LLMController {
     @Autowired
     private ChatGPTService chatGPTService;
 
+    @Autowired
     private JSONUtils jsonUtils;
 
     @Value("${github.api.url}")
@@ -117,7 +121,7 @@ public class LLMController {
     }
 
     private List<Map<String, Object>> parseJSONResponse(String responseBody) {
-        return JSONUtils.parseJSONResponse(responseBody);
+        return jsonUtils.parseJSONResponse(responseBody);
     }
 
     private boolean isValidFile(String path) {
@@ -162,7 +166,7 @@ public class LLMController {
         if (response == null || response.getBody() == null) {
             return;
         }
-        List<Map<String, Object>> contents = JSONUtils.parseJSONResponse(response.getBody());
+        List<Map<String, Object>> contents = jsonUtils.parseJSONResponse(response.getBody());
 
         for (Map<String, Object> item : contents) {
             String type = (String) item.get("type");
@@ -190,7 +194,7 @@ public class LLMController {
         try {
             ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo, dirPath);
             logger.debug("Response body: {}", response.getBody());
-            List<Map<String, Object>> contents = JSONUtils.parseJSONResponse(response.getBody());
+            List<Map<String, Object>> contents = jsonUtils.parseJSONResponse(response.getBody());
             logger.debug("Contents: {}", contents);
 
             updateBasePath(basePath, dirPath);
@@ -216,7 +220,7 @@ public class LLMController {
         System.out.println("WE IN PROCESSDIRECTORY");
         ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo, dirPath);
         System.out.println(response.getBody());
-        List<Map<String, Object>> contents = JSONUtils.parseJSONResponse(response.getBody());
+        List<Map<String, Object>> contents = jsonUtils.parseJSONResponse(response.getBody());
         System.out.println(contents);
 
         if (StringUtils.hasText(basePath)) {
@@ -288,7 +292,7 @@ public class LLMController {
         String title = filePath;
 
         // TODO: Remove all useless comments. --> DONE
-        //Map<String, Object> file = JSONUtils.parseJSONResponseAsMap(response.getBody());
+        //Map<String, Object> file = jsonUtils.parseJSONResponseAsMap(response.getBody());
         *//*System.out.println(file);
 
         String title = (String) file.get("name");

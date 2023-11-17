@@ -14,7 +14,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,19 +52,9 @@ public class UserRepoInsightsController {
         return "user/insights";
     }
 
-    @PostMapping("/{repo_id}/insights/chat")
-    public String process(@PathVariable("repo_id") Integer repoId, @ModelAttribute("formData") FormData formData, Model model) {
-        // Handle form submission and set the result in the model
-        String data_string = "Data:" + formData.getInputText() + "\n. Consider yourself as: " + formData.getSelectedOption();
-        String input_string = data_string + "Give me insights from the given data in 3-4 Sentences. Write in Technical English";
-        String result = chatGPTService.chat(input_string);
-        model.addAttribute("result", result);
-        return "user/insights";
-    }
-
     @RequestMapping(value = "/{repo_id}/get-insights/ccm", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> getInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
+    public ResponseEntity<Map<String, String>> getCommonCodeMistakesInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
 
         System.out.println("repoID: " + repoID + "insightType CCM ");
         RepoData repoData = repoDataService.getOne(repoID);
@@ -82,7 +71,7 @@ public class UserRepoInsightsController {
         String businessAnalystInsight = chatGPTService.chat(businessAnalystPrompt);
         roleInsights.put("businessAnalyst", businessAnalystInsight);
 
-        String seniorManagerPrompt = "These are open PR review comments by the reviewer:" + reviewerComments.toString() + "\n." +
+        String seniorManagerPrompt = "These are open PR review comments by the reviewer:" + reviewerComments + "\n." +
                 "Can you give me some insights of Common code mistakes based upon these comments.\n" +
                 "Please consider yourself as a Technical Lead and write in Technical English.\n" +
                 "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted " +
@@ -94,5 +83,15 @@ public class UserRepoInsightsController {
         System.out.println("roleInsights: " + roleInsights.size());
 
         return ResponseEntity.ok(roleInsights);
+    }
+    @RequestMapping(value = "/{repo_id}/get-insights/cqe", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<String> getCodeQualityEnhancementsInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
+
+        System.out.println("repoID: " + repoID + "insightType CQE");
+        RepoData repoData = repoDataService.getOne(repoID);
+        String codeQualityEnhancementInsightString = insightsService.getCodeQualityEnhancementsInsights(repoData);
+        System.out.println("codeQualityEnhancementInsightString: " + codeQualityEnhancementInsightString);
+        return ResponseEntity.ok(codeQualityEnhancementInsightString);
     }
 }
