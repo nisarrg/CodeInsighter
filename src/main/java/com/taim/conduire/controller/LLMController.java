@@ -37,6 +37,7 @@ public class LLMController {
     @Autowired
     private ChatGPTService chatGPTService;
 
+    @Autowired
     private JSONUtils jsonUtils;
 
     @Value("${github.api.url}")
@@ -120,7 +121,7 @@ public class LLMController {
     }
 
     private List<Map<String, Object>> parseJSONResponse(String responseBody) {
-        return JSONUtils.parseJSONResponse(responseBody);
+        return jsonUtils.parseJSONResponse(responseBody);
     }
 
     private boolean isValidFile(String path) {
@@ -165,7 +166,7 @@ public class LLMController {
         if (response == null || response.getBody() == null) {
             return;
         }
-        List<Map<String, Object>> contents = JSONUtils.parseJSONResponse(response.getBody());
+        List<Map<String, Object>> contents = jsonUtils.parseJSONResponse(response.getBody());
 
         for (Map<String, Object> item : contents) {
             String type = (String) item.get("type");
@@ -193,7 +194,7 @@ public class LLMController {
         try {
             ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo, dirPath);
             logger.debug("Response body: {}", response.getBody());
-            List<Map<String, Object>> contents = JSONUtils.parseJSONResponse(response.getBody());
+            List<Map<String, Object>> contents = jsonUtils.parseJSONResponse(response.getBody());
             logger.debug("Contents: {}", contents);
 
             updateBasePath(basePath, dirPath);
@@ -219,7 +220,7 @@ public class LLMController {
         System.out.println("WE IN PROCESSDIRECTORY");
         ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo, dirPath);
         System.out.println(response.getBody());
-        List<Map<String, Object>> contents = JSONUtils.parseJSONResponse(response.getBody());
+        List<Map<String, Object>> contents = jsonUtils.parseJSONResponse(response.getBody());
         System.out.println(contents);
 
         if (StringUtils.hasText(basePath)) {
@@ -291,7 +292,7 @@ public class LLMController {
         String title = filePath;
 
         // TODO: Remove all useless comments. --> DONE
-        //Map<String, Object> file = JSONUtils.parseJSONResponseAsMap(response.getBody());
+        //Map<String, Object> file = jsonUtils.parseJSONResponseAsMap(response.getBody());
         *//*System.out.println(file);
 
         String title = (String) file.get("name");

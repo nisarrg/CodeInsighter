@@ -3,6 +3,8 @@ package com.taim.conduire.service;
 import com.taim.conduire.constants.ConstantCodes;
 import com.taim.conduire.domain.RepoData;
 import com.taim.conduire.domain.UserData;
+import com.taim.conduire.service.impl.ChatGPTServiceImpl;
+import com.taim.conduire.service.impl.InsightsServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -18,8 +20,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 public class InsightsServiceTest implements ConstantCodes {
 
@@ -30,13 +33,13 @@ public class InsightsServiceTest implements ConstantCodes {
     private UserDataService userDataService;
 
     @Mock
-    private ChatGPTService chatGPTService;
+    private ChatGPTServiceImpl chatGPTService;
 
     @Mock
     private RestTemplate restTemplate;
 
     @InjectMocks
-    private InsightsService insightsService;
+    private InsightsServiceImpl insightsService;
 
     @BeforeEach
     void setUp() {
@@ -116,8 +119,8 @@ public class InsightsServiceTest implements ConstantCodes {
 
         // Then
         assertEquals(2, reviewerComments.size());
-        assertEquals(Arrays.asList("comment1"), reviewerComments.get("reviewer1"));
-        assertEquals(Arrays.asList("comment2"), reviewerComments.get("reviewer2"));
+        assertEquals(List.of("comment1"), reviewerComments.get("reviewer1"));
+        assertEquals(List.of("comment2"), reviewerComments.get("reviewer2"));
     }
 
     @Test
@@ -162,7 +165,7 @@ public class InsightsServiceTest implements ConstantCodes {
 
         // Then
         assertEquals(1, reviewerComments.size());
-        assertEquals(Arrays.asList("comment3"), reviewerComments.get("reviewer3"));
+        assertEquals(List.of("comment3"), reviewerComments.get("reviewer3"));
     }
 
     @Test
