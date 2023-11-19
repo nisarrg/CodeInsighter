@@ -9,5 +9,8 @@ public interface ConstantCodes {
 	public static final String GITHUB_PULLS = "/pulls";
 	public static final String GITHUB_COMMENTS = "/comments";
 	public static final String CODETABS_CLOC_API_URL = "https://api.codetabs.com/v1/loc?github=";
+	public static final Integer LLM_TOKEN_LIMIT = 4096;
+
+
 
 }

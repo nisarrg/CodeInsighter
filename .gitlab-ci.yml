@@ -15,7 +15,7 @@ build-job:
     paths:
       - target/*.jar  # Define artifacts to be stored after the job
   only:
-    - develop/login-authentication  # Define when the job should be executed
+    - main  # Define when the job should be executed
 
 publish-job:
   image: docker:latest
@@ -37,7 +37,7 @@ publish-job:
     - docker build -t docker.io/group12project/llm_insights:$CI_COMMIT_SHORT_SHA .
     - docker push docker.io/group12project/llm_insights:$CI_COMMIT_SHORT_SHA
   only:
-    - develop/login-authentication
+    - main
 
 deploy-job:
   image: alpine:latest
@@ -50,9 +50,9 @@ deploy-job:
     - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PWD docker.io"
     - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker pull docker.io/group12project/llm_insights:$CI_COMMIT_SHORT_SHA"
     - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker container rm -f my-app || true"
-    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p 8073:8073 --name my-app docker.io/group12project/llm_insights:$CI_COMMIT_SHORT_SHA"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p 8073:8080 --name my-app docker.io/group12project/llm_insights:$CI_COMMIT_SHORT_SHA"
   environment:
     name: production
     url: http://172.17.0.73:8073
   only:
-    - develop/login-authentication
+    - main

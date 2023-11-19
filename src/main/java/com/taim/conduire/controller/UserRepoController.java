@@ -90,4 +90,12 @@ public class UserRepoController {
         return ResponseEntity.ok(repoDataService.getRepositoryPRs(repoData));
     }
 
+    @RequestMapping(value = "/get-repo-forks-count/{repo_id}", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<Integer> getRepoForksCountFor(@PathVariable("repo_id") Integer repoID) {
+        RepoData repoData = repoDataService.getOne(repoID);
+        System.out.println("repoData: " + repoData);
+        return ResponseEntity.ok(repoDataService.getRepositoryForksCount(repoData));
+    }
+
 }
