@@ -323,6 +323,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                         contributorDiff.put(owner, "No PR found");
                     }
                 }
+                else
+                    contributorDiff.put(owner, "No PR found");
             } catch (Exception e) {
                 contributorDiff.put(owner, "No PR found");
                 e.printStackTrace();
