@@ -224,6 +224,13 @@
                                         </div>
                                     </div>
                                     <div class="tab-pane" id="collaborationAnalysis">
+                                        <div class="col-sm-12">
+                                            <h4>Collaboration Analysis</h4>
+                                            <span>This feature leverages the Language Model (LLM) to to identify active contributors and their impact on the repository. This feature will analyze collaboration patterns, such as who works together frequently on issues and pull requests.</span>
+                                            <br>
+                                            <br>
+                                            <div id="collaborationAnalysisContainer"></div>
+                                        </div>
                                     </div>
                                     <div class="tab-pane" id="codeQualityEnhancement">
                                         <h4>Code Quality Enhancement Insights</h4>
@@ -516,6 +523,33 @@
                         },
 
                         complete: function () {
+                            $("#spinner-div").hide(); //Request is complete so hide spinner
+                        },
+                        error: function(err) {
+                            $("#spinner-div").hide(); //Request is complete so hide spinner
+                            console.error('Error fetching data:', err);
+                            console.log(err.responseText);
+                        }
+                    });
+                }
+            });
+
+            $('#collaborationAnalysisNav').click(function () {
+                console.log("CA Clicked");
+                if ($("#collaborationAnalysisContainer").html().trim().length > 0) {
+                    // Do nothing
+                    console.log("Div has content. Doing nothing.");
+                } else {
+                    $("#spinner-div").show(); //Load button clicked show spinner
+                    $.ajax({
+                        url: 'get-repo-prs-collab',
+                        method: 'GET',
+                        success: function (data) {
+                            console.log(data);
+                            $('#collaborationAnalysisContainer').html(data);
+                        },
+                        complete: function () {
+                            //$("#insightsTitle").html($('#collaborationAnalysisNav').text());
                             $("#spinner-div").hide(); //Request is complete so hide spinner
                         },
                         error: function (err) {

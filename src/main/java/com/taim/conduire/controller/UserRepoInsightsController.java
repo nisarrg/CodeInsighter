@@ -14,7 +14,10 @@ import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -83,6 +86,15 @@ public class UserRepoInsightsController {
         String codeQualityEnhancementInsightString = insightsService.getCodeQualityEnhancementsInsights(repoData);
         System.out.println("codeQualityEnhancementInsightString: " + codeQualityEnhancementInsightString);
         return ResponseEntity.ok(codeQualityEnhancementInsightString);
+    }
+
+    @RequestMapping(value = "/{repo_id}/get-repo-prs-collab", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<String> getRepoPRsForCollab(@PathVariable("repo_id") Integer repoID)
+            throws IOException, InterruptedException {
+        RepoData repoData = repoDataService.getOne(repoID);
+        System.out.println("repoData: " + repoData);
+        return ResponseEntity.ok(insightsService.getRepositoryPRsCollab(repoData));
     }
 
     @RequestMapping(value = "/{repo_id}/get-insights/bdaf", method = RequestMethod.GET, produces = "application/json")
