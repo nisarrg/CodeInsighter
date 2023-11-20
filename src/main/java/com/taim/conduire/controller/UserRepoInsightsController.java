@@ -13,6 +13,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +56,8 @@ public class UserRepoInsightsController {
 
     @RequestMapping(value = "/{repo_id}/get-insights/ccm", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> getCommonCodeMistakesInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
+    public ResponseEntity<Map<String, String>> getCommonCodeMistakesInsights(@PathVariable("repo_id") Integer repoID)
+            throws IOException {
 
         System.out.println("repoID: " + repoID + "insightType CCM ");
         RepoData repoData = repoDataService.getOne(repoID);
@@ -62,21 +65,26 @@ public class UserRepoInsightsController {
         // TODO: Variable name to roleInsights --> DONE
         Map<String, String> roleInsights = new HashMap<>();
 
-        String businessAnalystPrompt = "These are open PR review comments by the reviewer:" + reviewerComments.toString() + "\n." +
+        String businessAnalystPrompt = "These are open PR review comments by the reviewer:"
+                + reviewerComments.toString() + "\n." +
                 "Can you give me some insights of Common code mistakes based upon these comments.\n" +
                 "Please consider yourself as a Business Analyst and write in Technical English.\n" +
-                "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted " +
-                "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
-                "and highlight your reasoning." ;
+                "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted "
+                +
+                "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points "
+                +
+                "and highlight your reasoning.";
         String businessAnalystInsight = chatGPTService.chat(businessAnalystPrompt);
         roleInsights.put("businessAnalyst", businessAnalystInsight);
 
         String seniorManagerPrompt = "These are open PR review comments by the reviewer:" + reviewerComments + "\n." +
                 "Can you give me some insights of Common code mistakes based upon these comments.\n" +
                 "Please consider yourself as a Technical Lead and write in Technical English.\n" +
-                "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted " +
-                "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
-                "and highlight your reasoning." ;
+                "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted "
+                +
+                "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points "
+                +
+                "and highlight your reasoning.";
         String seniorManagerInsight = chatGPTService.chat(seniorManagerPrompt);
         roleInsights.put("technicalLead", seniorManagerInsight);
 
@@ -84,14 +92,25 @@ public class UserRepoInsightsController {
 
         return ResponseEntity.ok(roleInsights);
     }
+
     @RequestMapping(value = "/{repo_id}/get-insights/cqe", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<String> getCodeQualityEnhancementsInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
+    public ResponseEntity<String> getCodeQualityEnhancementsInsights(@PathVariable("repo_id") Integer repoID)
+            throws IOException {
 
         System.out.println("repoID: " + repoID + "insightType CQE");
         RepoData repoData = repoDataService.getOne(repoID);
         String codeQualityEnhancementInsightString = insightsService.getCodeQualityEnhancementsInsights(repoData);
         System.out.println("codeQualityEnhancementInsightString: " + codeQualityEnhancementInsightString);
         return ResponseEntity.ok(codeQualityEnhancementInsightString);
+    }
+
+    @RequestMapping(value = "/{repo_id}/get-repo-prs-collab", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<String> getRepoPRsForCollab(@PathVariable("repo_id") Integer repoID)
+            throws IOException, InterruptedException {
+        RepoData repoData = repoDataService.getOne(repoID);
+        System.out.println("repoData: " + repoData);
+        return ResponseEntity.ok(insightsService.getRepositoryPRsCollab(repoData));
     }
 }

@@ -213,7 +213,7 @@ module.exports = function (args, opts) {
     });
     
     if (opts['--']) {
-        argv['--'] = new Array();
+        argv['--'] = [];
         notFlags.forEach(function(key) {
             argv['--'].push(key);
         });

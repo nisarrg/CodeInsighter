@@ -3511,7 +3511,7 @@ function MultiDragPlugin() {
               multiDragElements.forEach(function (multiDragElement) {
                 if (multiDragElement.sortableIndex !== index(multiDragElement)) {
                   update = true;
-                  return;
+
                 }
               });
 
