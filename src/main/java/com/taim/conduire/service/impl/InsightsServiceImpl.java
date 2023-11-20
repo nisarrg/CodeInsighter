@@ -295,7 +295,6 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                         repoDataServiceImpl.getAllHeadersEntity(userData.getUserAccessToken()), String.class);
                 repoDataServiceImpl.showAvailableAPIHits(response.getHeaders());
                 String jsonArrayString = response.getBody();
-                System.out.println("jsonArrayString: " + jsonArrayString);
 
                 if (response.getStatusCode().value() == 200) {
                     if (!jsonArrayString.equals("[]")) {
@@ -354,7 +353,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
         for (Map.Entry<String, String> entry : contributorDiff.entrySet()) {
             System.out.println("Individual: " + entry.getKey());
             int commitCount = sortedMap.get(entry.getKey());
-            String fileName = "diff" + String.valueOf(count) + ".txt";
+            String fileName = COLLAB_ANALYSIS_FILES_PATH + "diff" + String.valueOf(count) + ".txt";
             count++;
             FileWriter fw = new FileWriter(fileName);
             try {
@@ -413,7 +412,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
 
         System.out.println("In Smell Rating Method inside RepoDataServiceImpl");
 
-        FileWriter fw = new FileWriter("SmellRatingPrompt.txt");
+        FileWriter fw = new FileWriter(COLLAB_ANALYSIS_FILES_PATH + "SmellRatingPrompt.txt");
         fw.write(
                 "For a specific GitHub repository, you have information about the top 3 contributors based on commit count and their respective code smells ratings. "
                         +
@@ -422,7 +421,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                         "and 10 represents a high number of code smells.\n\nTop 3 Contributors:\n\n");
 
         for (int i = 1; i <= 3; i++) {
-            String fileName = "diff" + String.valueOf(i) + ".txt";
+            String fileName = COLLAB_ANALYSIS_FILES_PATH + "diff" + String.valueOf(i) + ".txt";
             String prompt = new String(Files.readAllBytes(Paths.get(fileName)));
             System.out.println("Checking individual file read: " + prompt);
             String response = chatGPTService.chat(prompt);
@@ -453,9 +452,10 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 "would be the most productive. Productivity is defined as a combination of commit count and code smells rating, "
                 +
                 "where lower code smells ratings are preferable.\n\n" +
-                "Provide the names of the two contributors and a brief explanation of why you consider them to be the most productive collaborators based on the given criteria.");
+                "Provide the names of the two contributors and a brief explanation of why you consider them to be the most productive collaborators based on the given criteria." +
+                "And Format the response in HTML tags and use Bootstrap classes for better readability.");
         fw.close();
-        String finalPrompt = new String(Files.readAllBytes(Paths.get("SmellRatingPrompt.txt")));
+        String finalPrompt = new String(Files.readAllBytes(Paths.get(COLLAB_ANALYSIS_FILES_PATH + "SmellRatingPrompt.txt")));
         Thread.sleep(30000);
         String finalResponse = chatGPTService.chat(finalPrompt);
         System.out.println("Collab Analysis GPT Response:\n" + finalResponse);

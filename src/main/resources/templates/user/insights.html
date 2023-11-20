@@ -211,53 +211,16 @@
                                     <div class="tab-pane show active" id="commonCodeMistakes">
                                         <div class="col-sm-12">
                                             <h4>Common Code Mistakes</h4>
-                                            <ul class="nav nav-tabs nav-bordered">
-                                                <li class="nav-item">
-                                                    <a href="#businessAnalyst" data-bs-toggle="tab" aria-expanded="true" class="nav-link active">
-                                                        Business Analyst
-                                                    </a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a href="#technicalLead" data-bs-toggle="tab" aria-expanded="false" class="nav-link ">
-                                                        Technical Lead
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                            <br>
-                                            <div class="row">
-                                                <div class="tab-content pt-0">
-                                                    <div class="tab-pane show active" id="businessAnalyst">
-                                                    </div>
-                                                    <div class="tab-pane" id="technicalLead">
-                                                    </div>
-                                                </div>
-                                            </div> <!-- end row-->
+                                            <div id="commonCodeMistakesContainer"></div>
                                         </div>
                                     </div>
                                     <div class="tab-pane" id="collaborationAnalysis">
                                         <div class="col-sm-12">
-                                            <h4>Common Code Mistakes</h4>
-                                            <ul class="nav nav-tabs nav-bordered">
-                                                <li class="nav-item">
-                                                    <a href="#businessAnalyst" data-bs-toggle="tab" aria-expanded="true" class="nav-link active">
-                                                        Business Analyst
-                                                    </a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a href="#technicalLead" data-bs-toggle="tab" aria-expanded="false" class="nav-link ">
-                                                        Technical Lead
-                                                    </a>
-                                                </li>
-                                            </ul>
+                                            <h4>Collaboration Analysis</h4>
+                                            <span>This feature leverages the Language Model (LLM) to to identify active contributors and their impact on the repository. This feature will analyze collaboration patterns, such as who works together frequently on issues and pull requests.</span>
                                             <br>
-                                            <div class="row">
-                                                <div class="tab-content pt-0">
-                                                    <div class="tab-pane show active" id="businessAnalystc">
-                                                    </div>
-                                                    <div class="tab-pane" id="technicalLeadc">
-                                                    </div>
-                                                </div>
-                                            </div> <!-- end row-->
+                                            <br>
+                                            <div id="collaborationAnalysisContainer"></div>
                                         </div>
                                     </div>
                                     <div class="tab-pane" id="codeQualityEnhancement">
@@ -342,7 +305,7 @@
             //Common Code Mistakes Insight Call
             $('#commonCodeMistakesNav').click(function () {
                 console.log("CCM Clicked")
-                if ($("#businessAnalyst").html().trim().length > 0 && $("#technicalLead").html().trim().length > 0) {
+                if ($("#commonCodeMistakesContainer").html().trim().length > 0) {
                     // Do nothing
                     console.log("Div has content. Doing nothing.");
                 } else {
@@ -353,15 +316,7 @@
                         dataType: 'json',
                         success: function (data) {
                             console.log(data);
-                            $.each(data, function (key, val) {
-                                if (key == "businessAnalyst") {
-                                    $('#businessAnalyst').html(val);
-
-                                } else {
-                                    $('#technicalLead').html(val);
-
-                                }
-                            });
+                            $('#commonCodeMistakesContainer').html(data);
                         },
                         complete: function () {
                             $("#spinner-div").hide(); //Request is complete so hide spinner
@@ -438,23 +393,30 @@
             });
 
             $('#collaborationAnalysisNav').click(function () {
-                console.log("CA Clicked")
-                $("#spinner-div").show(); //Load button clicked show spinner
-                $.ajax({
-                    url: 'get-repo-prs-collab',
-                    method: 'GET',
-                    success: function (data) {
-                        console.log(data);
-                            $('#businessAnalystc').html(data);
-                            $('#technicalLeadc').html(data);
-                            $('#businessAnalyst').html(data);
-                            $('#technicalLead').html(data);
-                },
-                    complete: function () {
-                        //$("#insightsTitle").html($('#collaborationAnalysisNav').text());
-                        $("#spinner-div").hide(); //Request is complete so hide spinner
-                    }
-                });
+                console.log("CA Clicked");
+                if ($("#collaborationAnalysisContainer").html().trim().length > 0) {
+                    // Do nothing
+                    console.log("Div has content. Doing nothing.");
+                } else {
+                    $("#spinner-div").show(); //Load button clicked show spinner
+                    $.ajax({
+                        url: 'get-repo-prs-collab',
+                        method: 'GET',
+                        success: function (data) {
+                            console.log(data);
+                            $('#collaborationAnalysisContainer').html(data);
+                        },
+                        complete: function () {
+                            //$("#insightsTitle").html($('#collaborationAnalysisNav').text());
+                            $("#spinner-div").hide(); //Request is complete so hide spinner
+                        },
+                        error: function (err) {
+                            $("#spinner-div").hide(); //Request is complete so hide spinner
+                            console.error('Error fetching data:', err);
+                            console.log(err.responseText);
+                        }
+                    });
+                }
             });
         }
 
