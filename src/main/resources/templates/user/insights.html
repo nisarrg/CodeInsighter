@@ -194,7 +194,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#collaborationAnalysis" data-bs-toggle="tab" aria-expanded="false" class="nav-link" id="collaborationAnalysisNav">
+                                <a href="#collaborationAnalysis" data-bs-toggle="tab" aria-expanded="true" class="nav-link" id="collaborationAnalysisNav">
                                     Collaboration Analysis
                                 </a>
                             </li>
@@ -235,6 +235,30 @@
                                         </div>
                                     </div>
                                     <div class="tab-pane" id="collaborationAnalysis">
+                                        <div class="col-sm-12">
+                                            <h4>Common Code Mistakes</h4>
+                                            <ul class="nav nav-tabs nav-bordered">
+                                                <li class="nav-item">
+                                                    <a href="#businessAnalyst" data-bs-toggle="tab" aria-expanded="true" class="nav-link active">
+                                                        Business Analyst
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="#technicalLead" data-bs-toggle="tab" aria-expanded="false" class="nav-link ">
+                                                        Technical Lead
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                            <br>
+                                            <div class="row">
+                                                <div class="tab-content pt-0">
+                                                    <div class="tab-pane show active" id="businessAnalystc">
+                                                    </div>
+                                                    <div class="tab-pane" id="technicalLeadc">
+                                                    </div>
+                                                </div>
+                                            </div> <!-- end row-->
+                                        </div>
                                     </div>
                                     <div class="tab-pane" id="codeQualityEnhancement">
                                         <div class="row justify-content-center">
@@ -413,7 +437,7 @@
                 }
             });
 
-            $('#collaborationAnalysis').click(function () {
+            $('#collaborationAnalysisNav').click(function () {
                 console.log("CA Clicked")
                 $("#spinner-div").show(); //Load button clicked show spinner
                 $.ajax({
@@ -421,11 +445,13 @@
                     method: 'GET',
                     success: function (data) {
                         console.log(data);
+                            $('#businessAnalystc').html(data);
+                            $('#technicalLeadc').html(data);
                             $('#businessAnalyst').html(data);
                             $('#technicalLead').html(data);
                 },
                     complete: function () {
-                        $("#insightsTitle").html($('#collaborationAnalysis').text());
+                        //$("#insightsTitle").html($('#collaborationAnalysisNav').text());
                         $("#spinner-div").hide(); //Request is complete so hide spinner
                     }
                 });

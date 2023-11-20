@@ -76,7 +76,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         return repository.findByUserId(userId);
     }
 
-    public HttpEntity<String> getAllHeadersEntity(String userAccessToken){
+    public HttpEntity<String> getAllHeadersEntity(String userAccessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept", "application/vnd.github+json");
         headers.set("Authorization", "Bearer " + userAccessToken);
@@ -85,7 +85,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         return entity;
     }
 
-    public void showAvailableAPIHits(HttpHeaders responseHeaders){
+    public void showAvailableAPIHits(HttpHeaders responseHeaders) {
         int limit = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Limit"));
         int remaining = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Remaining"));
 
@@ -97,7 +97,8 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
     public String getRepoData(UserData userData) {
         String userRepoApiUrl = GITHUB_API_URL + GITHUB_USERS + "/" + userData.getUserName() + GITHUB_REPOS;
         System.out.println("userRepoApiUrl: " + userRepoApiUrl);
-        ResponseEntity<String> response = restTemplate.exchange(userRepoApiUrl, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+        ResponseEntity<String> response = restTemplate.exchange(userRepoApiUrl, HttpMethod.GET,
+                getAllHeadersEntity(userData.getUserAccessToken()), String.class);
         showAvailableAPIHits(response.getHeaders());
         return response.getBody();
 
@@ -109,7 +110,8 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         System.out.println("Languages API: " + repoLanguagesAPIURL);
 
         UserData userData = userDataService.getOne(repoData.getUserId());
-        ResponseEntity<Map> response = restTemplate.exchange(repoLanguagesAPIURL, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(repoLanguagesAPIURL, HttpMethod.GET,
+                getAllHeadersEntity(userData.getUserAccessToken()), Map.class);
         showAvailableAPIHits(response.getHeaders());
         return response.getBody();
     }
@@ -120,7 +122,8 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
 
         UserData userData = userDataService.getOne(repoData.getUserId());
 
-        ResponseEntity<String> response = restTemplate.exchange(repoPRApiURL, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+        ResponseEntity<String> response = restTemplate.exchange(repoPRApiURL, HttpMethod.GET,
+                getAllHeadersEntity(userData.getUserAccessToken()), String.class);
         showAvailableAPIHits(response.getHeaders());
         String jsonArrayString = response.getBody();
         Gson gson = new Gson();
@@ -134,7 +137,8 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
 
         UserData userData = userDataService.getOne(repoData.getUserId());
 
-        ResponseEntity<String> response = restTemplate.exchange(parenRepoApiURL, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+        ResponseEntity<String> response = restTemplate.exchange(parenRepoApiURL, HttpMethod.GET,
+                getAllHeadersEntity(userData.getUserAccessToken()), String.class);
         showAvailableAPIHits(response.getHeaders());
         String jsonArrayString = response.getBody();
         Gson gson = new Gson();
@@ -147,12 +151,13 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         Gson gson = new Gson();
         Boolean isFork = repoData.getIsFork();
 
-        if(isFork != null && isFork){
+        if (isFork != null && isFork) {
             String repoURL = GITHUB_API_URL + GITHUB_REPOS + "/" + repoData.getName();
             System.out.println("repoURL: " + repoURL);
 
             UserData userData = userDataService.getOne(repoData.getUserId());
-            ResponseEntity<String> response = restTemplate.exchange(repoURL, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+            ResponseEntity<String> response = restTemplate.exchange(repoURL, HttpMethod.GET,
+                    getAllHeadersEntity(userData.getUserAccessToken()), String.class);
             showAvailableAPIHits(response.getHeaders());
 
             String jsonRepoString = response.getBody();
@@ -170,7 +175,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         String userRepoLocApiUrl = CODETABS_CLOC_API_URL + repoData.getName();
         System.out.println("Repo LOC API: " + userRepoLocApiUrl);
         boolean repoTooBig = false;
-        List<Map<String,Object>> locArrMap = new ArrayList<>();
+        List<Map<String, Object>> locArrMap = new ArrayList<>();
         try {
             locArrMap = restTemplate.getForObject(userRepoLocApiUrl, List.class);
 
@@ -189,7 +194,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
             System.out.println("An error occurred: " + e.getMessage());
             repoTooBig = true;
         }
-        if(repoTooBig){
+        if (repoTooBig) {
             return "Repo > 500 MB";
         } else {
 
@@ -206,12 +211,13 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         }
     }
 
-    public Map<String, Integer> getRepoContributors(RepoData repoData){
+    public Map<String, Integer> getRepoContributors(RepoData repoData) {
         String apiUrl = String.format("%s/repos/%s/contributors", GITHUB_API_URL, repoData.getName());
         System.out.println("Contributors API: " + apiUrl);
         UserData userData = userDataService.getOne(repoData.getUserId());
-        ResponseEntity<List> response = restTemplate.exchange(apiUrl, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), List.class);
-        List<Map<String,Object>> contributors = response.getBody();
+        ResponseEntity<List> response = restTemplate.exchange(apiUrl, HttpMethod.GET,
+                getAllHeadersEntity(userData.getUserAccessToken()), List.class);
+        List<Map<String, Object>> contributors = response.getBody();
         Map<String, Integer> resultContributors = new HashMap<>();
         for (Map<String, Object> contributor : contributors) {
             String contributorName = (String) contributor.get("login");
@@ -222,7 +228,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         return resultContributors;
     }
 
-    public String dumpRepoData(UserData userData){
+    public String dumpRepoData(UserData userData) {
         try {
             String jsonArrayString = getRepoData(userData);
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -235,16 +241,19 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
                     JsonObject repoObject = element.getAsJsonObject();
                     RepoData repoData = null;
 
-                    if(findByGithubRepoId(repoObject.get("id").getAsInt()) != null) {
+                    if (findByGithubRepoId(repoObject.get("id").getAsInt()) != null) {
                         repoData = findByGithubRepoId(repoObject.get("id").getAsInt());
-                    }else {
+                    } else {
                         repoData = new RepoData();
                         repoData.setCreatedAt(new Date());
                     }
                     repoData.setGithubRepoId(repoObject.get("id").getAsInt());
                     repoData.setUserId(userData.getId());
-                    repoData.setName(!repoObject.get("full_name").isJsonNull() ? repoObject.get("full_name").getAsString() : "");
-                    repoData.setDescription(!repoObject.get("description").isJsonNull() ? repoObject.get("description").getAsString() : "");
+                    repoData.setName(
+                            !repoObject.get("full_name").isJsonNull() ? repoObject.get("full_name").getAsString() : "");
+                    repoData.setDescription(
+                            !repoObject.get("description").isJsonNull() ? repoObject.get("description").getAsString()
+                                    : "");
                     repoData.setIsPrivate(repoObject.get("private").getAsBoolean());
                     repoData.setIsFork(repoObject.get("fork").getAsBoolean());
                     repoData.setSize(repoObject.get("size").getAsInt());
@@ -256,8 +265,11 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
                     repoData.setForks(repoObject.get("forks").getAsInt());
                     repoData.setOpenIssues(repoObject.get("open_issues").getAsInt());
                     repoData.setOpenIssuesCount(repoObject.get("open_issues_count").getAsInt());
-                    repoData.setDefaultBranch(!repoObject.get("default_branch").isJsonNull() ? repoObject.get("default_branch").getAsString() : "");
-                    repoData.setLanguage(!repoObject.get("language").isJsonNull() ? repoObject.get("language").getAsString() : "");
+                    repoData.setDefaultBranch(!repoObject.get("default_branch").isJsonNull()
+                            ? repoObject.get("default_branch").getAsString()
+                            : "");
+                    repoData.setLanguage(
+                            !repoObject.get("language").isJsonNull() ? repoObject.get("language").getAsString() : "");
                     repoData.setRepoCreatedAt(dateFormat.parse(repoObject.get("created_at").getAsString()));
                     repoData.setRepoUpdatedAt(dateFormat.parse(repoObject.get("updated_at").getAsString()));
                     repoData.setUpdatedAt(new Date());

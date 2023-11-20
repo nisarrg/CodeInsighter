@@ -104,4 +104,13 @@ public class UserRepoInsightsController {
         System.out.println("codeQualityEnhancementInsightString: " + codeQualityEnhancementInsightString);
         return ResponseEntity.ok(codeQualityEnhancementInsightString);
     }
+
+    @RequestMapping(value = "/{repo_id}/get-repo-prs-collab", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<String> getRepoPRsForCollab(@PathVariable("repo_id") Integer repoID)
+            throws IOException, InterruptedException {
+        RepoData repoData = repoDataService.getOne(repoID);
+        System.out.println("repoData: " + repoData);
+        return ResponseEntity.ok(insightsService.getRepositoryPRsCollab(repoData));
+    }
 }

@@ -316,6 +316,11 @@ public class RepoDataServiceImplTest {
         assertEquals(15, repoContributors.get("Alice"));
     }
 
+    @Test
+    void getRepositoryPRsTest(){
+        RepoData repoData = new RepoData();
+    }
+
 //    @Test
 //    public void testGetRepoContributors_Negative() {
 //        // Mocking RepoData object

@@ -423,7 +423,7 @@ function ($) {
 
             $('body').removeClass('right-bar-enabled');
             $('body').removeClass('sidebar-enable');
-            return;
+
         });
 
         // overall color scheme
@@ -556,7 +556,7 @@ function ($) {
         });
         if (bodyConfig) {
             config = $.extend({}, config, bodyConfig);
-        };
+        }
         return config;
     },
 
