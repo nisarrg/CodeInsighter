@@ -1,5 +1,6 @@
 package com.taim.conduire.controller;
 
+import com.google.gson.Gson;
 import com.taim.conduire.domain.FormData;
 import com.taim.conduire.domain.RepoData;
 import com.taim.conduire.domain.UserData;
@@ -14,7 +15,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,46 +52,47 @@ public class UserRepoInsightsController {
         return "user/insights";
     }
 
-    @RequestMapping(value = "/{repo_id}/get-insights/ccm", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/{repo_id}/get-insights/ccm", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> getCommonCodeMistakesInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
+    public ResponseEntity<String> getCommonCodeMistakesInsights(@PathVariable("repo_id") Integer repoID)
+            throws IOException {
 
         System.out.println("repoID: " + repoID + "insightType CCM ");
         RepoData repoData = repoDataService.getOne(repoID);
         Map<String, List<String>> reviewerComments = insightsService.getRepositoryReviewComments(repoData);
-        // TODO: Variable name to roleInsights --> DONE
-        Map<String, String> roleInsights = new HashMap<>();
-
-        String businessAnalystPrompt = "These are open PR review comments by the reviewer:" + reviewerComments.toString() + "\n." +
+        String commonCodeMistakesPrompt = "These are open PR review comments by the reviewer:"
+                + reviewerComments.toString() + "\n." +
                 "Can you give me some insights of Common code mistakes based upon these comments.\n" +
                 "Please consider yourself as a Business Analyst and write in Technical English.\n" +
                 "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted " +
                 "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
-                "and highlight your reasoning." ;
-        String businessAnalystInsight = chatGPTService.chat(businessAnalystPrompt);
-        roleInsights.put("businessAnalyst", businessAnalystInsight);
-
-        String seniorManagerPrompt = "These are open PR review comments by the reviewer:" + reviewerComments + "\n." +
-                "Can you give me some insights of Common code mistakes based upon these comments.\n" +
-                "Please consider yourself as a Technical Lead and write in Technical English.\n" +
-                "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted " +
-                "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
-                "and highlight your reasoning." ;
-        String seniorManagerInsight = chatGPTService.chat(seniorManagerPrompt);
-        roleInsights.put("technicalLead", seniorManagerInsight);
-
-        System.out.println("roleInsights: " + roleInsights.size());
-
-        return ResponseEntity.ok(roleInsights);
+                "and highlight your reasoning. And Format the response in HTML tags and use Bootstrap classes for better readability";
+        String commonCodeMistakesInsight = chatGPTService.chat(commonCodeMistakesPrompt);
+        Gson gson = new Gson();
+        String jsonInsight = gson.toJson(commonCodeMistakesInsight);
+        String finalResult = "{\"insights\":" + jsonInsight + "}";
+        System.out.println("finalResult: " + finalResult);
+        return ResponseEntity.ok(finalResult);
     }
     @RequestMapping(value = "/{repo_id}/get-insights/cqe", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ResponseEntity<String> getCodeQualityEnhancementsInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
 
-        System.out.println("repoID: " + repoID + "insightType CQE");
+        System.out.println("repoID: " + repoID + " insightType CQE");
         RepoData repoData = repoDataService.getOne(repoID);
         String codeQualityEnhancementInsightString = insightsService.getCodeQualityEnhancementsInsights(repoData);
         System.out.println("codeQualityEnhancementInsightString: " + codeQualityEnhancementInsightString);
         return ResponseEntity.ok(codeQualityEnhancementInsightString);
+    }
+
+    @RequestMapping(value = "/{repo_id}/get-insights/bdaf", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<String> getBugDetectionInApplicationFlowInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
+
+        System.out.println("repoID: " + repoID + " insightType BDAF");
+        RepoData repoData = repoDataService.getOne(repoID);
+        String bugDetectionInApplicationFlowInsightString = insightsService.getBugDetectionInApplicationFlowInsights(repoData);
+        System.out.println("bugDetectionInApplicationFlowInsightString: " + bugDetectionInApplicationFlowInsightString);
+        return ResponseEntity.ok(bugDetectionInApplicationFlowInsightString);
     }
 }

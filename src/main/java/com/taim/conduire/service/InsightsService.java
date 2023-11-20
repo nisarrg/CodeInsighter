@@ -15,5 +15,9 @@ public interface InsightsService {
 
     Map<String, List<String>> getRepositoryReviewComments(RepoData repoData);
 
+    Map<String, List<String>> getDevPRCode(RepoData repoData);
+
     String getCodeQualityEnhancementsInsights(RepoData repoData);
+
+    String getBugDetectionInApplicationFlowInsights(RepoData repoData);
 }

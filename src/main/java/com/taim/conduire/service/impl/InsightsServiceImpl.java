@@ -104,7 +104,12 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
             // TODO: Early return
             if (element.isJsonObject()) {
                 JsonObject reviewCommentObject = element.getAsJsonObject();
-                String reviewer = reviewCommentObject.get("user").getAsJsonObject().get("login").getAsString();
+                String reviewer;
+                if (reviewCommentObject.get("user").isJsonNull()) {
+                    reviewer = "Bot";
+                } else {
+                    reviewer = reviewCommentObject.get("user").getAsJsonObject().get("login").getAsString();
+                }
                 String reviewerComment = reviewCommentObject.get("body").getAsString();
                 reviewerComments.computeIfAbsent(reviewer, k -> new ArrayList<>()).add(reviewerComment);
             }
@@ -113,7 +118,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
         return reviewerComments;
     }
 
-    public String getCodeQualityEnhancementsInsights(RepoData repoData) {
+    public Map<String, List<String>> getDevPRCode(RepoData repoData) {
         String parentRepoName = repoDataService.getParentRepo(repoData);
         Gson gson = new Gson();
         String repoPRDataURL = GITHUB_API_URL + GITHUB_REPOS + "/" + parentRepoName + GITHUB_PULLS + "?per_page=100";
@@ -155,9 +160,14 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
 
         System.out.println("devAndPRCode Size: " + devAndPRCode.size());
 
-        String codeQualityEnhancementInsightPrompt = getCodeQualityEnhancementInsightLLMPrompt();
+        return devAndPRCode;
+    }
 
-        Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(codeQualityEnhancementInsightPrompt);
+    public String getInsightsFromPromptAndDevPRCode(Map<String, List<String>> devAndPRCode, String llmInsightPrompt) {
+
+        String llmInsightString;
+
+        Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(llmInsightPrompt);
         Map<String, List<String>> devAndPRCodeWithLimit = new HashMap<>();
 
         for (Map.Entry<String, List<String>> entry : devAndPRCode.entrySet()) {
@@ -165,15 +175,14 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
             String element = entry.getKey() + "=" + entry.getValue().toString() + ",";
             if (countTokens(devAndPRCodeWithLimit + element) <= llmTokenLimitWithPrompt) {
                 devAndPRCodeWithLimit.put(entry.getKey(), entry.getValue());
-                llmTokenLimitWithPrompt -= countTokens(devAndPRCodeWithLimit.toString());
+                llmTokenLimitWithPrompt -= countTokens(devAndPRCodeWithLimit + element);
             }
         }
         System.out.println("devAndPRCodeWithLimit Size: " + devAndPRCodeWithLimit.size());
         System.out.println("Final code Token: " + countTokens(devAndPRCodeWithLimit.toString()));
-        String codeQualityEnhancementInsightString;
         if (devAndPRCodeWithLimit.isEmpty()) {
             System.out.println("devAndPRCodeWithLimit: " + devAndPRCodeWithLimit.size());
-            codeQualityEnhancementInsightString = "{\"message\":\"There are no Open PR for this Repository\"}";
+            llmInsightString = "{\"message\":\"There are no Open PR for this Repository\"}";
         } else {
             String devAndPRCodeWithLimitString;
             if (devAndPRCodeWithLimit.size() > 3) {
@@ -185,12 +194,22 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
             } else {
                 devAndPRCodeWithLimitString = devAndPRCodeWithLimit.toString();
             }
-            String promptAndCode = codeQualityEnhancementInsightPrompt + devAndPRCodeWithLimitString;
+            System.out.println("Final prompt Token: " + countTokens(llmInsightPrompt));
+            System.out.println("Final devAndPRCodeWithLimitString Token: " + countTokens(devAndPRCodeWithLimitString));
+            String promptAndCode = llmInsightPrompt + devAndPRCodeWithLimitString;
 
             System.out.println("Final prompt + code Token: " + countTokens(promptAndCode));
-            codeQualityEnhancementInsightString = chatGPTService.chat(promptAndCode);
+            llmInsightString = chatGPTService.chat(promptAndCode);
         }
 
+        return llmInsightString;
+
+    }
+
+    public String getCodeQualityEnhancementsInsights(RepoData repoData) {
+        Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
+        String codeQualityEnhancementInsightPrompt = getCodeQualityEnhancementInsightLLMPrompt();
+        String codeQualityEnhancementInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode, codeQualityEnhancementInsightPrompt);
         return codeQualityEnhancementInsightString;
     }
 
@@ -207,29 +226,55 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 "Generate a JSON array with the following pattern:\n" +
                 "[\n" +
                 "    {\n" +
-                "        \"developer\": \"<developer_name>\",\n" +
-                "        \"pr_title\": \"<title_string>\",\n" +
+                "        \"developer\": \"<developer name>\",\n" +
+                "        \"pr_title\": \"<pr title>\",\n" +
                 "        \"code_improvements\": [<suggestion1>, <suggestion2>, <suggestion3>],\n" +
                 "        \"score\": [<score1>, <score2>, <score3>, <score4>],\n" +
                 "        \"criteria\": [\"<criterion1>\", \"<criterion2>\", \"<criterion3>\", \"<criterion4>\"]\n" +
                 "    },\n" +
-                "    {\n" +
-                "        \"developer\": \"<developer_name>\",\n" +
-                "        \"pr_title\": \"<title_string>\",\n" +
-                "        \"code_improvements\": [<suggestion1>, <suggestion2>, <suggestion3>],\n" +
-                "        \"score\": [<score1>, <score2>, <score3>, <score4>],\n" +
-                "        \"criteria\": [\"<criterion1>\", \"<criterion2>\", \"<criterion3>\", \"<criterion4>\"]\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"developer\": \"<developer_name>\",\n" +
-                "        \"pr_title\": \"<title_string>\",\n" +
-                "        \"code_improvements\": [<suggestion1>, <suggestion2>, <suggestion3>],\n" +
-                "        \"score\": [<score1>, <score2>, <score3>, <score4>],\n" +
-                "        \"criteria\": [\"<criterion1>\", \"<criterion2>\", \"<criterion3>\", \"<criterion4>\"]\n" +
-                "    }\n" +
                 "]\n" +
                 "Keep the score and criteria in the same order so later on it can be fetched.\n\n";
 
         return codeQualityEnhancementInsightPrompt;
     }
+
+    public String getBugDetectionInApplicationFlowInsights(RepoData repoData) {
+        Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
+        String bugDetectionInApplicationFlowInsightPrompt = getBugDetectionInApplicationFlowInsightLLMPrompt();
+        String bugDetectionInApplicationFlowInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode, bugDetectionInApplicationFlowInsightPrompt);
+        System.out.println(bugDetectionInApplicationFlowInsightString);
+        return bugDetectionInApplicationFlowInsightString;
+    }
+
+    private String getBugDetectionInApplicationFlowInsightLLMPrompt() {
+
+        String bugDetectionInApplicationFlowInsightPrompt = "The provided string is a map with \n" +
+                "developers as key and value with list of 2 strings where\n" +
+                "First string is the Title of the PR, and second string is the PR Code.\n" +
+                "I want you to conduct bug detection to find unexpected bugs being introduced by pushed code in the application flows.\n" +
+                "and I want you to display actionable recommendations for resolving these bugs.\n" +
+                "Also, I want you to display alerts if this PR is introducing any bug in the application's major flows." +
+                "and make your response in JSON Array format\n" +
+                "Generate a JSON Array with the following pattern:\n" +
+                "[\n" +
+                "  {\n" +
+                "    \"developer\": \"<developer_name>\",\n" +
+                "    \"pr_title\": \"<title_string>\",\n" +
+                "    \"bugs\": [\n" +
+                "      {\n" +
+                "        \"file_location\": \"<file_name_with_extension>\",\n" +
+                "        \"code_in_file\": \"<code_string>\",\n" +
+                "        \"issue\":  \"<issue_string>\",\n" +
+                "        \"recommendation\": [\"<recommendation1>\", \"<recommendation2>\", \"<recommendation3>\", \"<recommendation4>\"]\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"alerts\": [\"<alert1>\", \"<alert2>\", \"<alert3>\", \"<alert4>\"],\n" +
+                "    \"general_recommendation\": [\"<general_recommendation1>\", \"<general_recommendation2>\", \"<general_recommendation3>\", \"<general_recommendation4>\"]\n" +
+                "  }\n" +
+                "]";
+
+
+        return bugDetectionInApplicationFlowInsightPrompt;
+    }
+
 }
