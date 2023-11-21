@@ -274,53 +274,84 @@
                 </div>
                 <!-- end row-->
 
-                <div class="row">
-                    <div class="col-lg-4">
-                        <div class="card">
-                            <div class="card-body pb-2">
-                                <h4 class="header-title mb-0">Distribution of Languages Used</h4>
-                                <div class="widget-chart text-center" dir="ltr">
-                                    <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
-                                </div>
-                            </div>
-                        </div> <!-- end card -->
-                    </div> <!-- end col-->
+<!--                <div class="row">-->
+<!--                    <div class="col-lg-6">-->
+<!--                        <div class="card">-->
+<!--                            <div class="card-body pb-2">-->
+<!--                                <h4 class="header-title mb-0">Distribution of Languages Used</h4>-->
+<!--                                <div class="widget-chart text-center" dir="ltr">-->
+<!--                                    <canvas id="myChart" style="width:100%;max-width:600px"></canvas>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div> &lt;!&ndash; end card &ndash;&gt;-->
+<!--                    </div> &lt;!&ndash; end col&ndash;&gt;-->
 
-                    <div class="col-lg-8">
+<!--                    <div class="col-lg-8">-->
+<!--                        <div class="card">-->
+<!--                            <div class="card-body pb-2">-->
+<!--                                <h4 class="header-title mb-3">Total Commits</h4>-->
+<!--                                <canvas id="myBarChart" style="width:100%;max-width:600px"></canvas>-->
+<!--                            </div>-->
+<!--                        </div> &lt;!&ndash; end card &ndash;&gt;-->
+<!--                    </div> &lt;!&ndash; end col&ndash;&gt;-->
+<!--                </div>-->
+<!--                &lt;!&ndash; end row &ndash;&gt;-->
+
+<!--                <div class="row">-->
+<!--                    <div class="col-xl-6">-->
+<!--                        <div class="card">-->
+<!--                            <div class="card-body">-->
+<!--                                <h4 class="header-title mb-3">Weekly Commits</h4>-->
+<!--                                <div class="table-responsive">-->
+<!--                                    <table class="table table-borderless table-hover table-nowrap table-centered m-0">-->
+
+<!--                                        <thead class="table-light">-->
+<!--                                        <tr>-->
+<!--                                            <th colspan="1">Day</th>-->
+<!--                                            <th> No. Of Commits</th>-->
+<!--                                            <th> </th>-->
+<!--                                        </tr>-->
+<!--                                        </thead>-->
+<!--                                        <tbody id = "table-body">-->
+
+<!--                                        </tbody>-->
+<!--                                    </table>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div> &lt;!&ndash; end col &ndash;&gt;-->
+<!--                </div>&lt;!&ndash; end row &ndash;&gt;-->
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title mb-4">Language Usage</h4>
+                                <canvas id="myChart"></canvas> <!-- Pie chart container -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title mb-4">Weekly Commit Statistics</h4>
+                                <canvas id="smil-animations"></canvas>
+                            </div>
+                        </div>
+                    </div> <!-- end col -->
+                </div>
+
+                <div class="row">
+                    <!-- Top Contributors Bar Chart -->
+                    <div class="col-lg-12">
                         <div class="card">
                             <div class="card-body pb-2">
-                                <h4 class="header-title mb-3">Total Commits</h4>
-                                <canvas id="myBarChart" style="width:100%;max-width:600px"></canvas>
+                                <h4 class="card-title mb-4">Top 10 Contributors</h4>
+                                <canvas id="myBarChart"></canvas>
                             </div>
                         </div> <!-- end card -->
                     </div> <!-- end col-->
                 </div>
-                <!-- end row -->
-
-                <div class="row">
-                    <div class="col-xl-6">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="header-title mb-3">Weekly Commits</h4>
-                                <div class="table-responsive">
-                                    <table class="table table-borderless table-hover table-nowrap table-centered m-0">
-
-                                        <thead class="table-light">
-                                        <tr>
-                                            <th colspan="1">Day</th>
-                                            <th> No. Of Commits</th>
-                                            <th> </th>
-                                        </tr>
-                                        </thead>
-                                        <tbody id = "table-body">
-
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div> <!-- end col -->
-                </div><!-- end row -->
             </div> <!-- container -->
         </div> <!-- content -->
     </div>
@@ -389,126 +420,229 @@
         $('#myChart').empty();
         $('#myBarChart').empty();
         loadChartsAndStats(myRepoId);
-        fetchDataAndDisplay(myRepoId);
+        //fetchDataAndDisplay(myRepoId);
     });
 
-    async function fetchDataAndDisplay(myRepoId) {
+    // async function fetchDataAndDisplay(myRepoId) {
+    //     $.ajax({
+    //         type: "GET",
+    //         url: 'get-user-repos-punchcard/' + myRepoId,
+    //         dataType: 'json',
+    //         success: function displayArrayContents(array) {
+    //             const table = document.getElementById('table-body');
+    //
+    //             let x = 0;
+    //             let day = '';
+    //             for (const item of array) {
+    //                 //create row
+    //                 const row = document.createElement('tr');
+    //
+    //                 //create column to display day, add class and format it with heading 5
+    //                 day = document.createElement("td");
+    //                 var classNameWithSpaces = "m-0 fw-normal";
+    //
+    //                 // Split the class name string by spaces, trim any leading/trailing spaces, and join with single spaces
+    //                 var sanitizedClassName = classNameWithSpaces.split(' ').map(function(className) {
+    //                     return className.trim();
+    //                 }).join(' ');
+    //                 day.className = sanitizedClassName;
+    //                 const h5tag = document.createElement('h5');
+    //                 day.appendChild(h5tag);
+    //
+    //                 //setting value of day column
+    //                 if(x == 0){
+    //                     day.textContent = 'Sunday';
+    //                 }
+    //                 else if (x == 1)
+    //                     day.textContent = 'Monday';
+    //                 else if (x == 2 )
+    //                     day.textContent = 'Tuesday';
+    //                 else if (x == 3 )
+    //                     day.textContent = 'Wednesday';
+    //                 else if (x == 4 )
+    //                     day.textContent = 'Thursday';
+    //                 else if (x == 5 )
+    //                     day.textContent = 'Friday';
+    //                 else if (x == 6 )
+    //                     day.textContent = 'Saturday';
+    //
+    //                 //Creating another columna and setting it's value to no. of commits
+    //                 const NoCommit = document.createElement('td');
+    //                 NoCommit.textContent = item;
+    //
+    //                 //Add the two columns created to the row
+    //                 row.appendChild(day);
+    //                 row.appendChild(NoCommit);
+    //
+    //                 //Add the row created to the table
+    //                 table.appendChild(row);
+    //                 x++;
+    //             }
+    //         }
+    //     });
+    // }
+
+    function getRandomColor() {
+        // Generates a random RGB value
+        var r = Math.floor(Math.random() * 256);
+        var g = Math.floor(Math.random() * 256);
+        var b = Math.floor(Math.random() * 256);
+
+        // Returns both the rgba color for background and rgb for border
+        return {
+            backgroundColor: 'rgba(' + r + ', ' + g + ', ' + b + ', 0.2)', // Opacity at 0.2 for background color
+            borderColor: 'rgba(' + r + ', ' + g + ', ' + b + ', 1)' // Full opacity for border color
+        };
+    }
+
+    function loadChartsAndStats(myRepoId) {
+        //weekly commit line graph
         $.ajax({
             type: "GET",
             url: 'get-user-repos-punchcard/' + myRepoId,
             dataType: 'json',
-            success: function displayArrayContents(array) {
-                const table = document.getElementById('table-body');
-
-                let x = 0;
-                let day = '';
-                for (const item of array) {
-                    //create row
-                    const row = document.createElement('tr');
-
-                    //create column to display day, add class and format it with heading 5
-                    day = document.createElement("td");
-                    var classNameWithSpaces = "m-0 fw-normal";
-
-                    // Split the class name string by spaces, trim any leading/trailing spaces, and join with single spaces
-                    var sanitizedClassName = classNameWithSpaces.split(' ').map(function(className) {
-                        return className.trim();
-                    }).join(' ');
-                    day.className = sanitizedClassName;
-                    const h5tag = document.createElement('h5');
-                    day.appendChild(h5tag);
-
-                    //setting value of day column
-                    if(x == 0){
-                        day.textContent = 'Sunday';
+            success: function(data) {
+                var chartLabels = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                var ctx = document.getElementById('smil-animations').getContext('2d');
+                var lineChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [{
+                            label: 'Weekly Commits',
+                            data: data, // Assuming the first day's data corresponds to Monday
+                            fill: true,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)', // Area fill color
+                            borderColor: 'rgba(54, 162, 235, 1)', // Line color
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false
+                            }
+                        }
                     }
-                    else if (x == 1)
-                        day.textContent = 'Monday';
-                    else if (x == 2 )
-                        day.textContent = 'Tuesday';
-                    else if (x == 3 )
-                        day.textContent = 'Wednesday';
-                    else if (x == 4 )
-                        day.textContent = 'Thursday';
-                    else if (x == 5 )
-                        day.textContent = 'Friday';
-                    else if (x == 6 )
-                        day.textContent = 'Saturday';
+                });
 
-                    //Creating another columna and setting it's value to no. of commits
-                    const NoCommit = document.createElement('td');
-                    NoCommit.textContent = item;
-
-                    //Add the two columns created to the row
-                    row.appendChild(day);
-                    row.appendChild(NoCommit);
-
-                    //Add the row created to the table
-                    table.appendChild(row);
-                    x++;
-                }
+                // You might need to adjust chart options, responsive options, or other configurations based on your specific requirements.
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('AJAX Error:', textStatus, errorThrown);
+                // Handle errors or display a message to the user
             }
         });
-    }
 
-    function getRandomColor() {
-        var letters = "0123456789ABCDEF";
-        var color = "#";
-        for (var i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
-        }
-        return color;
-    }
-
-    function loadChartsAndStats(myRepoId) {
-        //Pie Chart
+        //Language used pie chart
         $.ajax({
             type: "GET",
             url: 'get-user-repos-lang/' + myRepoId,
             dataType: 'json',
             success: function (receivedMap) {
-                console.log(receivedMap);
                 var xValues = Object.keys(receivedMap);
                 var yValues = Object.values(receivedMap);
-                var lengthOfXValues = xValues.length;
-                console.log("lengthOfXValues: " + lengthOfXValues);
-                $("#languages").text(lengthOfXValues);
-                var barColors = xValues.map(function () {
+                $("#languages").text(xValues.length);
+
+                // Generate unique colors for each language
+                var colors = xValues.map(function () {
                     return getRandomColor();
                 });
-                new Chart("myChart", {
-                    type: "pie",
+
+                var backgroundColor = colors.map(function(color) {
+                    return color.backgroundColor;
+                });
+                var borderColor = colors.map(function(color) {
+                    return color.borderColor;
+                });
+
+                // Create the pie chart
+                var ctx = document.getElementById("myChart").getContext('2d');
+                new Chart(ctx, {
+                    type: 'pie',
                     data: {
                         labels: xValues,
                         datasets: [{
-                            backgroundColor: barColors,
-                            data: yValues
+                            data: yValues,
+                            backgroundColor: backgroundColor,
+                            borderColor: borderColor,
                         }]
+                    },
+                    options: {
+                        responsive: true,
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem, data) {
+                                    var label = data.labels[tooltipItem.index] || '';
+                                    var value = data.datasets[0].data[tooltipItem.index];
+                                    return label + ': ' + value;
+                                }
+                            }
+                        },
+                        // Ensuring the chart does not display as a donut
+                        cutoutPercentage: 0
                     }
                 });
             }
         });
 
-        //Bar Chart
+        //top 10 contributors Bar chart
         $.ajax({
             type: "GET",
             url: 'get-user-repos-contibutors/' + myRepoId,
             dataType: 'json',
             success: function (receivedMap) {
                 console.log(receivedMap);
-                var xValues = Object.keys(receivedMap);
-                var yValues = Object.values(receivedMap);
-                var barColors = xValues.map(function () {
+                var contributors = Object.entries(receivedMap);
+                contributors.sort((a, b) => b[1] - a[1]); // Sort in descending order by contributions
+
+                var topContributors = contributors.slice(0, 10); // Take the top 10 contributors
+
+                var xValues = topContributors.map(contributor => contributor[0]);
+                var yValues = topContributors.map(contributor => contributor[1]);
+                var colors = xValues.map(function () {
                     return getRandomColor();
                 });
+
+                var backgroundColor = colors.map(function(color) {
+                    return color.backgroundColor;
+                });
+                var borderColor = colors.map(function(color) {
+                    return color.borderColor;
+                });
+
                 new Chart("myBarChart", {
                     type: "bar",
                     data: {
                         labels: xValues,
                         datasets: [{
-                            backgroundColor: barColors,
+                            label: 'Contributions',
+                            backgroundColor: backgroundColor,
+                            borderColor: borderColor,
                             data: yValues
                         }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false
+                            }
+                        }
                     }
                 });
             }
