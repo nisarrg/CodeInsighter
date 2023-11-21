@@ -131,8 +131,10 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 + reviewerComments.toString() + "\n." +
                 "Can you give me some insights of Common code mistakes based upon these comments.\n" +
                 "Please consider yourself as a Business Analyst and write in Technical English.\n" +
-                "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted " +
-                "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
+                "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted "
+                +
+                "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points "
+                +
                 "and highlight your reasoning. And Format the response in HTML tags and use Bootstrap classes for better readability";
         String commonCodeMistakesInsight = chatGPTService.chat(commonCodeMistakesPrompt);
         Gson gson = new Gson();
@@ -150,7 +152,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
         System.out.println("repoPRDataURL: " + repoPRDataURL);
 
         UserData userData = userDataService.getOne(repoData.getUserId());
-        ResponseEntity<String> response = restTemplate.exchange(repoPRDataURL, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+        ResponseEntity<String> response = restTemplate.exchange(repoPRDataURL, HttpMethod.GET,
+                getAllHeadersEntity(userData.getUserAccessToken()), String.class);
         showAvailableAPIHits(response.getHeaders());
 
         String jsonRepoPRsString = response.getBody();
@@ -164,7 +167,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
 
                 String prTitle = prItemJsonObject.get("title").getAsString();
                 String diffCodeUrl = prItemJsonObject.get("diff_url").getAsString();
-                ResponseEntity<String> responseDiffCode = restTemplate.exchange(diffCodeUrl, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+                ResponseEntity<String> responseDiffCode = restTemplate.exchange(diffCodeUrl, HttpMethod.GET,
+                        getAllHeadersEntity(userData.getUserAccessToken()), String.class);
                 showAvailableAPIHits(responseDiffCode.getHeaders());
                 String devPRCode = responseDiffCode.getBody();
 
@@ -234,7 +238,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
     public String getCodeQualityEnhancementsInsights(RepoData repoData) {
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
         String codeQualityEnhancementInsightPrompt = getCodeQualityEnhancementInsightLLMPrompt();
-        String codeQualityEnhancementInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode, codeQualityEnhancementInsightPrompt);
+        String codeQualityEnhancementInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
+                codeQualityEnhancementInsightPrompt);
         return codeQualityEnhancementInsightString;
     }
 
@@ -246,7 +251,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 "Based on different criteria: Readability, Performance, Correctness, Scalability\n" +
                 "Can give a some Code improvements suggestions/comments and\n" +
                 "A score for each criteria from 0 to 5 as I want to show it in a visual graph format\n" +
-                "please mention for all 4 criteria (Readability, Performance, Correctness, Scalability) even if you don't find them you can score them as 0 if not found.\n" +
+                "please mention for all 4 criteria (Readability, Performance, Correctness, Scalability) even if you don't find them you can score them as 0 if not found.\n"
+                +
                 "and make your response in JSON Array format\n" +
                 "Generate a JSON array with the following pattern:\n" +
                 "[\n" +
@@ -266,7 +272,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
     public String getBugDetectionInApplicationFlowInsights(RepoData repoData) {
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
         String bugDetectionInApplicationFlowInsightPrompt = getBugDetectionInApplicationFlowInsightLLMPrompt();
-        String bugDetectionInApplicationFlowInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode, bugDetectionInApplicationFlowInsightPrompt);
+        String bugDetectionInApplicationFlowInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
+                bugDetectionInApplicationFlowInsightPrompt);
         System.out.println(bugDetectionInApplicationFlowInsightString);
         return bugDetectionInApplicationFlowInsightString;
     }
@@ -276,9 +283,11 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
         String bugDetectionInApplicationFlowInsightPrompt = "The provided string is a map with \n" +
                 "developers as key and value with list of 2 strings where\n" +
                 "First string is the Title of the PR, and second string is the PR Code.\n" +
-                "I want you to conduct bug detection to find unexpected bugs being introduced by pushed code in the application flows.\n" +
+                "I want you to conduct bug detection to find unexpected bugs being introduced by pushed code in the application flows.\n"
+                +
                 "and I want you to display actionable recommendations for resolving these bugs.\n" +
-                "Also, I want you to display alerts if this PR is introducing any bug in the application's major flows." +
+                "Also, I want you to display alerts if this PR is introducing any bug in the application's major flows."
+                +
                 "and make your response in JSON Array format\n" +
                 "Generate a JSON Array with the following pattern:\n" +
                 "[\n" +
@@ -290,14 +299,15 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 "        \"file_location\": \"<file_name_with_extension>\",\n" +
                 "        \"code_in_file\": \"<code_string>\",\n" +
                 "        \"issue\":  \"<issue_string>\",\n" +
-                "        \"recommendation\": [\"<recommendation1>\", \"<recommendation2>\", \"<recommendation3>\", \"<recommendation4>\"]\n" +
+                "        \"recommendation\": [\"<recommendation1>\", \"<recommendation2>\", \"<recommendation3>\", \"<recommendation4>\"]\n"
+                +
                 "      }\n" +
                 "    ],\n" +
                 "    \"alerts\": [\"<alert1>\", \"<alert2>\", \"<alert3>\", \"<alert4>\"],\n" +
-                "    \"general_recommendation\": [\"<general_recommendation1>\", \"<general_recommendation2>\", \"<general_recommendation3>\", \"<general_recommendation4>\"]\n" +
+                "    \"general_recommendation\": [\"<general_recommendation1>\", \"<general_recommendation2>\", \"<general_recommendation3>\", \"<general_recommendation4>\"]\n"
+                +
                 "  }\n" +
                 "]";
-
 
         return bugDetectionInApplicationFlowInsightPrompt;
     }
@@ -380,8 +390,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                     } else {
                         contributorDiff.put(owner, "No PR found");
                     }
-                }
-                else
+                } else
                     contributorDiff.put(owner, "No PR found");
             } catch (Exception e) {
                 contributorDiff.put(owner, "No PR found");
@@ -413,6 +422,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
         for (Map.Entry<String, String> entry : contributorDiff.entrySet()) {
             System.out.println("Individual: " + entry.getKey());
             int commitCount = sortedMap.get(entry.getKey());
+            Files.createDirectories(Paths.get(COLLAB_ANALYSIS_FILES_PATH));
             String fileName = COLLAB_ANALYSIS_FILES_PATH + "diff" + count + ".txt";
             count++;
             FileWriter fw = new FileWriter(fileName);
@@ -471,7 +481,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
         Map<String, String> roleInsights = new HashMap<>();
 
         System.out.println("In Smell Rating Method inside RepoDataServiceImpl");
-
+        Files.createDirectories(Paths.get(COLLAB_ANALYSIS_FILES_PATH));
         FileWriter fw = new FileWriter(COLLAB_ANALYSIS_FILES_PATH + "SmellRatingPrompt.txt");
         fw.write(
                 "For a specific GitHub repository, you have information about the top 3 contributors based on commit count and their respective code smells ratings. "
@@ -513,7 +523,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 "where lower code smells ratings are preferable.\n\n" +
                 "Provide the names of the two contributors and a brief explanation of why you consider them to be the most productive collaborators based on the given criteria.");
         fw.close();
-        String finalPrompt = new String(Files.readAllBytes(Paths.get(COLLAB_ANALYSIS_FILES_PATH + "SmellRatingPrompt.txt")));
+        String finalPrompt = new String(
+                Files.readAllBytes(Paths.get(COLLAB_ANALYSIS_FILES_PATH + "SmellRatingPrompt.txt")));
         Thread.sleep(30000);
         String finalResponse = chatGPTService.chat(finalPrompt);
         System.out.println("Collab Analysis GPT Response:\n" + finalResponse);
