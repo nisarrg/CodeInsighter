@@ -120,16 +120,16 @@ public class LLMController {
         return response != null && response.getBody() != null && response.getStatusCode().is2xxSuccessful();
     }
 
-    private List<Map<String, Object>> parseJSONResponse(String responseBody) {
-        return jsonUtils.parseJSONResponse(responseBody);
+  /*  private List<Map<String, Object>> parseJSONResponse(String responseBody) {
+        return JSONUtils.parseJSONResponse(responseBody);
     }
-
+*/
     private boolean isValidFile(String path) {
         List<String> validExtensions = Arrays.asList("jpg", "png", "svg", "class", "docx", "exe", "dll", "jar", "gif", "css", "html");
         return !validExtensions.stream().anyMatch(extension -> path.toLowerCase().contains(extension));
     }
 
-    private void processContentItem(Map<String, Object> item) {
+    /*private void processContentItem(Map<String, Object> item) {
         String basePath = "";
         String type = (String) item.get("type");
         String name = (String) item.get("name");
@@ -140,9 +140,9 @@ public class LLMController {
         } else if (DIR_TYPE.equals(type)) {
             processDirectory(owner, repo, path, basePath);
         }
-    }
+    }*/
 
-    @GetMapping("/repository/content")
+    /*    @GetMapping("/repository/content")
     public void getRepoContent() {
         ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo);
         System.out.println(response);
@@ -154,7 +154,7 @@ public class LLMController {
                 processContentItem(item);
             }
         }
-    }
+    }*/
 
 
     /*public void getRepoContent() {
@@ -188,13 +188,13 @@ public class LLMController {
         basePath = StringUtils.hasText(basePath) ? basePath + File.separator + dirPath : dirPath;
     }
 
-    private void processDirectory(String owner, String repo, String dirPath, String basePath) {
+    /*private void processDirectory(String owner, String repo, String dirPath, String basePath) {
         logger.debug("Entering processDirectory");
 
         try {
             ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo, dirPath);
             logger.debug("Response body: {}", response.getBody());
-            List<Map<String, Object>> contents = jsonUtils.parseJSONResponse(response.getBody());
+            List<Map<String, Object>> contents = JSONUtils.parseJSONResponse(response.getBody());
             logger.debug("Contents: {}", contents);
 
             updateBasePath(basePath, dirPath);
@@ -203,7 +203,9 @@ public class LLMController {
                 String type = (String) item.get("type");
                 String path = (String) item.get("path");
 
-                if (FILE_TYPE.equals(type) && isValidFile(path)) {
+                if (FILE_TYPE.equals
+
+                        (type) && isValidFile(path)) {
                     processFile(owner, repo, path, basePath);
                 } else if (DIR_TYPE.equals(type)) {
                     processDirectory(owner, repo, path, basePath);
@@ -214,7 +216,7 @@ public class LLMController {
             logger.error("Error processing directory: {}", e.getMessage(), e);
         }
         logger.debug("Exiting processDirectory");
-    }
+    }*/
 
 /*    private void processDirectory(String owner, String repo, String dirPath, String basePath) {
         System.out.println("WE IN PROCESSDIRECTORY");

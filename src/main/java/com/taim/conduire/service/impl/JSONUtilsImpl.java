@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Service
 public class JSONUtilsImpl implements JSONUtils {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public List<Map<String, Object>> parseJSONResponse(String json) {
         try {

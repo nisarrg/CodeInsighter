@@ -35,13 +35,10 @@ public class UserRepoInsightsController {
     private RepoDataService repoDataService;
 
     @Autowired
-    private LLMService llmService;
-
-    @Autowired
     private InsightsService insightsService;
 
     @GetMapping("/{repo_id}/insights")
-    public String view(@PathVariable("repo_id") Integer repoId, Model model) {
+    public String view(@PathVariable("repo_id") Integer repoId, Model model) throws IOException {
         RepoData repoData = repoDataService.getOne(repoId);
         System.out.println("repoData: " + repoData);
         UserData userData = userDataService.getOne(repoData.getUserId());
@@ -84,6 +81,7 @@ public class UserRepoInsightsController {
 
         return ResponseEntity.ok(roleInsights);
     }
+
     @RequestMapping(value = "/{repo_id}/get-insights/cqe", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ResponseEntity<String> getCodeQualityEnhancementsInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
@@ -93,5 +91,28 @@ public class UserRepoInsightsController {
         String codeQualityEnhancementInsightString = insightsService.getCodeQualityEnhancementsInsights(repoData);
         System.out.println("codeQualityEnhancementInsightString: " + codeQualityEnhancementInsightString);
         return ResponseEntity.ok(codeQualityEnhancementInsightString);
+    }
+
+    @RequestMapping(value = "/{repo_id}/get-insights/dv", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> getDVInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
+
+        System.out.println("repoID: " + repoID + "insightType DV ");
+        RepoData repoData = repoDataService.getOne(repoID);
+        StringBuilder versions = insightsService.processPomXMLFile(repoData);
+        Map<String, String> roleInsights = new HashMap<>();
+
+        String businessAnalystPrompt = "These are dependencies with their artifactIDs and version numbers" + versions.toString() + "\n." +
+                "Can you give me some insights of whether the versions are compatible with each other. Also point out some other insights which I should consider\n" +
+                "Please consider yourself as a Business Analyst and write in Technical English.\n" +
+                "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted " +
+                "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
+                "and highlight your reasoning." ;
+        String businessAnalystInsight = chatGPTService.chat(businessAnalystPrompt);
+        roleInsights.put("businessAnalyst", businessAnalystInsight);
+
+        System.out.println("roleInsights: " + roleInsights.size());
+
+        return ResponseEntity.ok(roleInsights);
     }
 }

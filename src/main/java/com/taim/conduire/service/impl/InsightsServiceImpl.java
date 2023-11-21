@@ -7,25 +7,28 @@ import com.google.gson.JsonObject;
 import com.taim.conduire.constants.ConstantCodes;
 import com.taim.conduire.domain.RepoData;
 import com.taim.conduire.domain.UserData;
-import com.taim.conduire.service.InsightsService;
-import com.taim.conduire.service.RepoDataService;
-import com.taim.conduire.service.UserDataService;
+import com.taim.conduire.service.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.xml.bind.annotation.*;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
-public class InsightsServiceImpl implements InsightsService, ConstantCodes {
+public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
 
     @Autowired
     private RepoDataService repoDataService;
@@ -38,6 +41,20 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
 
     @Autowired
     private ChatGPTServiceImpl chatGPTService;
+
+    @Autowired
+    private JSONUtilsImpl jsonUtils;
+
+    @Autowired
+    private LLMService llmService;
+
+    private static final Logger logger = LoggerFactory.getLogger(InsightsService.class);
+
+    private static final String FILE_TYPE = "file";
+    private static final String DIR_TYPE = "dir";
+
+    private boolean flag = false;
+
 
     private static int countTokens(String input) {
         String[] tokens = input.split("\\s+|\\p{Punct}");
@@ -232,4 +249,164 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
 
         return codeQualityEnhancementInsightPrompt;
     }
+
+    public StringBuilder processPomXMLFile(RepoData repoData) throws IOException {
+
+        String owner = repoData.getName().substring(0,repoData.getName().indexOf("/"));
+        String repo = repoData.getName().substring(repoData.getName().indexOf("/"));
+
+        //Repo Content Code
+        System.out.println("Owner is: "+owner+" Repo is: "+ repo);
+        ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo);
+        System.out.println(response);
+        if (isValidResponse(response)) {
+            List<Map<String, Object>> contents = jsonUtils.parseJSONResponse(response.getBody());
+
+            for (Map<String, Object> item : contents) {
+                processContentItem(item, owner, repo);
+            }
+        }
+
+        return parsePOMintoMap();
+    }
+
+    private void processFile(String owner, String repo, String filePath, String basePath) {
+        logger.debug("Processing file...");
+
+        filePath = filePath.trim().replaceAll(" ", "%20");
+        logger.debug("Modified filePath: " + filePath);
+
+        String currentDirectory = System.getProperty("user.dir");
+        logger.debug("Current Working Directory: " + currentDirectory);
+
+        ResponseEntity<String> response = llmService.getFileContent(owner, repo, filePath);
+        String content = response.getBody();
+
+        String title = filePath;
+
+        System.out.println("hello ji]\n");
+        System.out.println("Basepath is:\n"+basePath);
+
+            String fileName = "output.txt"; // configurable or parameterized file name
+            System.out.println("File name where the output is saved is at: "+ fileName);
+
+        // Check if the file exists
+        File file = new File(fileName);
+        if (file.exists()) {
+            // If the file exists, delete it
+            if (file.delete()) {
+                System.out.println("Existing file deleted.");
+            } else {
+                System.err.println("Unable to delete existing file.");
+            }
+        }
+            // Writing content to the file
+            try (PrintWriter printWriter = new PrintWriter(new FileWriter(fileName, true))) {
+                printWriter.println("File Name: " + title);
+                printWriter.println();
+                printWriter.println("Content:");
+                printWriter.println(content);
+                printWriter.println();
+
+                logger.debug("Content has been written to the file: " + fileName);
+            } catch (IOException e) {
+                logger.debug("An error occurred while writing to the file: " + e.getMessage());
+            }
+        flag=true;
+        logger.debug("File processing completed.");
+    }
+
+  public StringBuilder parsePOMintoMap() throws IOException {
+        System.out.println("Inside parsePOMintoMap()\n");
+        StringBuilder resultBuilder = new StringBuilder();
+        String content = new String(Files.readAllBytes(Paths.get("output.txt")));
+        resultBuilder =  extractContent(content);
+
+        return resultBuilder;
+  }
+
+    private void processDirectory(String owner, String repo, String dirPath, String basePath) {
+        logger.debug("Entering processDirectory");
+
+        try {
+            ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo, dirPath);
+            logger.debug("Response body: {}", response.getBody());
+            List<Map<String, Object>> contents = jsonUtils.parseJSONResponse(response.getBody());
+            logger.debug("Contents: {}", contents);
+
+            updateBasePath(basePath, dirPath);
+
+            for (Map<String, Object> item : contents) {
+                String type = (String) item.get("type");
+                String path = (String) item.get("path");
+
+                if (FILE_TYPE.equals(type) && isValidFile(path)) {
+                    processFile(owner, repo, path, basePath);
+                } else if (DIR_TYPE.equals(type)) {
+                    processDirectory(owner, repo, path, basePath);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error processing directory: {}", e.getMessage(), e);
+        }
+        logger.debug("Exiting processDirectory");
+    }
+
+    private static StringBuilder extractContent(String input) {
+        System.out.println("inside extractContent and the input is: "+input);
+        StringBuilder resultBuilder = new StringBuilder();
+        String patternString = "<(plugin|dependency)>.*?<artifactId>(.*?)</artifactId>.*?<version>(.*?)</version>.*?</(plugin|dependency)>";
+        Pattern pattern = Pattern.compile(patternString, Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(input);
+
+        while (matcher.find()) {
+            String tagType = matcher.group(1);
+            String artifactId = matcher.group(2);
+            String version = matcher.group(3);
+
+            resultBuilder.append("Tag Type: ").append(tagType).append("\n");
+            resultBuilder.append("ArtifactId: ").append(artifactId).append("\n");
+            resultBuilder.append("Version: ").append(version).append("\n\n");
+        }
+
+        if (resultBuilder.isEmpty()) {
+            return null;
+        }
+
+        return resultBuilder;
+    }
+
+    private void updateBasePath(String basePath, String dirPath) {
+        basePath = StringUtils.hasText(basePath) ? basePath + File.separator + dirPath : dirPath;
+    }
+
+    private boolean isValidFile(String path) {
+        List<String> validExtensions = Arrays.asList("jpg", "png", "svg", "class", "docx", "exe", "dll", "jar", "gif", "css", "html");
+        return validExtensions.stream().noneMatch(extension -> path.toLowerCase().contains(extension));
+    }
+
+    private void processContentItem(Map<String, Object> item, String owner, String repo) {
+        String basePath = "";
+        String type = (String) item.get("type");
+        String name = (String) item.get("name");
+        String path = (String) item.get("path");
+
+        if (FILE_TYPE.equals(type) && name.equals("pom.xml") && !flag) {
+            System.out.println("Found POM.XML file\n");
+            processFile(owner, repo, path, basePath);
+            flag=true;
+        } else if (DIR_TYPE.equals(type) && (!flag)){
+            processDirectory(owner, repo, path, basePath);
+        }
+    }
+
+    private boolean isValidResponse(ResponseEntity<String> response) {
+        return response != null && response.getBody() != null && response.getStatusCode().is2xxSuccessful();
+    }
+
+
+    private List<Map<String, Object>> parseJSONResponse(String responseBody) {
+        return jsonUtils.parseJSONResponse(responseBody);
+    }
+
 }

@@ -252,6 +252,7 @@ public class LLMServiceImpl implements LLMService {
 
         //String apiUrl = String.format("%s/repos/%s/%s", githubApiUrl, owner, repo);
         URI uri = URI.create(githubApiUrl + "/repos/" + owner + "/" + repo + "/contents" + "/" + path);
+        System.out.println(uri.toString());
 
         RequestEntity<?> requestEntity = RequestEntity.get(uri).headers(headers).build();
         return restTemplate.exchange(requestEntity, String.class);
@@ -264,8 +265,8 @@ public class LLMServiceImpl implements LLMService {
         //headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
         //String apiUrl = String.format("%s/repos/%s/%s", githubApiUrl, owner, repo);
-        URI uri = URI.create(githubApiUrl + "/repos/" + owner + "/" + repo + "/contents");
-
+        URI uri = URI.create(githubApiUrl + "/repos/" + owner + repo + "/contents");
+        System.out.println(uri.toString());
         RequestEntity<?> requestEntity = RequestEntity.get(uri).headers(headers).build();
         return restTemplate.exchange(requestEntity, String.class);
     }
@@ -273,7 +274,7 @@ public class LLMServiceImpl implements LLMService {
     public ResponseEntity<String> getFileContent(String owner, String repo, String filePath) {
         HttpHeaders headers = createHeaders();
 
-        URI uri = URI.create(githubApiUrl + "/repos/" + owner + "/" + repo + "/contents/" + filePath);
+        URI uri = URI.create(githubApiUrl + "/repos/" + owner + repo + "/contents/" + filePath);
 
         RequestEntity<?> requestEntity = RequestEntity.get(uri).headers(headers).build();
         ResponseEntity<String> response = restTemplate.exchange(requestEntity, String.class);
