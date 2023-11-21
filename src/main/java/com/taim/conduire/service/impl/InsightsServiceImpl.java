@@ -25,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -122,6 +123,24 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
         }
         System.out.println("reviewerComments: " + reviewerComments.size());
         return reviewerComments;
+    }
+
+    public String getCommonCodeMistakesInsights(RepoData repoData) {
+        Map<String, List<String>> reviewerComments = getRepositoryReviewComments(repoData);
+        String commonCodeMistakesPrompt = "These are open PR review comments by the reviewer:"
+                + reviewerComments.toString() + "\n." +
+                "Can you give me some insights of Common code mistakes based upon these comments.\n" +
+                "Please consider yourself as a Business Analyst and write in Technical English.\n" +
+                "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted " +
+                "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
+                "and highlight your reasoning. And Format the response in HTML tags and use Bootstrap classes for better readability";
+        String commonCodeMistakesInsight = chatGPTService.chat(commonCodeMistakesPrompt);
+        Gson gson = new Gson();
+        String jsonInsight = gson.toJson(commonCodeMistakesInsight);
+        String finalResult = "{\"insights\":" + jsonInsight + "}";
+        System.out.println("finalResult: " + finalResult);
+
+        return finalResult;
     }
 
     public Map<String, List<String>> getDevPRCode(RepoData repoData) {
@@ -366,6 +385,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                     contributorDiff.put(owner, "No PR found");
             } catch (Exception e) {
                 contributorDiff.put(owner, "No PR found");
+                System.out.println("dcontributorDiff: " + contributorDiff);
                 e.printStackTrace();
             }
         }
@@ -393,7 +413,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
         for (Map.Entry<String, String> entry : contributorDiff.entrySet()) {
             System.out.println("Individual: " + entry.getKey());
             int commitCount = sortedMap.get(entry.getKey());
-            String fileName = COLLAB_ANALYSIS_FILES_PATH + "diff" + String.valueOf(count) + ".txt";
+            String fileName = COLLAB_ANALYSIS_FILES_PATH + "diff" + count + ".txt";
             count++;
             FileWriter fw = new FileWriter(fileName);
             try {
@@ -461,9 +481,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                         "and 10 represents a high number of code smells.\n\nTop 3 Contributors:\n\n");
 
         for (int i = 1; i <= 3; i++) {
-            String fileName = COLLAB_ANALYSIS_FILES_PATH + "diff" + String.valueOf(i) + ".txt";
+            String fileName = COLLAB_ANALYSIS_FILES_PATH + "diff" + i + ".txt";
             String prompt = new String(Files.readAllBytes(Paths.get(fileName)));
-            System.out.println("Checking individual file read: " + prompt);
             String response = chatGPTService.chat(prompt);
             System.out.println(response);
 
@@ -483,8 +502,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
             int rating = (int) Double.parseDouble(parts[2]);
             System.out.println(rating);
 
-            fw.write(contributor + "\nCommit Count: " + String.valueOf(commitCount) + "\nCode Smells Rating: "
-                    + String.valueOf(rating) + "\n\n");
+            fw.write(contributor + "\nCommit Count: " + commitCount + "\nCode Smells Rating: "
+                    + rating + "\n\n");
 
         }
 
@@ -492,8 +511,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 "would be the most productive. Productivity is defined as a combination of commit count and code smells rating, "
                 +
                 "where lower code smells ratings are preferable.\n\n" +
-                "Provide the names of the two contributors and a brief explanation of why you consider them to be the most productive collaborators based on the given criteria." +
-                "And Format the response in HTML tags and use Bootstrap classes for better readability.");
+                "Provide the names of the two contributors and a brief explanation of why you consider them to be the most productive collaborators based on the given criteria.");
         fw.close();
         String finalPrompt = new String(Files.readAllBytes(Paths.get(COLLAB_ANALYSIS_FILES_PATH + "SmellRatingPrompt.txt")));
         Thread.sleep(30000);
