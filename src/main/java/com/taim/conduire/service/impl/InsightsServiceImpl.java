@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 public class InsightsServiceImpl implements InsightsService, ConstantCodes {
 
     @Autowired
-    private RepoDataServiceImpl repoDataServiceImpl;
+    private RepoDataService repoDataService;
 
     @Autowired
     private UserDataService userDataService;
@@ -111,7 +111,12 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
             // TODO: Early return
             if (element.isJsonObject()) {
                 JsonObject reviewCommentObject = element.getAsJsonObject();
-                String reviewer = reviewCommentObject.get("user").getAsJsonObject().get("login").getAsString();
+                String reviewer;
+                if (reviewCommentObject.get("user").isJsonNull()) {
+                    reviewer = "Bot";
+                } else {
+                    reviewer = reviewCommentObject.get("user").getAsJsonObject().get("login").getAsString();
+                }
                 String reviewerComment = reviewCommentObject.get("body").getAsString();
                 reviewerComments.computeIfAbsent(reviewer, k -> new ArrayList<>()).add(reviewerComment);
             }
@@ -120,8 +125,28 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
         return reviewerComments;
     }
 
-    public String getCodeQualityEnhancementsInsights(RepoData repoData) {
-        String parentRepoName = repoDataServiceImpl.getParentRepo(repoData);
+    public String getCommonCodeMistakesInsights(RepoData repoData) {
+        Map<String, List<String>> reviewerComments = getRepositoryReviewComments(repoData);
+        String commonCodeMistakesPrompt = "These are open PR review comments by the reviewer:"
+                + reviewerComments.toString() + "\n." +
+                "Can you give me some insights of Common code mistakes based upon these comments.\n" +
+                "Please consider yourself as a Business Analyst and write in Technical English.\n" +
+                "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted "
+                +
+                "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points "
+                +
+                "and highlight your reasoning. And Format the response in HTML tags and use Bootstrap classes for better readability";
+        String commonCodeMistakesInsight = chatGPTService.chat(commonCodeMistakesPrompt);
+        Gson gson = new Gson();
+        String jsonInsight = gson.toJson(commonCodeMistakesInsight);
+        String finalResult = "{\"insights\":" + jsonInsight + "}";
+        System.out.println("finalResult: " + finalResult);
+
+        return finalResult;
+    }
+
+    public Map<String, List<String>> getDevPRCode(RepoData repoData) {
+        String parentRepoName = repoDataService.getParentRepo(repoData);
         Gson gson = new Gson();
         String repoPRDataURL = GITHUB_API_URL + GITHUB_REPOS + "/" + parentRepoName + GITHUB_PULLS + "?per_page=100";
         System.out.println("repoPRDataURL: " + repoPRDataURL);
@@ -164,9 +189,14 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
 
         System.out.println("devAndPRCode Size: " + devAndPRCode.size());
 
-        String codeQualityEnhancementInsightPrompt = getCodeQualityEnhancementInsightLLMPrompt();
+        return devAndPRCode;
+    }
 
-        Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(codeQualityEnhancementInsightPrompt);
+    public String getInsightsFromPromptAndDevPRCode(Map<String, List<String>> devAndPRCode, String llmInsightPrompt) {
+
+        String llmInsightString;
+
+        Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(llmInsightPrompt);
         Map<String, List<String>> devAndPRCodeWithLimit = new HashMap<>();
 
         for (Map.Entry<String, List<String>> entry : devAndPRCode.entrySet()) {
@@ -174,15 +204,14 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
             String element = entry.getKey() + "=" + entry.getValue().toString() + ",";
             if (countTokens(devAndPRCodeWithLimit + element) <= llmTokenLimitWithPrompt) {
                 devAndPRCodeWithLimit.put(entry.getKey(), entry.getValue());
-                llmTokenLimitWithPrompt -= countTokens(devAndPRCodeWithLimit.toString());
+                llmTokenLimitWithPrompt -= countTokens(devAndPRCodeWithLimit + element);
             }
         }
         System.out.println("devAndPRCodeWithLimit Size: " + devAndPRCodeWithLimit.size());
         System.out.println("Final code Token: " + countTokens(devAndPRCodeWithLimit.toString()));
-        String codeQualityEnhancementInsightString;
         if (devAndPRCodeWithLimit.isEmpty()) {
             System.out.println("devAndPRCodeWithLimit: " + devAndPRCodeWithLimit.size());
-            codeQualityEnhancementInsightString = "{\"message\":\"There are no Open PR for this Repository\"}";
+            llmInsightString = "{\"message\":\"There are no Open PR for this Repository\"}";
         } else {
             String devAndPRCodeWithLimitString;
             if (devAndPRCodeWithLimit.size() > 3) {
@@ -194,12 +223,23 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
             } else {
                 devAndPRCodeWithLimitString = devAndPRCodeWithLimit.toString();
             }
-            String promptAndCode = codeQualityEnhancementInsightPrompt + devAndPRCodeWithLimitString;
+            System.out.println("Final prompt Token: " + countTokens(llmInsightPrompt));
+            System.out.println("Final devAndPRCodeWithLimitString Token: " + countTokens(devAndPRCodeWithLimitString));
+            String promptAndCode = llmInsightPrompt + devAndPRCodeWithLimitString;
 
             System.out.println("Final prompt + code Token: " + countTokens(promptAndCode));
-            codeQualityEnhancementInsightString = chatGPTService.chat(promptAndCode);
+            llmInsightString = chatGPTService.chat(promptAndCode);
         }
 
+        return llmInsightString;
+
+    }
+
+    public String getCodeQualityEnhancementsInsights(RepoData repoData) {
+        Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
+        String codeQualityEnhancementInsightPrompt = getCodeQualityEnhancementInsightLLMPrompt();
+        String codeQualityEnhancementInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
+                codeQualityEnhancementInsightPrompt);
         return codeQualityEnhancementInsightString;
     }
 
@@ -217,35 +257,64 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 "Generate a JSON array with the following pattern:\n" +
                 "[\n" +
                 "    {\n" +
-                "        \"developer\": \"<developer_name>\",\n" +
-                "        \"pr_title\": \"<title_string>\",\n" +
+                "        \"developer\": \"<developer name>\",\n" +
+                "        \"pr_title\": \"<pr title>\",\n" +
                 "        \"code_improvements\": [<suggestion1>, <suggestion2>, <suggestion3>],\n" +
                 "        \"score\": [<score1>, <score2>, <score3>, <score4>],\n" +
                 "        \"criteria\": [\"<criterion1>\", \"<criterion2>\", \"<criterion3>\", \"<criterion4>\"]\n" +
                 "    },\n" +
-                "    {\n" +
-                "        \"developer\": \"<developer_name>\",\n" +
-                "        \"pr_title\": \"<title_string>\",\n" +
-                "        \"code_improvements\": [<suggestion1>, <suggestion2>, <suggestion3>],\n" +
-                "        \"score\": [<score1>, <score2>, <score3>, <score4>],\n" +
-                "        \"criteria\": [\"<criterion1>\", \"<criterion2>\", \"<criterion3>\", \"<criterion4>\"]\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"developer\": \"<developer_name>\",\n" +
-                "        \"pr_title\": \"<title_string>\",\n" +
-                "        \"code_improvements\": [<suggestion1>, <suggestion2>, <suggestion3>],\n" +
-                "        \"score\": [<score1>, <score2>, <score3>, <score4>],\n" +
-                "        \"criteria\": [\"<criterion1>\", \"<criterion2>\", \"<criterion3>\", \"<criterion4>\"]\n" +
-                "    }\n" +
                 "]\n" +
                 "Keep the score and criteria in the same order so later on it can be fetched.\n\n";
 
         return codeQualityEnhancementInsightPrompt;
     }
 
+    public String getBugDetectionInApplicationFlowInsights(RepoData repoData) {
+        Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
+        String bugDetectionInApplicationFlowInsightPrompt = getBugDetectionInApplicationFlowInsightLLMPrompt();
+        String bugDetectionInApplicationFlowInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
+                bugDetectionInApplicationFlowInsightPrompt);
+        System.out.println(bugDetectionInApplicationFlowInsightString);
+        return bugDetectionInApplicationFlowInsightString;
+    }
+
+    private String getBugDetectionInApplicationFlowInsightLLMPrompt() {
+
+        String bugDetectionInApplicationFlowInsightPrompt = "The provided string is a map with \n" +
+                "developers as key and value with list of 2 strings where\n" +
+                "First string is the Title of the PR, and second string is the PR Code.\n" +
+                "I want you to conduct bug detection to find unexpected bugs being introduced by pushed code in the application flows.\n"
+                +
+                "and I want you to display actionable recommendations for resolving these bugs.\n" +
+                "Also, I want you to display alerts if this PR is introducing any bug in the application's major flows."
+                +
+                "and make your response in JSON Array format\n" +
+                "Generate a JSON Array with the following pattern:\n" +
+                "[\n" +
+                "  {\n" +
+                "    \"developer\": \"<developer_name>\",\n" +
+                "    \"pr_title\": \"<title_string>\",\n" +
+                "    \"bugs\": [\n" +
+                "      {\n" +
+                "        \"file_location\": \"<file_name_with_extension>\",\n" +
+                "        \"code_in_file\": \"<code_string>\",\n" +
+                "        \"issue\":  \"<issue_string>\",\n" +
+                "        \"recommendation\": [\"<recommendation1>\", \"<recommendation2>\", \"<recommendation3>\", \"<recommendation4>\"]\n"
+                +
+                "      }\n" +
+                "    ],\n" +
+                "    \"alerts\": [\"<alert1>\", \"<alert2>\", \"<alert3>\", \"<alert4>\"],\n" +
+                "    \"general_recommendation\": [\"<general_recommendation1>\", \"<general_recommendation2>\", \"<general_recommendation3>\", \"<general_recommendation4>\"]\n"
+                +
+                "  }\n" +
+                "]";
+
+        return bugDetectionInApplicationFlowInsightPrompt;
+    }
+
     public String getRepositoryPRsCollab(RepoData repoData) throws IOException, InterruptedException {
         // Call getRepoContributors to get the top 3 contributors who commit the most
-        Map<String, Integer> collabCommit = repoDataServiceImpl.getRepoContributors(repoData);
+        Map<String, Integer> collabCommit = repoDataService.getRepoContributors(repoData);
         Map<String, Integer> top3Contributors = new HashMap<>();
 
         // Convert the map to a list of entries
@@ -292,8 +361,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
 
             try {
                 ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET,
-                        repoDataServiceImpl.getAllHeadersEntity(userData.getUserAccessToken()), String.class);
-                repoDataServiceImpl.showAvailableAPIHits(response.getHeaders());
+                        repoDataService.getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+                repoDataService.showAvailableAPIHits(response.getHeaders());
                 String jsonArrayString = response.getBody();
 
                 if (response.getStatusCode().value() == 200) {
@@ -321,11 +390,11 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                     } else {
                         contributorDiff.put(owner, "No PR found");
                     }
-                }
-                else
+                } else
                     contributorDiff.put(owner, "No PR found");
             } catch (Exception e) {
                 contributorDiff.put(owner, "No PR found");
+                System.out.println("dcontributorDiff: " + contributorDiff);
                 e.printStackTrace();
             }
         }
@@ -353,7 +422,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
         for (Map.Entry<String, String> entry : contributorDiff.entrySet()) {
             System.out.println("Individual: " + entry.getKey());
             int commitCount = sortedMap.get(entry.getKey());
-            String fileName = COLLAB_ANALYSIS_FILES_PATH + "diff" + String.valueOf(count) + ".txt";
+            Files.createDirectories(Paths.get(COLLAB_ANALYSIS_FILES_PATH));
+            String fileName = COLLAB_ANALYSIS_FILES_PATH + "diff" + count + ".txt";
             count++;
             FileWriter fw = new FileWriter(fileName);
             try {
@@ -411,7 +481,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
         Map<String, String> roleInsights = new HashMap<>();
 
         System.out.println("In Smell Rating Method inside RepoDataServiceImpl");
-
+        Files.createDirectories(Paths.get(COLLAB_ANALYSIS_FILES_PATH));
         FileWriter fw = new FileWriter(COLLAB_ANALYSIS_FILES_PATH + "SmellRatingPrompt.txt");
         fw.write(
                 "For a specific GitHub repository, you have information about the top 3 contributors based on commit count and their respective code smells ratings. "
@@ -421,9 +491,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                         "and 10 represents a high number of code smells.\n\nTop 3 Contributors:\n\n");
 
         for (int i = 1; i <= 3; i++) {
-            String fileName = COLLAB_ANALYSIS_FILES_PATH + "diff" + String.valueOf(i) + ".txt";
+            String fileName = COLLAB_ANALYSIS_FILES_PATH + "diff" + i + ".txt";
             String prompt = new String(Files.readAllBytes(Paths.get(fileName)));
-            System.out.println("Checking individual file read: " + prompt);
             String response = chatGPTService.chat(prompt);
             System.out.println(response);
 
@@ -443,8 +512,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
             int rating = (int) Double.parseDouble(parts[2]);
             System.out.println(rating);
 
-            fw.write(contributor + "\nCommit Count: " + String.valueOf(commitCount) + "\nCode Smells Rating: "
-                    + String.valueOf(rating) + "\n\n");
+            fw.write(contributor + "\nCommit Count: " + commitCount + "\nCode Smells Rating: "
+                    + rating + "\n\n");
 
         }
 
@@ -452,10 +521,10 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 "would be the most productive. Productivity is defined as a combination of commit count and code smells rating, "
                 +
                 "where lower code smells ratings are preferable.\n\n" +
-                "Provide the names of the two contributors and a brief explanation of why you consider them to be the most productive collaborators based on the given criteria." +
-                "And Format the response in HTML tags and use Bootstrap classes for better readability.");
+                "Provide the names of the two contributors and a brief explanation of why you consider them to be the most productive collaborators based on the given criteria.");
         fw.close();
-        String finalPrompt = new String(Files.readAllBytes(Paths.get(COLLAB_ANALYSIS_FILES_PATH + "SmellRatingPrompt.txt")));
+        String finalPrompt = new String(
+                Files.readAllBytes(Paths.get(COLLAB_ANALYSIS_FILES_PATH + "SmellRatingPrompt.txt")));
         Thread.sleep(30000);
         String finalResponse = chatGPTService.chat(finalPrompt);
         System.out.println("Collab Analysis GPT Response:\n" + finalResponse);

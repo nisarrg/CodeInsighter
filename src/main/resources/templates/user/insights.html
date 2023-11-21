@@ -194,13 +194,19 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#collaborationAnalysis" data-bs-toggle="tab" aria-expanded="true" class="nav-link" id="collaborationAnalysisNav">
+                                <a href="#collaborationAnalysis" data-bs-toggle="tab" aria-expanded="false" class="nav-link" id="collaborationAnalysisNav">
                                     Collaboration Analysis
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="#codeQualityEnhancement" data-bs-toggle="tab" aria-expanded="false" class="nav-link" id="codeQualityEnhancementNav">
                                     Code Quality Enhancement
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a aria-expanded="false" class="nav-link" data-bs-toggle="tab"
+                                   href="#bugDetectionInApplicationFlow" id="bugDetectionInApplicationFlowNav">
+                                    Bug Detection In Application Flow
                                 </a>
                             </li>
                         </ul>
@@ -210,7 +216,10 @@
                                 <div class="tab-content pt-0">
                                     <div class="tab-pane show active" id="commonCodeMistakes">
                                         <div class="col-sm-12">
-                                            <h4>Common Code Mistakes</h4>
+                                            <h4>Common Code Mistakes Insights</h4>
+                                            <span>This feature leverages the Language Model (LLM) to suggest Common Code Mistakes Insights based on common types of mistakes occurring in the code by using the code review comments. </span>
+                                            <br>
+                                            <br>
                                             <div id="commonCodeMistakesContainer"></div>
                                         </div>
                                     </div>
@@ -224,9 +233,18 @@
                                         </div>
                                     </div>
                                     <div class="tab-pane" id="codeQualityEnhancement">
+                                        <h4>Code Quality Enhancement Insights</h4>
+                                        <span>This feature leverages the Language Model (LLM) to suggest code improvements based on different criteria like Readability, Performance, Correctness, and Scalability. On open Pull Requests (PRs) by the first 3 developers who recently raised a PR, so that we can ensure code quality, adherence to coding standards, and catch potential issues early in the development process.</span>
+                                        <br>
                                         <div class="row justify-content-center">
                                             <div id="codeQualityEnhancementContainer"></div>
                                         </div>
+                                    </div>
+                                    <div class="tab-pane" id="bugDetectionInApplicationFlow">
+                                        <h4>Bug Detection in Application Flow Insights</h4>
+                                        <span>This feature employ a Language Model (LLM) to analyze any application's major flows to identify potential issues or gaps. This feature is different from traditional code review. Here, the application will consider code pushed by the developer in any open PR that can introduce unexpected bugs in the application's major flows. </span>
+                                        <br>
+                                        <div id="bugDetectionInApplicationFlowContainer"></div>
                                     </div>
                                 </div>
                             </div>
@@ -314,12 +332,25 @@
                         url: 'get-insights/ccm',
                         method: 'GET',
                         dataType: 'json',
-                        success: function (data) {
-                            console.log(data);
-                            $('#commonCodeMistakesContainer').html(data);
+                        success: function (jsonData) {
+                            console.log("CCMD: " + jsonData);
+                            console.log("CCM: " + jsonData.insights);
+                            $('#commonCodeMistakesContainer').html(jsonData.insights);
                         },
                         complete: function () {
                             $("#spinner-div").hide(); //Request is complete so hide spinner
+                        },
+                        error: function (err) {
+                            $("#spinner-div").hide(); //Request is complete so hide spinner
+                            console.error('Error fetching data:', err);
+
+                            try {
+                                var errorData = JSON.parse(err.responseText);
+                                console.log('Error data:', errorData);
+                            } catch (e) {
+                                console.error('Error parsing JSON:', e);
+                            }
+
                         }
                     });
                 }
@@ -374,12 +405,123 @@
                                             }
                                         }
                                     });
+                                    $(`<hr>`).appendTo(chartContainer);
                                 });
                             } else {
                                 // If jsonData is not a valid JSON array, display it as a string
                                 $('#codeQualityEnhancementContainer').html(`<h3>${jsonData.message}</h3>`);
                             }
                         },
+                        complete: function () {
+                            $("#spinner-div").hide(); //Request is complete so hide spinner
+                        },
+                        error: function(err) {
+                            $("#spinner-div").hide(); //Request is complete so hide spinner
+                            console.error('Error fetching data:', err);
+                            console.log(err.responseText);
+                        }
+                    });
+                }
+            });
+
+            //Bug Detection In Application Flow Insight Call
+            $('#bugDetectionInApplicationFlowNav').click(function () {
+                console.log("BDAF Clicked")
+                if ($("#bugDetectionInApplicationFlowContainer").html().trim().length > 0) {
+                    // Do nothing
+                    console.log("Div has content. Doing nothing.");
+                } else {
+                    $("#spinner-div").show(); //Load button clicked show spinner
+                    $.ajax({
+                        url: 'get-insights/bdaf',
+                        method: 'GET',
+                        dataType: 'json',
+                        success: function (jsonData) {
+                            console.log("jsonData: " + jsonData)
+                            if (Array.isArray(jsonData)) {
+                                var insightContainer = $("<div>").addClass("container").appendTo("#bugDetectionInApplicationFlowContainer");
+                                $("<br>").appendTo(insightContainer);
+                                jsonData.forEach((data, index) => {
+                                    $("<h5>").html(`<span style="color: red;">${data.developer}</span> - ${data.pr_title}`).appendTo(insightContainer);
+
+                                    // Bugs Section
+                                    var bugsContainer = $("<div>").addClass("row mt-2").appendTo(insightContainer);
+                                    var bugsContainerDanger = $("<div>").addClass("alert alert-danger").attr("role", `alert`).appendTo(bugsContainer);
+                                    $("<h4>").addClass("alert-heading").html(`<span>Bugs</span>`).appendTo(bugsContainerDanger);
+                                    var bugHtmlString = "";
+
+                                    if (data.bugs.length > 0 && Array.isArray(data.bugs)) {
+                                        var bugs = data.bugs;
+                                        bugs.forEach((bug, index) => {
+                                            bugHtmlString += '<p class="mb-0">' +
+                                                `<strong>Bug ${index + 1}:</strong> ${bug.issue}` +
+                                                '<pre class="bg-dark text-white mt-2 mb-2">' +
+                                                `<code class="language-xml">&lt;${bug.code_in_file}" /&gt;</code>` +
+                                                '</pre>';
+
+                                            if (bug.recommendation && Array.isArray(bug.recommendation)) {
+                                                var recommendations = bug.recommendation;
+                                                bugHtmlString += '<strong>Recommendation:</strong>' +
+                                                    '<ul>';
+                                                recommendations.forEach((recommendation, index) => {
+                                                    bugHtmlString += `<li>${recommendation}</li>`;
+                                                });
+                                                bugHtmlString += '</ul>';
+                                            }
+
+                                            bugHtmlString += '</p>';
+                                        });
+                                    } else {
+                                        bugHtmlString += '<strong>No Bugs Found</strong>';
+                                    }
+
+                                    $(bugHtmlString).appendTo(bugsContainerDanger);
+
+                                    // Alert Section
+                                    var alertsContainer = $("<div>").addClass("row mt-2").appendTo(insightContainer);
+                                    var alertsContainerWarning = $("<div>").addClass("alert alert-warning").attr("role", `alert`).appendTo(alertsContainer);
+                                    $("<h4>").addClass("alert-heading").html(`<span">Alerts</span>`).appendTo(alertsContainerWarning);
+                                    var alertHtmlString = "";
+
+                                    if (data.alerts.length > 0 && Array.isArray(data.alerts)) {
+                                        var alerts = data.alerts;
+                                        alertHtmlString += '<ul>';
+                                        alerts.forEach((alert, index) => {
+                                            alertHtmlString += `<li>${alert}</li>`;
+                                        });
+                                        alertHtmlString += '</ul>';
+                                    } else {
+                                        alertHtmlString += '<strong>No Alerts Found</strong>';
+                                    }
+
+                                    $(alertHtmlString).appendTo(alertsContainerWarning);
+
+                                    // General Recommendations Section
+                                    var generalRecommendationContainer = $("<div>").addClass("row mt-2").appendTo(insightContainer);
+                                    var generalRecommendationContainerInfo = $("<div>").addClass("alert alert-info").attr("role", `alert`).appendTo(generalRecommendationContainer);
+                                    $("<h4>").addClass("alert-heading").html(`<span">General Recommendations</span>`).appendTo(generalRecommendationContainerInfo);
+                                    var generalRecommendationHtmlString = "";
+
+                                    if (data.general_recommendation.length > 0 && Array.isArray(data.general_recommendation)) {
+                                        var generalRecommendation = data.general_recommendation;
+                                        generalRecommendationHtmlString += '<ul>';
+                                        generalRecommendation.forEach((recommendation, index) => {
+                                            generalRecommendationHtmlString += `<li>${recommendation}</li>`;
+                                        });
+                                        generalRecommendationHtmlString += '</ul>';
+                                    } else {
+                                        generalRecommendationHtmlString += '<strong>No Recommendation Found</strong>';
+                                    }
+
+                                    $(generalRecommendationHtmlString).appendTo(generalRecommendationContainerInfo);
+                                    $("<hr>").appendTo(generalRecommendationContainer);
+                                });
+                            } else {
+                                // If jsonData is not a valid JSON array, display it as a string
+                                $('#bugDetectionInApplicationFlowContainer').html(`<h3>${jsonData.message}</h3>`);
+                            }
+                        },
+
                         complete: function () {
                             $("#spinner-div").hide(); //Request is complete so hide spinner
                         },
