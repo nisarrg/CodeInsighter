@@ -84,4 +84,14 @@ public class UserRepoInsightsController {
         System.out.println("bugDetectionInApplicationFlowInsightString: " + bugDetectionInApplicationFlowInsightString);
         return ResponseEntity.ok(bugDetectionInApplicationFlowInsightString);
     }
+
+    @RequestMapping(value = "/{repo_id}/advanced-code-search", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<String> AdvancedCodeSearch(@PathVariable("repo_id") Integer repoID) throws IOException {
+        System.out.println("repoID: " + repoID + " insightType ACSI");
+        RepoData repoData = repoDataService.getOne(repoID);
+        String getAdvancedCodeSearchInsightString = insightsService.getAdvancedCodeSearchInsight(repoData);
+        System.out.println("getAdvancedCodeSearchInsightString: " + getAdvancedCodeSearchInsightString);
+        return ResponseEntity.ok(getAdvancedCodeSearchInsightString);
+    }
 }

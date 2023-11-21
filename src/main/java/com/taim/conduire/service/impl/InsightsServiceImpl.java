@@ -202,6 +202,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
         for (Map.Entry<String, List<String>> entry : devAndPRCode.entrySet()) {
 
             String element = entry.getKey() + "=" + entry.getValue().toString() + ",";
+            System.out.println("Element key check: " + entry.getKey());
+            System.out.println("Element VALUE check: " + entry.getValue());
             if (countTokens(devAndPRCodeWithLimit + element) <= llmTokenLimitWithPrompt) {
                 devAndPRCodeWithLimit.put(entry.getKey(), entry.getValue());
                 llmTokenLimitWithPrompt -= countTokens(devAndPRCodeWithLimit + element);
@@ -271,6 +273,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
 
     public String getBugDetectionInApplicationFlowInsights(RepoData repoData) {
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
+        System.out.println("devAndPRCode map: " + devAndPRCode);
         String bugDetectionInApplicationFlowInsightPrompt = getBugDetectionInApplicationFlowInsightLLMPrompt();
         String bugDetectionInApplicationFlowInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
                 bugDetectionInApplicationFlowInsightPrompt);
@@ -530,6 +533,48 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
         System.out.println("Collab Analysis GPT Response:\n" + finalResponse);
 
         return finalResponse;
+    }
+
+    public String getAdvancedCodeSearchInsight(RepoData repoData) {
+        Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
+        String AdvancedCodeSearchPrompt = getAdvancedCodeSearchPrompt();
+        String AdvancedCodeSearchString = getInsightsFromPromptAndDevPRCode(devAndPRCode,AdvancedCodeSearchPrompt);
+        System.out.println(AdvancedCodeSearchString);
+        return AdvancedCodeSearchString;
+    }
+
+    private String getAdvancedCodeSearchPrompt() {
+
+        String AdvancedCodeSearchPrompt = "The provided string is a map with \n" +
+                "developers as key and value with list of 2 strings where\n" +
+                "First string is the Title of the PR, and second string is the PR Code.\n" +
+                "I want you to conduct bug detection to find unexpected bugs being introduced by pushed code in the application flows.\n"
+                +
+                "and I want you to display actionable recommendations for resolving these bugs.\n" +
+                "Also, I want you to display alerts if this PR is introducing any bug in the application's major flows."
+                +
+                "and make your response in JSON Array format\n" +
+                "Generate a JSON Array with the following pattern:\n" +
+                "[\n" +
+                "  {\n" +
+                "    \"developer\": \"<developer_name>\",\n" +
+                "    \"pr_title\": \"<title_string>\",\n" +
+                "    \"bugs\": [\n" +
+                "      {\n" +
+                "        \"file_location\": \"<file_name_with_extension>\",\n" +
+                "        \"code_in_file\": \"<code_string>\",\n" +
+                "        \"issue\":  \"<issue_string>\",\n" +
+                "        \"recommendation\": [\"<recommendation1>\", \"<recommendation2>\", \"<recommendation3>\", \"<recommendation4>\"]\n"
+                +
+                "      }\n" +
+                "    ],\n" +
+                "    \"alerts\": [\"<alert1>\", \"<alert2>\", \"<alert3>\", \"<alert4>\"],\n" +
+                "    \"general_recommendation\": [\"<general_recommendation1>\", \"<general_recommendation2>\", \"<general_recommendation3>\", \"<general_recommendation4>\"]\n"
+                +
+                "  }\n" +
+                "]";
+
+        return AdvancedCodeSearchPrompt;
     }
 
 }
