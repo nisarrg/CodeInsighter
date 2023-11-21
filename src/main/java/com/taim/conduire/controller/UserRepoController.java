@@ -34,35 +34,34 @@ public class UserRepoController {
     private LLMService llmService;
 
     @GetMapping("/{repo_id}")
-    public String view(@PathVariable("repo_id") Integer repoId, Model model) {
-        RepoData repoData = repoDataService.getOne(repoId);
-        System.out.println("repoData: " + repoData);
-        UserData userData = userDataService.getOne(repoData.getUserId());
-        model.addAttribute("userData", userData);
-        model.addAttribute("repoData", repoData);
-        return "user/repo";
+    public String view(@PathVariable("repo_id") Integer repoId, Model model){
+            RepoData repoData = repoDataService.getOne(repoId);
+            System.out.println("repoData: " + repoData);
+            UserData userData = userDataService.getOne(repoData.getUserId());
+            model.addAttribute("userData", userData);
+            model.addAttribute("repoData", repoData);
+            return "user/repo";
     }
 
     @RequestMapping(value = "/get-user-repos-lang/{repo_id}", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<Map<String, Integer>> getUserReposLangs(@PathVariable("repo_id") Integer repoID) {
-        RepoData repoData = repoDataService.getOne(repoID);
-        System.out.println("repoData: " + repoData);
-        repoDataService.getRepositoryLanguages(repoData);
-        System.out.println("repoID: " + repoID );
-
-        return ResponseEntity.ok(repoDataService.getRepositoryLanguages(repoData));
+    public ResponseEntity<Map<String, Integer>> getUserReposLangs(@PathVariable("repo_id") Integer repoID){
+         RepoData repoData = repoDataService.getOne(repoID);
+         System.out.println(" repoData: " + repoData);
+         repoDataService.getRepositoryLanguages(repoData);
+         System.out.println(" repoID: " + repoID );
+         return ResponseEntity.ok(repoDataService.getRepositoryLanguages(repoData)) ;
     }
 
     @RequestMapping(value = "/get-user-repos-contibutors/{repo_id}", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ResponseEntity<Map<String, Integer>> getUserReposContributors(@PathVariable("repo_id") Integer repoID) {
-        RepoData repoData = repoDataService.getOne(repoID);
-        System.out.println("repoData: " + repoData);
-        repoDataService.getRepoContributors(repoData);
-        System.out.println("Data Contri: " + repoDataService.getRepoContributors(repoData) );
+            RepoData repoData = repoDataService.getOne(repoID);
+            System.out.println("repoData: " + repoData);
+            repoDataService.getRepoContributors(repoData);
+            System.out.println("Data Contri: " + repoDataService.getRepoContributors(repoData));
 
-        return ResponseEntity.ok(repoDataService.getRepoContributors(repoData));
+            return ResponseEntity.ok(repoDataService.getRepoContributors(repoData));
     }
 
     @RequestMapping(value = "/get-user-repos-punchcard/{repo_id}", method = RequestMethod.GET, produces = "application/json")
