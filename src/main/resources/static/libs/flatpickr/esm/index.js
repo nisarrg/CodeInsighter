@@ -70,7 +70,7 @@ function FlatpickrInstance(element, instanceConfig) {
     function setCalendarWidth() {
         const config = self.config;
         if (config.weekNumbers === false && config.showMonths === 1) {
-            return;
+
         }
         else if (config.noCalendar !== true) {
             window.requestAnimationFrame(function () {
