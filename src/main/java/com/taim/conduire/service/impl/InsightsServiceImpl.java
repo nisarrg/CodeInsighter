@@ -291,7 +291,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
         return codeQualityEnhancementInsightPrompt;
     }
 
-    public StringBuilder processPomXMLFile(RepoData repoData) throws IOException {
+    public String processPomXMLFile(RepoData repoData) throws IOException {
 
         String owner = repoData.getName().substring(0,repoData.getName().indexOf("/"));
         String repo = repoData.getName().substring(repoData.getName().indexOf("/"));
@@ -308,8 +308,9 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
             }
         }
 
-        return parsePOMintoMap();
+        return parsePOMintoMap(repoData);
     }
+
 
     private void processFile(String owner, String repo, String filePath, String basePath) {
         logger.debug("Processing file...");
@@ -357,14 +358,82 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
         logger.debug("File processing completed.");
     }
 
-  public StringBuilder parsePOMintoMap() throws IOException {
+  public String parsePOMintoMap(RepoData repoData) throws IOException {
         System.out.println("Inside parsePOMintoMap()\n");
         StringBuilder resultBuilder = new StringBuilder();
         String content = new String(Files.readAllBytes(Paths.get("output.txt")));
         resultBuilder =  extractContent(content);
 
-        return resultBuilder;
+        String diff = parsePRForPomFile(repoData);
+        if (diff != null)
+        System.out.println("diff is:"+ diff);
+        else
+            System.out.println("diff is null");
+
+        return resultBuilder.toString();
   }
+
+    public String parsePRForPomFile(RepoData repoData) {
+        Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
+
+        // StringBuilder to store the merged diff code for all "pom.xml" occurrences
+        StringBuilder mergedPomXmlDiff = new StringBuilder();
+
+        for (Map.Entry<String, List<String>> entry : devAndPRCode.entrySet()) {
+            String diffCodeUrl = entry.getValue().get(1);
+
+            // Get the diff code for the PR
+            UserData userData = userDataService.getOne(repoData.getUserId());
+            ResponseEntity<String> responseDiffCode = restTemplate.exchange(diffCodeUrl, HttpMethod.GET,
+                    getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+            showAvailableAPIHits(responseDiffCode.getHeaders());
+            String devPRCode = responseDiffCode.getBody();
+
+            // Check if pom.xml is present in the diff code
+            if (isPomXmlPresent(devPRCode)) {
+                // Get the entire diff patch relevant to "pom.xml"
+                String pomXmlDiff = getPomXmlDiff(devPRCode);
+
+                // Append the "pom.xml" diff to the merged diff
+                mergedPomXmlDiff.append(pomXmlDiff).append("\n");
+            }
+        }
+
+        // Return the merged "pom.xml" diff code if at least one occurrence is found, otherwise return null
+        return mergedPomXmlDiff.length() > 0 ? mergedPomXmlDiff.toString() : null;
+    }
+
+    private boolean isPomXmlPresent(String diffCode) {
+        // Check if "pom.xml" is present in the diff code (case-insensitive)
+        return diffCode.toLowerCase().contains("pom.xml");
+    }
+
+    private String getPomXmlDiff(String diffCode) {
+        // Split the diff code into lines
+        String[] lines = diffCode.split("\\n");
+
+        // Flag to determine if we are inside the relevant "pom.xml" section
+        boolean inPomXmlSection = false;
+
+        // StringBuilder to store the relevant diff patch
+        StringBuilder pomXmlDiff = new StringBuilder();
+
+        // Iterate through each line of the diff code
+        for (String line : lines) {
+            // Check if the line starts with "diff --git" to identify the beginning of a new file
+            if (line.startsWith("diff --git")) {
+                // Check if the new file is "pom.xml"
+                inPomXmlSection = line.contains("pom.xml");
+            }
+
+            // If we are inside the relevant "pom.xml" section, append the line to the StringBuilder
+            if (inPomXmlSection) {
+                pomXmlDiff.append(line).append("\n");
+            }
+        }
+
+        return pomXmlDiff.toString();
+    }
 
     private void processDirectory(String owner, String repo, String dirPath, String basePath) {
         logger.debug("Entering processDirectory");

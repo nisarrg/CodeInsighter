@@ -65,13 +65,13 @@ public class UserRepoInsightsController {
         return ResponseEntity.ok(codeQualityEnhancementInsightString);
     }
 
-    @RequestMapping(value = "/{repo_id}/get-insights/dv", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/{repo_id}/get-insights/dvc", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<String> getDVInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
+    public ResponseEntity<String> getDVCInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
 
-        System.out.println("repoID: " + repoID + "insightType DV ");
+        System.out.println("repoID: " + repoID + "insightType DVC");
         RepoData repoData = repoDataService.getOne(repoID);
-        StringBuilder versions = insightsService.processPomXMLFile(repoData);
+        String versions = insightsService.processPomXMLFile(repoData);
 
         String businessAnalystPrompt = "These are dependencies with their artifactIDs and version numbers" + versions.toString() + "\n." +
                 "Can you give me some insights of whether the versions are compatible with each other. Also point out some other insights which I should consider\n" +
