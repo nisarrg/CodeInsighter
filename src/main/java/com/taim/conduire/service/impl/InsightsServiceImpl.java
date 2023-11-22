@@ -343,6 +343,95 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
         return getCustomCodeLintingInsightPrompt;
     }
 
+    public String getTestCaseMinimizationInsights (RepoData repoData){
+
+        String parentRepoName = repoDataService.getParentRepo(repoData);
+        Gson gson = new Gson();
+        String repoPRDataURL = GITHUB_API_URL + GITHUB_REPOS + "/" + parentRepoName + GITHUB_PULLS + "?per_page=100";
+        System.out.println("repoPRDataURL: " + repoPRDataURL);
+
+        UserData userData = userDataService.getOne(repoData.getUserId());
+        ResponseEntity<String> response = restTemplate.exchange(repoPRDataURL, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+        showAvailableAPIHits(response.getHeaders());
+
+        String jsonRepoPRsString = response.getBody();
+        JsonArray jsonRepoPRsArray = gson.fromJson(jsonRepoPRsString, JsonArray.class);
+        System.out.println("No: of Open PR: " + jsonRepoPRsArray.size());
+        Map<String, List<String>> devAndPRCode = new HashMap<>();
+
+        for (JsonElement element : jsonRepoPRsArray) {
+            if (element.isJsonObject()) {
+                JsonObject prItemJsonObject = element.getAsJsonObject();
+
+                String prTitle = prItemJsonObject.get("title").getAsString();
+                String diffCodeUrl = prItemJsonObject.get("diff_url").getAsString();
+                ResponseEntity<String> responseDiffCode = restTemplate.exchange(diffCodeUrl, HttpMethod.GET, getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+                showAvailableAPIHits(responseDiffCode.getHeaders());
+                String devPRCode = responseDiffCode.getBody();
+
+                JsonObject sourceJsonObject = prItemJsonObject.get("user").getAsJsonObject();
+                String prDev = sourceJsonObject.get("login").getAsString();
+
+                // Check if the key already exists in the map
+                if (!devAndPRCode.containsKey(prDev)) {
+                    List<String> devPRTitleCodeList = new ArrayList<>();
+                    devPRTitleCodeList.add(prTitle);
+                    devPRTitleCodeList.add(devPRCode);
+
+                    // Add the new entry to the map
+                    devAndPRCode.put(prDev, devPRTitleCodeList);
+                }
+            }
+        }
+
+        System.out.println("devAndPRCode Size: " + devAndPRCode.size());
+
+        String testCaseMinimizationInsightLLMPrompt = "The provided string is a map with \n" +
+                "developers as key and value with list of 2 strings where\n" +
+                "First string is the Title of the PR, and second string is the PR Code.\n" +
+                "Based on the data provided, mention the number of PRs raised.\n" +
+                "And based on all the PRs can you give me an insight about which test cases are trivial" +
+                " or which of the test cases can be avoided?\n" +
+                " If there are no PRs or no test cases that you can get from the data, give the insight as: " +
+                " I did not get any feasible PR or test case. Try again with another repository.";
+
+        Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - InsightsServiceImpl.countTokens(testCaseMinimizationInsightLLMPrompt);
+        Map<String, List<String>> devAndPRCodeWithLimit = new HashMap<>();
+
+        for (Map.Entry<String, List<String>> entry : devAndPRCode.entrySet()) {
+
+            String element = entry.getKey() + "=" + entry.getValue().toString() + ",";
+            if (InsightsServiceImpl.countTokens(devAndPRCodeWithLimit + element) <= llmTokenLimitWithPrompt) {
+                devAndPRCodeWithLimit.put(entry.getKey(), entry.getValue());
+                llmTokenLimitWithPrompt -= InsightsServiceImpl.countTokens(devAndPRCodeWithLimit.toString());
+            }
+        }
+        System.out.println("devAndPRCodeWithLimit Size: " + devAndPRCodeWithLimit.size());
+        System.out.println("Final code Token: " + InsightsServiceImpl.countTokens(devAndPRCodeWithLimit.toString()));
+        String codeQualityEnhancementInsightString;
+        if (devAndPRCodeWithLimit.isEmpty()) {
+            System.out.println("devAndPRCodeWithLimit: " + devAndPRCodeWithLimit.size());
+            codeQualityEnhancementInsightString = "{\"message\":\"There are no Open PR for this Repository\"}";
+        } else {
+            String devAndPRCodeWithLimitString;
+            if (devAndPRCodeWithLimit.size() > 3) {
+                devAndPRCodeWithLimitString = devAndPRCode.entrySet()
+                        .stream()
+                        .limit(3)
+                        .map(entry -> entry.getKey() + "=" + entry.getValue())
+                        .collect(Collectors.joining(", ", "{", "}"));
+            } else {
+                devAndPRCodeWithLimitString = devAndPRCodeWithLimit.toString();
+            }
+            String promptAndCode = testCaseMinimizationInsightLLMPrompt + devAndPRCodeWithLimitString;
+
+            System.out.println("Final prompt + code Token: " + InsightsServiceImpl.countTokens(promptAndCode));
+            testCaseMinimizationInsightLLMPrompt = chatGPTService.chat(promptAndCode);
+        }
+
+        return testCaseMinimizationInsightLLMPrompt;
+    }
+
     public String getRepositoryPRsCollab(RepoData repoData) throws IOException, InterruptedException {
         // Call getRepoContributors to get the top 3 contributors who commit the most
         Map<String, Integer> collabCommit = repoDataService.getRepoContributors(repoData);

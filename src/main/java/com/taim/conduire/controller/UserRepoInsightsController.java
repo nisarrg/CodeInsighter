@@ -94,4 +94,16 @@ public class UserRepoInsightsController {
         System.out.println("customCodeLintingInsightString: " + customCodeLintingInsightString);
         return ResponseEntity.ok(customCodeLintingInsightString);
     }
+
+    @RequestMapping(value = "/{repo_id}/get-insights/tcm", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<String> getTestCaseMinimizationInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
+
+        System.out.println("repoID: " + repoID + "insightType TCM");
+        RepoData repoData = repoDataService.getOne(repoID);
+        String getTestCaseMinimizationInsightString = insightsService.getTestCaseMinimizationInsights(repoData);
+        System.out.println("codeQualityEnhancementInsightString: " + getTestCaseMinimizationInsightString);
+        return ResponseEntity.ok(getTestCaseMinimizationInsightString);
+    }
+
 }
