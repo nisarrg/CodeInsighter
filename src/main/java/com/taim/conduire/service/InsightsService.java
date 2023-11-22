@@ -28,5 +28,5 @@ public interface InsightsService {
 
     String getRepositoryPRsCollab(RepoData repoData) throws IOException, InterruptedException;
 
-    String getAdvancedCodeSearchInsight(RepoData repoData);
+    String getAdvancedCodeSearchInsight(RepoData repoData, String input);
 }

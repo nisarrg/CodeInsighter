@@ -209,6 +209,12 @@
                                     Bug Detection In Application Flow
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a aria-expanded="false" class="nav-link" data-bs-toggle="tab"
+                                   href="#advancedCodeSearch" id="advancedCodeSearchNav">
+                                    Advanced Code Search
+                                </a>
+                            </li>
                         </ul>
                         <br>
                         <div class="row">
@@ -245,6 +251,15 @@
                                         <span>This feature employ a Language Model (LLM) to analyze any application's major flows to identify potential issues or gaps. This feature is different from traditional code review. Here, the application will consider code pushed by the developer in any open PR that can introduce unexpected bugs in the application's major flows. </span>
                                         <br>
                                         <div id="bugDetectionInApplicationFlowContainer"></div>
+                                    </div>
+                                    <div class="tab-pane" id="advancedCodeSearch">
+                                        <h4>Advanced Code Seach and Retrieval</h4>
+                                        <span>This feature checks for specific components in the Open PRs for a given repository as requested by the user. </span>
+                                        <br>
+                                            <label for="inputData">Enter Data:</label>
+                                            <input type="text" id="inputData" name="inputData">
+                                            <button type="button" id="submitButton">Submit</button>
+                                        <div id="advancedCodeSearchContainer"></div>
                                     </div>
                                 </div>
                             </div>
@@ -309,6 +324,7 @@
         }
 
         $(document).ready(function() {
+            console.log("Document is ready")
             var dynamicURL = $("#dynamicURL").text();
             redirectToLogout(dynamicURL);
             var myRepoId = $("#myRepoId").text();
@@ -317,6 +333,7 @@
             $("#reposPage").attr("href", reposPage);
             $("#reposBreadcrumb").attr("href", reposPage);
             getInsights(myRepoId);
+            makeAPICall(myRepoId);
         });
 
         function getInsights(myRepoId) {
@@ -547,6 +564,39 @@
                         success: function (data) {
                             console.log(data);
                             $('#collaborationAnalysisContainer').html(data);
+                        },
+                        complete: function () {
+                            //$("#insightsTitle").html($('#collaborationAnalysisNav').text());
+                            $("#spinner-div").hide(); //Request is complete so hide spinner
+                        },
+                        error: function (err) {
+                            $("#spinner-div").hide(); //Request is complete so hide spinner
+                            console.error('Error fetching data:', err);
+                            console.log(err.responseText);
+                        }
+                    });
+                }
+            });
+        }
+
+        function makeAPICall (myRepoId){
+            $('#submitButton').click(function() {
+                console.log("Adv. Code Search Clicked");
+                var inputData = encodeURIComponent($('#inputData').val());
+                console.log(inputData);
+                if ($("#advancedCodeSearchContainer").html().trim().length > 0) {
+                    // Do nothing
+                    console.log("Div has content. Doing nothing.");
+                } else {
+                    console.log("Line 596");
+                    $("#spinner-div").show(); //Load button clicked show spinner
+                    $.ajax({
+                        url: 'advanced-code-search',
+                        method: 'GET',
+                        data: {inputData: inputData},
+                        success: function (data) {
+                            console.log(data);
+                            $('#advancedCodeSearchContainer').html(data);
                         },
                         complete: function () {
                             //$("#insightsTitle").html($('#collaborationAnalysisNav').text());
