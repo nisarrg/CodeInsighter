@@ -65,7 +65,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
     private static final String FILE_TYPE = "file";
     private static final String DIR_TYPE = "dir";
 
-    private boolean flag = false;
+    private boolean found_pom_flag = false;
 
 
     private static int countTokens(String input) {
@@ -291,7 +291,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
         return codeQualityEnhancementInsightPrompt;
     }
 
-    public String processPomXMLFile(RepoData repoData) throws IOException {
+    public String processDependencyFile(RepoData repoData) throws IOException {
 
         String owner = repoData.getName().substring(0,repoData.getName().indexOf("/"));
         String repo = repoData.getName().substring(repoData.getName().indexOf("/"));
@@ -303,12 +303,16 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
         if (isValidResponse(response)) {
             List<Map<String, Object>> contents = jsonUtils.parseJSONResponse(response.getBody());
 
+            // Searching for pom.xml
             for (Map<String, Object> item : contents) {
                 processContentItem(item, owner, repo);
             }
         }
-
-        return parsePOMintoMap(repoData);
+        if (found_pom_flag) {
+            return parsePOMintoMap(repoData);
+        } else {
+            return null;
+        }
     }
 
 
@@ -326,11 +330,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
 
         String title = filePath;
 
-        System.out.println("hello ji]\n");
-        System.out.println("Basepath is:\n"+basePath);
-
-            String fileName = "output.txt"; // configurable or parameterized file name
-            System.out.println("File name where the output is saved is at: "+ fileName);
+        String fileName = "output.txt"; // configurable or parameterized file name
+        System.out.println("File name where the output is saved is at: "+ fileName);
 
         // Check if the file exists
         File file = new File(fileName);
@@ -354,7 +355,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
             } catch (IOException e) {
                 logger.debug("An error occurred while writing to the file: " + e.getMessage());
             }
-        flag=true;
+        found_pom_flag=true;
         logger.debug("File processing completed.");
     }
 
@@ -452,6 +453,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
 
                 if (FILE_TYPE.equals(type) && isValidFile(path)) {
                     processFile(owner, repo, path, basePath);
+                    break;
                 } else if (DIR_TYPE.equals(type)) {
                     processDirectory(owner, repo, path, basePath);
                 }
@@ -501,11 +503,11 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
         String name = (String) item.get("name");
         String path = (String) item.get("path");
 
-        if (FILE_TYPE.equals(type) && name.equals("pom.xml") && !flag) {
+        if (FILE_TYPE.equals(type) && name.equals("pom.xml") && !found_pom_flag) {
             System.out.println("Found POM.XML file\n");
             processFile(owner, repo, path, basePath);
-            flag=true;
-        } else if (DIR_TYPE.equals(type) && (!flag)){
+            found_pom_flag=true;
+        } else if (DIR_TYPE.equals(type) && (!found_pom_flag)){
             processDirectory(owner, repo, path, basePath);
         }
     }

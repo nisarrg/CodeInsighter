@@ -65,21 +65,24 @@ public class UserRepoInsightsController {
         return ResponseEntity.ok(codeQualityEnhancementInsightString);
     }
 
-    @RequestMapping(value = "/{repo_id}/get-insights/dvc", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/{repo_id}/get-insights/dvc", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<String> getDVCInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
 
         System.out.println("repoID: " + repoID + "insightType DVC");
         RepoData repoData = repoDataService.getOne(repoID);
-        String versions = insightsService.processPomXMLFile(repoData);
-
-        String businessAnalystPrompt = "These are dependencies with their artifactIDs and version numbers" + versions.toString() + "\n." +
-                "Can you give me some insights of whether the versions are compatible with each other. Also point out some other insights which I should consider\n" +
-                "Please consider yourself as a Business Analyst and write in Technical English.\n" +
-                "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted " +
-                "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
-                "and highlight your reasoning.";
-
+        String versions = insightsService.processDependencyFile(repoData);
+        if (versions == null) {
+            String Prompt = "Currently, we are only providing insights for the repository that is Maven or Gradle.";
+            return ResponseEntity.ok(Prompt);
+        }
+        String businessAnalystPrompt = "These are dependencies with their artifactIDs and version numbers" + versions + "\n." +
+                    "Can you give me some insights of whether the versions are compatible with each other. Also point out some other insights which I should consider\n" +
+                    "Write in Technical English.\n" +
+                    "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted " +
+                    "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
+                    "and highlight your reasoning.";
+        
         return ResponseEntity.ok(businessAnalystPrompt);
     }
 

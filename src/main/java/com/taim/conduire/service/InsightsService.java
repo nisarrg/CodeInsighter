@@ -24,7 +24,7 @@ public interface InsightsService {
 
     String getCodeQualityEnhancementsInsights(RepoData repoData);
 
-    String processPomXMLFile(RepoData repoData) throws IOException;
+    String processDependencyFile(RepoData repoData) throws IOException;
 
     String getBugDetectionInApplicationFlowInsights(RepoData repoData);
 
