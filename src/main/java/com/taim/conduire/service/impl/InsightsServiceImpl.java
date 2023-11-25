@@ -299,7 +299,6 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
         return bugDetectionInApplicationFlowInsightString;
     }
 
-
     public String getCustomCodeLintingInsights(RepoData repoData) {
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
         String getCustomCodeLintingInsightPrompt = "The provided string is a map with \n" +
@@ -375,7 +374,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 "And based on all the PRs can you give me an insight about which test cases are trivial" +
                 " or which of the test cases can be avoided?\n" +
                 " If there are no PRs or no test cases that you can get from the data, give the insight as: " +
-                " I did not get any feasible PR or test case. Try again with another repository.";
+                " I did not get any feasible PR or test case. Try again with another repository." +
+                " Give your response using HTML tags and use bootstrap 5 classes, so I can display your response on my page.";
 
         Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - InsightsServiceImpl.countTokens(testCaseMinimizationInsightLLMPrompt);
         Map<String, List<String>> devAndPRCodeWithLimit = new HashMap<>();
@@ -390,10 +390,10 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
         }
         System.out.println("devAndPRCodeWithLimit Size: " + devAndPRCodeWithLimit.size());
         System.out.println("Final code Token: " + InsightsServiceImpl.countTokens(devAndPRCodeWithLimit.toString()));
-        String codeQualityEnhancementInsightString;
+        String testCaseMinimizationInsightString;
         if (devAndPRCodeWithLimit.isEmpty()) {
             System.out.println("devAndPRCodeWithLimit: " + devAndPRCodeWithLimit.size());
-            codeQualityEnhancementInsightString = "{\"message\":\"There are no Open PR for this Repository\"}";
+            testCaseMinimizationInsightString = "There are no Open PR for this Repository";
         } else {
             String devAndPRCodeWithLimitString;
             if (devAndPRCodeWithLimit.size() > 3) {
@@ -408,10 +408,10 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
             String promptAndCode = testCaseMinimizationInsightLLMPrompt + devAndPRCodeWithLimitString;
 
             System.out.println("Final prompt + code Token: " + InsightsServiceImpl.countTokens(promptAndCode));
-            testCaseMinimizationInsightLLMPrompt = chatGPTService.chat(promptAndCode);
+            testCaseMinimizationInsightString = chatGPTService.chat(promptAndCode);
         }
 
-        return testCaseMinimizationInsightLLMPrompt;
+        return testCaseMinimizationInsightString;
     }
 
     public String getRepositoryPRsCollab(RepoData repoData) throws IOException, InterruptedException {

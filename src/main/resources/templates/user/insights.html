@@ -308,7 +308,12 @@
                                 <h3 class="mb-0">Test Case Minimization</h3>
                                 <button class="btn btn-primary" id="testCaseMinimizationNav">Get Insights</button>
                             </div>
+                            <br>
+                            <span>This feature leverages a Large Language Model (LLM) to analyze adherence to Linting Rules. It distinguishes itself from conventional code Linting by assessing code pushed by developers within open Pull Requests (PRs) and executing checks to ensure compliance with Linting standards. </span>
                             <hr style="height:2px;">
+                            <div class="row justify-content-center">
+                                <div id="testCaseMinimizationContainer"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="collapse" id="dependencyVersionCompatibilityContent">
@@ -623,38 +628,32 @@
 
         //Test case minimization Insight Call
         $('#testCaseMinimizationNav').click(function () {
-            console.log("CCM Clicked")
-            if ($("#testCaseMinimizationContainer").html().trim().length > 0) {
-                // Do nothing
-                console.log("Div has content. Doing nothing.");
-            } else {
-                $("#spinner-div").show(); //Load button clicked show spinner
-                $.ajax({
-                    url: 'get-insights/tcm',
-                    method: 'GET',
-                    dataType: 'json',
-                    success: function (jsonData) {
-                        console.log("TCMD: " + jsonData);
-                        console.log("TCM: " + jsonData.insights);
-                        $('#testCaseMinimizationContainer').html(jsonData.insights);
-                    },
-                    complete: function () {
-                        $("#spinner-div").hide(); //Request is complete so hide spinner
-                    },
-                    error: function (err) {
-                        $("#spinner-div").hide(); //Request is complete so hide spinner
-                        console.error('Error fetching data:', err);
+            console.log("TCM Clicked")
+            $("#spinner-div").show(); //Load button clicked show spinner
+            $.ajax({
+                url: 'get-insights/tcm',
+                method: 'GET',
+                success: function (resultData) {
+                    console.log("TCMD: " + resultData);
+                    $('#testCaseMinimizationContainer').text(resultData);
+                },
+                complete: function () {
+                    $("#spinner-div").hide(); //Request is complete so hide spinner
+                },
+                error: function (err) {
+                    $("#spinner-div").hide(); //Request is complete so hide spinner
+                    console.error('Error fetching data:', err);
 
-                        try {
-                            var errorData = JSON.parse(err.responseText);
-                            console.log('Error data:', errorData);
-                        } catch (e) {
-                            console.error('Error parsing JSON:', e);
-                        }
-
+                    try {
+                        var errorData = JSON.parse(err.responseText);
+                        console.log('Error data:', errorData);
+                    } catch (e) {
+                        console.error('Error parsing JSON:', e);
                     }
-                });
-            }
+
+                }
+            });
+
         });
 
         $('#customCodeLintingNav').click(function () {

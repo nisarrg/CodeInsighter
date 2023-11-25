@@ -94,7 +94,7 @@ public class UserRepoInsightsController {
         return ResponseEntity.ok(customCodeLintingInsightString);
     }
 
-    @RequestMapping(value = "/{repo_id}/get-insights/tcm", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/{repo_id}/get-insights/tcm", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<String> getTestCaseMinimizationInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
 
