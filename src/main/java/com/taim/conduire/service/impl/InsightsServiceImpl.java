@@ -374,8 +374,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 "And based on all the PRs can you give me an insight about which test cases are trivial" +
                 " or which of the test cases can be avoided?\n" +
                 " If there are no PRs or no test cases that you can get from the data, give the insight as: " +
-                " I did not get any feasible PR or test case. Try again with another repository." +
-                " Give your response using HTML tags and use bootstrap 5 classes, so I can display your response on my page.";
+                " I did not get any feasible PR or test case. Try again with another repository.";
 
         Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - InsightsServiceImpl.countTokens(testCaseMinimizationInsightLLMPrompt);
         Map<String, List<String>> devAndPRCodeWithLimit = new HashMap<>();
