@@ -66,12 +66,6 @@
 
             <ul class="list-unstyled topnav-menu topnav-menu-left m-0">
                 <li>
-                    <button class="button-menu-mobile waves-effect waves-light">
-                        <i class="fe-menu"></i>
-                    </button>
-                </li>
-
-                <li>
                     <!-- Mobile menu toggle (Horizontal Layout)-->
                     <a class="navbar-toggle nav-link" data-bs-toggle="collapse" data-bs-target="#topnav-menu-content">
                         <div class="lines">
@@ -340,6 +334,34 @@
                             </div>
                         </div>
                     </div>
+                    <div class="collapse" id="testCaseMinimizationContent">
+                        <div class="card card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h3 class="mb-0">Test Case Minimization</h3>
+                                <button class="btn btn-primary" id="testCaseMinimizationNav">Get Insights</button>
+                            </div>
+                            <br>
+                            <span>Add your description here.</span>
+                            <hr style="height:2px;">
+                            <div class="row justify-content-center">
+                                <div id="testCaseMinimizationContainer"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse" id="advanceCodeSearchContent">
+                        <div class="card card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h3 class="mb-0">Advance Code Search</h3>
+                                <button class="btn btn-primary" id="advanceCodeSearchNav">Get Insights</button>
+                            </div>
+                            <br>
+                            <span>Add your description here.</span>
+                            <hr style="height:2px;">
+                            <div class="row justify-content-center">
+                                <div id="advanceCodeSearchContainer"></div>
+                            </div>
+                        </div>
+                    </div>
                     <!-- ... other content sections ... -->
                 </div>
 
@@ -475,6 +497,14 @@
                                 var barColors = data.criteria.map(function () {
                                     return getRandomColor();
                                 });
+
+                                var backgroundColor = barColors.map(function (color) {
+                                    return color.backgroundColor;
+                                });
+                                var borderColor = barColors.map(function (color) {
+                                    return color.borderColor;
+                                });
+
                                 new Chart(ctx, {
                                     type: 'bar',
                                     data: {
@@ -482,8 +512,8 @@
                                         datasets: [{
                                             label: 'Score',
                                             data: data.score,
-                                            backgroundColor: barColors,
-                                            borderColor: barColors,
+                                            backgroundColor: backgroundColor,
+                                            borderColor: borderColor,
                                             borderWidth: 1
                                         }]
                                     },
@@ -728,12 +758,16 @@
     }
 
     function getRandomColor() {
-        var letters = "0123456789ABCDEF";
-        var color = "#";
-        for (var i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
-        }
-        return color;
+        // Generates a random RGB value
+        var r = Math.floor(Math.random() * 256);
+        var g = Math.floor(Math.random() * 256);
+        var b = Math.floor(Math.random() * 256);
+
+        // Returns both the rgba color for background and rgb for border
+        return {
+            backgroundColor: 'rgba(' + r + ', ' + g + ', ' + b + ', 0.2)', // Opacity at 0.2 for background color
+            borderColor: 'rgba(' + r + ', ' + g + ', ' + b + ', 1)' // Full opacity for border color
+        };
     }
 </script>
 

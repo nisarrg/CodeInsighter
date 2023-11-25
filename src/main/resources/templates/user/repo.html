@@ -65,12 +65,6 @@
 
             <ul class="list-unstyled topnav-menu topnav-menu-left m-0">
                 <li>
-                    <button class="button-menu-mobile waves-effect waves-light">
-                        <i class="fe-menu"></i>
-                    </button>
-                </li>
-
-                <li>
                     <!-- Mobile menu toggle (Horizontal Layout)-->
                     <a class="navbar-toggle nav-link" data-bs-toggle="collapse" data-bs-target="#topnav-menu-content">
                         <div class="lines">
@@ -272,55 +266,6 @@
                         </div> <!-- end widget-rounded-circle-->
                     </div> <!-- end col-->
                 </div>
-                <!-- end row-->
-
-<!--                <div class="row">-->
-<!--                    <div class="col-lg-6">-->
-<!--                        <div class="card">-->
-<!--                            <div class="card-body pb-2">-->
-<!--                                <h4 class="header-title mb-0">Distribution of Languages Used</h4>-->
-<!--                                <div class="widget-chart text-center" dir="ltr">-->
-<!--                                    <canvas id="myChart" style="width:100%;max-width:600px"></canvas>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div> &lt;!&ndash; end card &ndash;&gt;-->
-<!--                    </div> &lt;!&ndash; end col&ndash;&gt;-->
-
-<!--                    <div class="col-lg-8">-->
-<!--                        <div class="card">-->
-<!--                            <div class="card-body pb-2">-->
-<!--                                <h4 class="header-title mb-3">Total Commits</h4>-->
-<!--                                <canvas id="myBarChart" style="width:100%;max-width:600px"></canvas>-->
-<!--                            </div>-->
-<!--                        </div> &lt;!&ndash; end card &ndash;&gt;-->
-<!--                    </div> &lt;!&ndash; end col&ndash;&gt;-->
-<!--                </div>-->
-<!--                &lt;!&ndash; end row &ndash;&gt;-->
-
-<!--                <div class="row">-->
-<!--                    <div class="col-xl-6">-->
-<!--                        <div class="card">-->
-<!--                            <div class="card-body">-->
-<!--                                <h4 class="header-title mb-3">Weekly Commits</h4>-->
-<!--                                <div class="table-responsive">-->
-<!--                                    <table class="table table-borderless table-hover table-nowrap table-centered m-0">-->
-
-<!--                                        <thead class="table-light">-->
-<!--                                        <tr>-->
-<!--                                            <th colspan="1">Day</th>-->
-<!--                                            <th> No. Of Commits</th>-->
-<!--                                            <th> </th>-->
-<!--                                        </tr>-->
-<!--                                        </thead>-->
-<!--                                        <tbody id = "table-body">-->
-
-<!--                                        </tbody>-->
-<!--                                    </table>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div> &lt;!&ndash; end col &ndash;&gt;-->
-<!--                </div>&lt;!&ndash; end row &ndash;&gt;-->
 
                 <div class="row">
                     <div class="col-lg-6">
@@ -420,67 +365,7 @@
         $('#myChart').empty();
         $('#myBarChart').empty();
         loadChartsAndStats(myRepoId);
-        //fetchDataAndDisplay(myRepoId);
     });
-
-    // async function fetchDataAndDisplay(myRepoId) {
-    //     $.ajax({
-    //         type: "GET",
-    //         url: 'get-user-repos-punchcard/' + myRepoId,
-    //         dataType: 'json',
-    //         success: function displayArrayContents(array) {
-    //             const table = document.getElementById('table-body');
-    //
-    //             let x = 0;
-    //             let day = '';
-    //             for (const item of array) {
-    //                 //create row
-    //                 const row = document.createElement('tr');
-    //
-    //                 //create column to display day, add class and format it with heading 5
-    //                 day = document.createElement("td");
-    //                 var classNameWithSpaces = "m-0 fw-normal";
-    //
-    //                 // Split the class name string by spaces, trim any leading/trailing spaces, and join with single spaces
-    //                 var sanitizedClassName = classNameWithSpaces.split(' ').map(function(className) {
-    //                     return className.trim();
-    //                 }).join(' ');
-    //                 day.className = sanitizedClassName;
-    //                 const h5tag = document.createElement('h5');
-    //                 day.appendChild(h5tag);
-    //
-    //                 //setting value of day column
-    //                 if(x == 0){
-    //                     day.textContent = 'Sunday';
-    //                 }
-    //                 else if (x == 1)
-    //                     day.textContent = 'Monday';
-    //                 else if (x == 2 )
-    //                     day.textContent = 'Tuesday';
-    //                 else if (x == 3 )
-    //                     day.textContent = 'Wednesday';
-    //                 else if (x == 4 )
-    //                     day.textContent = 'Thursday';
-    //                 else if (x == 5 )
-    //                     day.textContent = 'Friday';
-    //                 else if (x == 6 )
-    //                     day.textContent = 'Saturday';
-    //
-    //                 //Creating another columna and setting it's value to no. of commits
-    //                 const NoCommit = document.createElement('td');
-    //                 NoCommit.textContent = item;
-    //
-    //                 //Add the two columns created to the row
-    //                 row.appendChild(day);
-    //                 row.appendChild(NoCommit);
-    //
-    //                 //Add the row created to the table
-    //                 table.appendChild(row);
-    //                 x++;
-    //             }
-    //         }
-    //     });
-    // }
 
     function getRandomColor() {
         // Generates a random RGB value
@@ -531,12 +416,9 @@
                         }
                     }
                 });
-
-                // You might need to adjust chart options, responsive options, or other configurations based on your specific requirements.
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 console.error('AJAX Error:', textStatus, errorThrown);
-                // Handle errors or display a message to the user
             }
         });
 
@@ -628,6 +510,7 @@
                             label: 'Contributions',
                             backgroundColor: backgroundColor,
                             borderColor: borderColor,
+                            borderWidth: 1,
                             data: yValues
                         }]
                     },
