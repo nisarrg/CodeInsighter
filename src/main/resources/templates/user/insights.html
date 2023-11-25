@@ -641,26 +641,54 @@
                         url: 'get-insights/ccl',
                         method: 'GET',
                         dataType: 'json',
-                        success: function(jsonData) {
+                        success: function (jsonData) {
+                            console.log("jsonData: " + jsonData)
                             if (Array.isArray(jsonData)) {
+                                var insightContainer = $("<div>").addClass("container").appendTo("#customCodeLintingContainer");
+                                $("<br>").appendTo(insightContainer);
                                 jsonData.forEach((data, index) => {
-                                    var chartContainer = $("<div>").attr("id", `chart-${index}`).addClass("chart-container").appendTo("#customCodeLintingContainer");
-                                    $("<p>").html(`<span style="font-weight:bold;">Developer:</span> ${data.developer}`).appendTo(chartContainer);
-                                    $("<p>").html(`<span style="font-weight:bold;">PR Title:</span> ${data.pr_title}`).appendTo(chartContainer);
-                                    var followsLinting = data.follows_linting ? 'YES' : 'NO';
-                                    $("<p>").html(`<span style="font-weight:bold;">Follows Linting Standard?:</span> ${followsLinting}`).appendTo(chartContainer);
+                                    $("<h5>").html(`<strong>Developer: </strong><span style="color: red;">${data.developer}</span>`).appendTo(insightContainer);
+                                    $("<h5>").html(`<strong>PR Title: </strong><span>${data.pr_title}</span>`).appendTo(insightContainer);
+                                    // lintings Section
+                                    var lintingsContainer = $("<div>").addClass("row mt-2").appendTo(insightContainer);
+                                    var lintingsContainerDanger = $("<div>").addClass("alert alert-danger").attr("role", `alert`).appendTo(lintingsContainer);
+                                    $("<h4>").addClass("alert-heading").html(`<span>Linting Insights</span>`).appendTo(lintingsContainerDanger);
+                                    var lintingHtmlString = "";
 
-                                    $("<p>").html(`<span style="font-weight:bold;">Linting Comments:</span> `).appendTo(chartContainer);
-                                    var codeImprovementsList = $("<ul>").appendTo(chartContainer);
-                                    data.linting_comments.forEach((improvement) => {
-                                        $("<li>").text(improvement).appendTo(codeImprovementsList);
-                                    });
+                                    if (data.lintings.length > 0 && Array.isArray(data.lintings)) {
+                                        var lintings = data.lintings;
+                                        lintings.forEach((linting, index) => {
+                                            lintingHtmlString += '<p class="mb-0">' +
+                                                `<strong>Linting Issue:</strong> ${linting.issue}<br>` +
+                                                `<strong>File Location:</strong> ${linting.file_location}<br>` +
+                                                `<strong>Code Line:</strong> <br>`+
+                                                '<pre class="bg-dark text-white mt-2 mb-2">' +
+                                                `<code class="language-xml">&lt;${linting.code_in_file}" /&gt;</code>` +
+                                                '</pre>';
+
+                                            if (linting.linting_comments && Array.isArray(linting.linting_comments)) {
+                                                var comments = linting.linting_comments;
+                                                lintingHtmlString += '<strong>Comments:</strong>' +
+                                                    '<ul>';
+                                                comments.forEach((comment, index) => {
+                                                    lintingHtmlString += `<li>${comment}</li>`;
+                                                });
+                                                lintingHtmlString += '</ul>';
+                                            }
+
+                                            lintingHtmlString += '</p>';
+                                        });
+                                    } else {
+                                        lintingHtmlString += '<strong>No Comments Found</strong>';
+                                    }
+                                    $(lintingHtmlString).appendTo(lintingsContainerDanger);
                                 });
                             } else {
                                 // If jsonData is not a valid JSON array, display it as a string
                                 $('#customCodeLintingContainer').html(`<h3>${jsonData.message}</h3>`);
                             }
                         },
+
                         complete: function () {
                             $("#spinner-div").hide(); //Request is complete so hide spinner
                         },
