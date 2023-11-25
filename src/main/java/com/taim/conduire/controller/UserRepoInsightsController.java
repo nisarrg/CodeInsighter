@@ -7,6 +7,7 @@ import com.taim.conduire.service.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -67,24 +68,27 @@ public class UserRepoInsightsController {
 
     @RequestMapping(value = "/{repo_id}/get-insights/dvc", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<String> getDVCInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
+    public ResponseEntity<String> getDVCInsights(@PathVariable("repo_id") Integer repoID) {
+        try {
+            System.out.println("repoID: " + repoID + " insightType DVC");
+            RepoData repoData = repoDataService.getOne(repoID);
+            String versions = insightsService.processDependencyFile(repoData);
 
-        System.out.println("repoID: " + repoID + "insightType DVC");
-        RepoData repoData = repoDataService.getOne(repoID);
-        String versions = insightsService.processDependencyFile(repoData);
-        if (versions == null) {
-            String Prompt = "Currently, we are only providing insights for the repository that is Maven or Gradle.";
-            return ResponseEntity.ok(Prompt);
+            if (versions == null) {
+                String prompt = "There was no version control file at the root level of the repository.";
+                //String finalResponse = chatGPTService.chat(prompt);
+                return ResponseEntity.ok(prompt);
+            } else {
+                String finalResponse = chatGPTService.chat(versions);
+                return ResponseEntity.ok(finalResponse);
+            }
+        } catch (IOException e) {
+            // Handle IOException, log, or return an appropriate error response
+            e.printStackTrace(); // Log the exception or use a logging framework
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
         }
-        String businessAnalystPrompt = "These are dependencies with their artifactIDs and version numbers" + versions + "\n." +
-                    "Can you give me some insights of whether the versions are compatible with each other. Also point out some other insights which I should consider\n" +
-                    "Write in Technical English.\n" +
-                    "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted " +
-                    "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points " +
-                    "and highlight your reasoning.";
-        
-        return ResponseEntity.ok(businessAnalystPrompt);
     }
+
 
     @RequestMapping(value = "/{repo_id}/get-repo-prs-collab", method = RequestMethod.GET)
     @ResponseBody

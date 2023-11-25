@@ -251,7 +251,7 @@ public class LLMServiceImpl implements LLMService {
         //headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
         //String apiUrl = String.format("%s/repos/%s/%s", githubApiUrl, owner, repo);
-        URI uri = URI.create(githubApiUrl + "/repos/" + owner + "/" + repo + "/contents" + "/" + path);
+        URI uri = URI.create(githubApiUrl + "/repos/" + owner + repo + "/contents" + "/" + path);
         System.out.println(uri.toString());
 
         RequestEntity<?> requestEntity = RequestEntity.get(uri).headers(headers).build();
@@ -291,10 +291,8 @@ public class LLMServiceImpl implements LLMService {
             System.out.println(content);
             String decodedContent = new String(Base64.getDecoder().decode(content), StandardCharsets.UTF_8);
             // TODO: "At least"?
-            System.out.println("WE REACHED HERE ATLEAST!!!" + decodedContent);
             response = ResponseEntity.ok(decodedContent);
         }
-
         return response;
     }
 

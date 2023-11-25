@@ -37,6 +37,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 @Service
@@ -218,7 +219,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
 
         String llmInsightString;
 
-        Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(llmInsightPrompt);
+        int llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(llmInsightPrompt);
         Map<String, List<String>> devAndPRCodeWithLimit = new HashMap<>();
 
         for (Map.Entry<String, List<String>> entry : devAndPRCode.entrySet()) {
@@ -292,6 +293,20 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
     }
 
     public String processDependencyFile(RepoData repoData) throws IOException {
+        //Set this as we can call other repos and if this is set once for one directory as true it will continue
+        // to be true for other repos as it's not set to false.
+        found_pom_flag = false;
+
+        // Check if the file exists
+        File file = new File(TMP_PATH);
+        if (file.exists()) {
+            // If the file exists, delete it
+            if (file.delete()) {
+                System.out.println("Existing file deleted.");
+            } else {
+                System.err.println("Unable to delete existing file.");
+            }
+        }
 
         String owner = repoData.getName().substring(0,repoData.getName().indexOf("/"));
         String repo = repoData.getName().substring(repoData.getName().indexOf("/"));
@@ -299,8 +314,9 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
         //Repo Content Code
         System.out.println("Owner is: "+owner+" Repo is: "+ repo);
         ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo);
-        System.out.println(response);
-        if (isValidResponse(response)) {
+
+        if (response != null  && isValidResponse(response)) {
+            System.out.println(response);
             List<Map<String, Object>> contents = jsonUtils.parseJSONResponse(response.getBody());
 
             // Searching for pom.xml
@@ -309,7 +325,11 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
             }
         }
         if (found_pom_flag) {
-            return parsePOMintoMap(repoData);
+            String parsed = parsePOMintoMap(repoData);
+            if(parsed == null)
+                return null;
+            else
+                return parsed;
         } else {
             return null;
         }
@@ -330,78 +350,106 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
 
         String title = filePath;
 
-        String fileName = "output.txt"; // configurable or parameterized file name
-        System.out.println("File name where the output is saved is at: "+ fileName);
-
-        // Check if the file exists
-        File file = new File(fileName);
-        if (file.exists()) {
-            // If the file exists, delete it
-            if (file.delete()) {
-                System.out.println("Existing file deleted.");
-            } else {
-                System.err.println("Unable to delete existing file.");
-            }
-        }
             // Writing content to the file
-            try (PrintWriter printWriter = new PrintWriter(new FileWriter(fileName, true))) {
+            try (PrintWriter printWriter = new PrintWriter(new FileWriter(TMP_PATH, true))) {
                 printWriter.println("File Name: " + title);
                 printWriter.println();
                 printWriter.println("Content:");
                 printWriter.println(content);
                 printWriter.println();
 
-                logger.debug("Content has been written to the file: " + fileName);
+                logger.debug("Content has been written to the file: " + TMP_PATH);
             } catch (IOException e) {
                 logger.debug("An error occurred while writing to the file: " + e.getMessage());
             }
-        found_pom_flag=true;
         logger.debug("File processing completed.");
     }
 
-  public String parsePOMintoMap(RepoData repoData) throws IOException {
+    public String parsePOMintoMap(RepoData repoData) throws IOException {
+        //Get intial number of tokens
+        Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(DEPENDENCY_VERSION_INSIGHT_PROMPT);
+        System.out.println("Inside parsePOMintoMap LLM_TOKEN_LIMIT is:"+LLM_TOKEN_LIMIT);
+        System.out.println("Inside parsePOMintoMap countTokens(DEPENDENCY_VERSION_INSIGHT_PROMPT) is :"+countTokens(DEPENDENCY_VERSION_INSIGHT_PROMPT));
+        System.out.println("Inside parsePOMintoMap llmTokenLimitWithPrompt is:"+llmTokenLimitWithPrompt);
+
         System.out.println("Inside parsePOMintoMap()\n");
         StringBuilder resultBuilder = new StringBuilder();
-        String content = new String(Files.readAllBytes(Paths.get("output.txt")));
-        resultBuilder =  extractContent(content);
 
-        String diff = parsePRForPomFile(repoData);
-        if (diff != null)
-        System.out.println("diff is:"+ diff);
-        else
-            System.out.println("diff is null");
+        try {
+            // Read content from file and extract information
+            String content = new String(Files.readAllBytes(Paths.get("output.txt")));
+            resultBuilder = extractContent(content);
 
-        return resultBuilder.toString();
-  }
+            if (resultBuilder == null) {
+                System.out.println("Issue in extracting content");
+                return null;
+            }
+            else {
+                System.out.println("after extractContent before llmTokenLimitWithPrompt is:"+llmTokenLimitWithPrompt);
+                System.out.println("countTokens(resultBuilder.toString() is:"+countTokens(resultBuilder.toString()));
+                resultBuilder.append("In the above I have plugin/dependencies' artifactID and version from the pom.xml of a repository.").append("\n");
+                if (countTokens(resultBuilder.toString()) <= llmTokenLimitWithPrompt) {
+                    llmTokenLimitWithPrompt = llmTokenLimitWithPrompt-countTokens(resultBuilder.toString());
+                    System.out.println("after extractContent llmTokenLimitWithPrompt is:"+llmTokenLimitWithPrompt);
+                }
+            }
 
-    public String parsePRForPomFile(RepoData repoData) {
+            // Get diff string
+            String diff = parsePRForPomFile(repoData, llmTokenLimitWithPrompt);
+
+            // Append diff to resultBuilder if it's not null
+            if (diff != null) {
+                resultBuilder.append("Below are the Open PRs that have changes to pom.xml which is either upgrading/downgrading project dependencies.");
+                resultBuilder.append(DEPENDENCY_VERSION_INSIGHT_PROMPT).append(diff).append("\n");
+            }
+            else
+            {
+                System.out.println("The diff is null");
+                resultBuilder.append(DEPENDENCY_VERSION_INSIGHT_PROMPT).append("\n");
+            }
+
+            return resultBuilder.toString();
+        } catch (IOException e) {
+            // Handle file reading exception
+            System.err.println("Error reading file: " + e.getMessage());
+            return null;
+        }
+    }
+
+
+    public String parsePRForPomFile(RepoData repoData, Integer llmTokenLimitWithPrompt) {
+
+        System.out.println("Inside parsePRForPomFile llmTokenLimitWithPrompt is:"+llmTokenLimitWithPrompt);
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
 
         // StringBuilder to store the merged diff code for all "pom.xml" occurrences
         StringBuilder mergedPomXmlDiff = new StringBuilder();
 
         for (Map.Entry<String, List<String>> entry : devAndPRCode.entrySet()) {
-            String diffCodeUrl = entry.getValue().get(1);
+            // If there are more than 1 element in the list then fetch the data
 
-            // Get the diff code for the PR
-            UserData userData = userDataService.getOne(repoData.getUserId());
-            ResponseEntity<String> responseDiffCode = restTemplate.exchange(diffCodeUrl, HttpMethod.GET,
-                    getAllHeadersEntity(userData.getUserAccessToken()), String.class);
-            showAvailableAPIHits(responseDiffCode.getHeaders());
-            String devPRCode = responseDiffCode.getBody();
+            if (entry.getValue().size() > 1) {
+                String devPRCode = entry.getValue().get(1);
 
-            // Check if pom.xml is present in the diff code
-            if (isPomXmlPresent(devPRCode)) {
-                // Get the entire diff patch relevant to "pom.xml"
-                String pomXmlDiff = getPomXmlDiff(devPRCode);
+                // Check if pom.xml is present in the diff code
+                if (devPRCode != null && isPomXmlPresent(devPRCode)) {
+                    // Get the entire diff patch relevant to "pom.xml"
+                    String pomXmlDiff = getPomXmlDiff(devPRCode);
 
-                // Append the "pom.xml" diff to the merged diff
-                mergedPomXmlDiff.append(pomXmlDiff).append("\n");
+                    System.out.println("pomXmlDiff is:"+pomXmlDiff);
+                    System.out.println("Before checking llmTokenLimitWithPrompt is:"+llmTokenLimitWithPrompt);
+                    System.out.println("Before checking countTokens(pomXmlDiff) is:"+countTokens(pomXmlDiff));
+                    if (countTokens(pomXmlDiff) <= llmTokenLimitWithPrompt) {
+                        // Append the "pom.xml" diff to the merged diff
+                        mergedPomXmlDiff.append(pomXmlDiff).append("\n");
+                        llmTokenLimitWithPrompt = llmTokenLimitWithPrompt-countTokens(pomXmlDiff+"\n");
+                        System.out.println("after checking llmTokenLimitWithPrompt is:"+llmTokenLimitWithPrompt);
+                    }
+                }
             }
         }
-
         // Return the merged "pom.xml" diff code if at least one occurrence is found, otherwise return null
-        return mergedPomXmlDiff.length() > 0 ? mergedPomXmlDiff.toString() : null;
+        return !mergedPomXmlDiff.isEmpty() ? mergedPomXmlDiff.toString() : null;
     }
 
     private boolean isPomXmlPresent(String diffCode) {
@@ -437,6 +485,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
     }
 
     private void processDirectory(String owner, String repo, String dirPath, String basePath) {
+
         logger.debug("Entering processDirectory");
 
         try {
@@ -450,11 +499,13 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
             for (Map<String, Object> item : contents) {
                 String type = (String) item.get("type");
                 String path = (String) item.get("path");
+                String name = (String) item.get("name");
 
-                if (FILE_TYPE.equals(type) && isValidFile(path)) {
+                if (FILE_TYPE.equals(type) && name.equals("pom.xml") && !found_pom_flag) {
                     processFile(owner, repo, path, basePath);
+                    found_pom_flag=true;
                     break;
-                } else if (DIR_TYPE.equals(type)) {
+                } else if (DIR_TYPE.equals(type) && (!found_pom_flag)){
                     processDirectory(owner, repo, path, basePath);
                 }
             }
@@ -465,20 +516,31 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
     }
 
     private static StringBuilder extractContent(String input) {
-        System.out.println("inside extractContent and the input is: "+input);
+        System.out.println("inside extractContent and the input is: " + input);
         StringBuilder resultBuilder = new StringBuilder();
         String patternString = "<(plugin|dependency)>.*?<artifactId>(.*?)</artifactId>.*?<version>(.*?)</version>.*?</(plugin|dependency)>";
-        Pattern pattern = Pattern.compile(patternString, Pattern.DOTALL);
-        Matcher matcher = pattern.matcher(input);
 
-        while (matcher.find()) {
-            String tagType = matcher.group(1);
-            String artifactId = matcher.group(2);
-            String version = matcher.group(3);
+        try {
+            Pattern pattern = Pattern.compile(patternString, Pattern.DOTALL);
+            Matcher matcher = pattern.matcher(input);
 
-            resultBuilder.append("Tag Type: ").append(tagType).append("\n");
-            resultBuilder.append("ArtifactId: ").append(artifactId).append("\n");
-            resultBuilder.append("Version: ").append(version).append("\n\n");
+            while (matcher.find()) {
+                // Extracts matched groups
+                String tagType = matcher.group(1);
+                String artifactId = matcher.group(2);
+                String version = matcher.group(3);
+
+                // Check if both version and artifactId are found
+                if (tagType != null && artifactId != null && version != null) {
+                    // Appends information to the result StringBuilder
+                    resultBuilder.append("Tag Type: ").append(tagType);
+                    resultBuilder.append("  ArtifactId: ").append(artifactId);
+                    resultBuilder.append("  Version: ").append(version).append("\n");
+                }
+            }
+        } catch (PatternSyntaxException e) {
+            // Handle the case where the regex pattern is invalid
+            System.err.println("Invalid regex pattern: " + e.getMessage());
         }
 
         if (resultBuilder.isEmpty()) {
@@ -503,7 +565,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
         String name = (String) item.get("name");
         String path = (String) item.get("path");
 
-        if (FILE_TYPE.equals(type) && name.equals("pom.xml") && !found_pom_flag) {
+       if (FILE_TYPE.equals(type) && name.equals("pom.xml") && !found_pom_flag) {
             System.out.println("Found POM.XML file\n");
             processFile(owner, repo, path, basePath);
             found_pom_flag=true;
