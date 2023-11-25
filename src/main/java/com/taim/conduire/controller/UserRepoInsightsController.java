@@ -102,4 +102,15 @@ public class UserRepoInsightsController {
         System.out.println("getAdvancedCodeSearchInsightString: " + getAdvancedCodeSearchInsightString);
         return ResponseEntity.ok(getAdvancedCodeSearchInsightString);
     }
+
+    @RequestMapping(value = "/{repo_id}/get-insights/ccl", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<String> getCustomCodeLintingInsightInsights(@PathVariable("repo_id") Integer repoID)
+            throws IOException {
+        System.out.println("repoID: " + repoID + " insightType CCL");
+        RepoData repoData = repoDataService.getOne(repoID);
+        String customCodeLintingInsightString = insightsService.getCustomCodeLintingInsights(repoData);
+        System.out.println("customCodeLintingInsightString: " + customCodeLintingInsightString);
+        return ResponseEntity.ok(customCodeLintingInsightString);
+    }
 }

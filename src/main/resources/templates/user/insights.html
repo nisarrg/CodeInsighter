@@ -66,12 +66,6 @@
 
             <ul class="list-unstyled topnav-menu topnav-menu-left m-0">
                 <li>
-                    <button class="button-menu-mobile waves-effect waves-light">
-                        <i class="fe-menu"></i>
-                    </button>
-                </li>
-
-                <li>
                     <!-- Mobile menu toggle (Horizontal Layout)-->
                     <a class="navbar-toggle nav-link" data-bs-toggle="collapse" data-bs-target="#topnav-menu-content">
                         <div class="lines">
@@ -183,89 +177,168 @@
                 <div id="spinner-div" style="display:none;" class="pt-5">
                     <div class="spinner-border avatar-lg text-primary m-2" role="status"></div>
                 </div>
-                <!-- end page title -->
-                <div class="card" id="insightsCard">
-                    <div class="card-body" style="position: relative">
-                        <h4 id="insightsTitle"></h4>
-                        <ul class="nav nav-tabs nav-bordered">
-                            <li class="nav-item">
-                                <a href="#commonCodeMistakes" data-bs-toggle="tab" aria-expanded="true" class="nav-link active" id="commonCodeMistakesNav">
-                                    Common Code Mistakes
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#collaborationAnalysis" data-bs-toggle="tab" aria-expanded="false" class="nav-link" id="collaborationAnalysisNav">
-                                    Collaboration Analysis
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#codeQualityEnhancement" data-bs-toggle="tab" aria-expanded="false" class="nav-link" id="codeQualityEnhancementNav">
-                                    Code Quality Enhancement
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a aria-expanded="false" class="nav-link" data-bs-toggle="tab"
-                                   href="#bugDetectionInApplicationFlow" id="bugDetectionInApplicationFlowNav">
-                                    Bug Detection In Application Flow
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a aria-expanded="false" class="nav-link" data-bs-toggle="tab"
-                                   href="#advancedCodeSearch" id="advancedCodeSearchNav">
-                                    Advanced Code Search
-                                </a>
-                            </li>
-                        </ul>
-                        <br>
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <div class="tab-content pt-0">
-                                    <div class="tab-pane show active" id="commonCodeMistakes">
-                                        <div class="col-sm-12">
-                                            <h4>Common Code Mistakes Insights</h4>
-                                            <span>This feature leverages the Language Model (LLM) to suggest Common Code Mistakes Insights based on common types of mistakes occurring in the code by using the code review comments. </span>
-                                            <br>
-                                            <br>
-                                            <div id="commonCodeMistakesContainer"></div>
-                                        </div>
-                                    </div>
-                                    <div class="tab-pane" id="collaborationAnalysis">
-                                        <div class="col-sm-12">
-                                            <h4>Collaboration Analysis</h4>
-                                            <span>This feature leverages the Language Model (LLM) to to identify active contributors and their impact on the repository. This feature will analyze collaboration patterns, such as who works together frequently on issues and pull requests.</span>
-                                            <br>
-                                            <br>
-                                            <div id="collaborationAnalysisContainer"></div>
-                                        </div>
-                                    </div>
-                                    <div class="tab-pane" id="codeQualityEnhancement">
-                                        <h4>Code Quality Enhancement Insights</h4>
-                                        <span>This feature leverages the Language Model (LLM) to suggest code improvements based on different criteria like Readability, Performance, Correctness, and Scalability. On open Pull Requests (PRs) by the first 3 developers who recently raised a PR, so that we can ensure code quality, adherence to coding standards, and catch potential issues early in the development process.</span>
-                                        <br>
-                                        <div class="row justify-content-center">
-                                            <div id="codeQualityEnhancementContainer"></div>
-                                        </div>
-                                    </div>
-                                    <div class="tab-pane" id="bugDetectionInApplicationFlow">
-                                        <h4>Bug Detection in Application Flow Insights</h4>
-                                        <span>This feature employ a Language Model (LLM) to analyze any application's major flows to identify potential issues or gaps. This feature is different from traditional code review. Here, the application will consider code pushed by the developer in any open PR that can introduce unexpected bugs in the application's major flows. </span>
-                                        <br>
-                                        <div id="bugDetectionInApplicationFlowContainer"></div>
-                                    </div>
-                                    <div class="tab-pane" id="advancedCodeSearch">
-                                        <h4>Advanced Code Seach and Retrieval</h4>
-                                        <span>This feature checks for specific components in the Open PRs for a given repository as requested by the user. </span>
-                                        <br>
-                                            <label for="inputData">Enter Data:</label>
-                                            <input type="text" id="inputData" name="inputData">
-                                            <button type="button" id="submitButton">Submit</button>
-                                        <div id="advancedCodeSearchContainer"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> <!-- end row-->
+
+                <div class="container-fluid">
+                    <div class="row">
+                        <!-- Ensure that each button has the same classes for margin and padding -->
+                        <div class="col-lg-2 mb-3 d-grid">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#commonCodeMistakesContent" aria-expanded="false" aria-controls="commonCodeMistakesContent">
+                                <h5 class="font-size-15 text-uppercase text-white-50">Common Code Mistakes</h5>
+                            </button>
+                        </div>
+                        <div class="col-lg-2 mb-3 d-grid">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collaborationAnalysisContent" aria-expanded="false" aria-controls="collaborationAnalysisContent">
+                                <h5 class="font-size-15 text-uppercase text-white-50">Collaboration Analysis</h5>
+                            </button>
+                        </div>
+                        <div class="col-lg-2 mb-3 d-grid">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#codeQualityEnhancementContent" aria-expanded="false" aria-controls="codeQualityEnhancementContent">
+                                <h5 class="font-size-15 text-uppercase text-white-50">Code Quality Enhancement</h5>
+                            </button>
+                        </div>
+                        <div class="col-lg-2 mb-3 d-grid">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#customCodeLintingContent" aria-expanded="false" aria-controls="customCodeLintingContent">
+                                <h5 class="font-size-15 text-uppercase text-white-50">Custom Code Linting</h5>
+                            </button>
+                        </div>
+                        <div class="col-lg-2 mb-3 d-grid">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#dependencyVersionCompatibilityContent" aria-expanded="false" aria-controls="dependencyVersionCompatibilityContent">
+                                <h5 class="font-size-15 text-uppercase text-white-50">Dependency Version Compatibility</h5>
+                            </button>
+                        </div>
+                        <div class="col-lg-2 mb-3 d-grid">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#bugDetectionContent" aria-expanded="false" aria-controls="bugDetectionContent">
+                                <h5 class="font-size-15 text-uppercase text-white-50">Bug Detection</h5>
+                            </button>
+                        </div>
                     </div>
-                </div> <!-- end card-->
+                    <div class="row justify-content-center">
+                        <!-- Ensure that each button has the same classes for margin and padding -->
+                        <div class="col-lg-2 mb-3 d-grid">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#testCaseMinimizationContent" aria-expanded="false" aria-controls="testCaseMinimizationContent">
+                                <h5 class="font-size-15 text-uppercase text-white-50">Test Case Minimization</h5>
+                            </button>
+                        </div>
+                        <div class="col-lg-2 mb-3 d-grid">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#advanceCodeSearchContent" aria-expanded="false" aria-controls="advanceCodeSearchContent">
+                                <h5 class="font-size-15 text-uppercase text-white-50">Advance Code Search</h5>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Collapsible content sections -->
+                <div class="col-lg-12">
+                    <div class="collapse" id="commonCodeMistakesContent">
+                        <div class="card card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h3 class="mb-0">Common Code Mistakes</h3>
+                                <button class="btn btn-primary" id="commonCodeMistakesNav">Get Insights</button>
+                            </div>
+                            <br>
+                            <span>This feature leverages the Large Language Model (LLM) to suggest Common Code Mistakes Insights based on common types of mistakes occurring in the code by using the code review comments. </span>
+                            <hr style="height:2px;">
+                            <div class="row justify-content-center">
+                                <div id="commonCodeMistakesContainer"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse" id="collaborationAnalysisContent">
+                        <div class="card card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h3 class="mb-0">Collaboration Analysis</h3>
+                                <button class="btn btn-primary" id="collaborationAnalysisNav">Get Insights</button>
+                            </div>
+                            <br>
+                            <span>This feature leverages the Large Language Model (LLM) to to identify active contributors and their impact on the repository. This feature will analyze collaboration patterns, such as who works together frequently on issues and pull requests.</span>
+                            <hr style="height:2px;">
+                            <div class="row justify-content-center">
+                                <div id="collaborationAnalysisContainer"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse" id="codeQualityEnhancementContent">
+                        <div class="card card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h3 class="mb-0">Code Quality Enhancement</h3>
+                                <button class="btn btn-primary" id="codeQualityEnhancementNav">Get Insights</button>
+                            </div>
+                            <br>
+                            <span>This feature leverages the Large Language Model (LLM) to suggest code improvements based on different criteria like Readability, Performance, Correctness, and Scalability. On open Pull Requests (PRs) by the first 3 developers who recently raised a PR, so that we can ensure code quality, adherence to coding standards, and catch potential issues early in the development process.</span>
+                            <hr style="height:2px;">
+                            <div class="row justify-content-center">
+                                <div id="codeQualityEnhancementContainer"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse" id="customCodeLintingContent">
+                        <div class="card card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h3 class="mb-0">Custom Code Linting</h3>
+                                <button class="btn btn-primary" id="customCodeLintingNav">Get Insights</button>
+                            </div>
+                            <br>
+                            <span>This feature leverages a Large Language Model (LLM) to analyze adherence to Linting Rules. It distinguishes itself from conventional code Linting by assessing code pushed by developers within open Pull Requests (PRs) and executing checks to ensure compliance with Linting standards. </span>
+                            <hr style="height:2px;">
+                            <div class="row justify-content-center">
+                                <div id="customCodeLintingContainer"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse" id="dependencyVersionCompatibilityContent">
+                        <div class="card card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h3 class="mb-0">Dependency Version Compatibility</h3>
+                                <button class="btn btn-primary">Get Insights</button>
+                            </div>
+                            <hr style="height:2px;">
+                        </div>
+                    </div>
+                    <div class="collapse" id="bugDetectionContent">
+                        <div class="card card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h3 class="mb-0">Bug Detection</h3>
+                                <button class="btn btn-primary" id="bugDetectionInApplicationFlowNav">Get Insights</button>
+                            </div>
+                            <br>
+                            <span>This feature employ a Large Language Model (LLM) to analyze any application's major flows to identify potential issues or gaps. This feature is different from traditional code review. Here, the application will consider code pushed by the developer in any open PR that can introduce unexpected bugs in the application's major flows. </span>
+                            <hr style="height:2px;">
+                            <div class="row justify-content-center">
+                                <div id="bugDetectionInApplicationFlowContainer"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse" id="testCaseMinimizationContent">
+                        <div class="card card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h3 class="mb-0">Test Case Minimization</h3>
+                                <button class="btn btn-primary" id="testCaseMinimizationNav">Get Insights</button>
+                            </div>
+                            <br>
+                            <span>Add your description here.</span>
+                            <hr style="height:2px;">
+                            <div class="row justify-content-center">
+                                <div id="testCaseMinimizationContainer"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse" id="advanceCodeSearchContent">
+                        <div class="card card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h3 class="mb-0">Advance Code Search</h3>
+                                <button class="btn btn-primary" id="advanceCodeSearchNav">Get Insights</button>
+                            </div>
+                            <br>
+                            <span>Add your description here.</span>
+                            <hr style="height:2px;">
+                            <div class="row justify-content-center">
+                                <div id="advanceCodeSearchContainer"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ... other content sections ... -->
+                </div>
+
             </div>
             <!-- end row -->
 
@@ -400,6 +473,14 @@
                                     var barColors = data.criteria.map(function () {
                                         return getRandomColor();
                                     });
+
+                                    var backgroundColor = barColors.map(function(color) {
+                                        return color.backgroundColor;
+                                    });
+                                    var borderColor = barColors.map(function(color) {
+                                        return color.borderColor;
+                                    });
+
                                     new Chart(ctx, {
                                         type: 'bar',
                                         data: {
@@ -407,8 +488,8 @@
                                             datasets: [{
                                                 label: 'Score',
                                                 data: data.score,
-                                                backgroundColor: barColors,
-                                                borderColor: barColors,
+                                                backgroundColor: backgroundColor,
+                                                borderColor: borderColor,
                                                 borderWidth: 1
                                             }]
                                         },
@@ -551,6 +632,49 @@
                 }
             });
 
+            $('#customCodeLintingNav').click(function () {
+                console.log("CCL Clicked")
+                if ($("#customCodeLintingContainer").html().trim().length > 0) {
+                    // Do nothing
+                    console.log("Div has content. Doing nothing.");
+                } else {
+                    $("#spinner-div").show(); //Load button clicked show spinner
+                    $.ajax({
+                        url: 'get-insights/ccl',
+                        method: 'GET',
+                        dataType: 'json',
+                        success: function(jsonData) {
+                            if (Array.isArray(jsonData)) {
+                                jsonData.forEach((data, index) => {
+                                    var chartContainer = $("<div>").attr("id", `chart-${index}`).addClass("chart-container").appendTo("#customCodeLintingContainer");
+                                    $("<p>").html(`<span style="font-weight:bold;">Developer:</span> ${data.developer}`).appendTo(chartContainer);
+                                    $("<p>").html(`<span style="font-weight:bold;">PR Title:</span> ${data.pr_title}`).appendTo(chartContainer);
+                                    var followsLinting = data.follows_linting ? 'YES' : 'NO';
+                                    $("<p>").html(`<span style="font-weight:bold;">Follows Linting Standard?:</span> ${followsLinting}`).appendTo(chartContainer);
+
+                                    $("<p>").html(`<span style="font-weight:bold;">Linting Comments:</span> `).appendTo(chartContainer);
+                                    var codeImprovementsList = $("<ul>").appendTo(chartContainer);
+                                    data.linting_comments.forEach((improvement) => {
+                                        $("<li>").text(improvement).appendTo(codeImprovementsList);
+                                    });
+                                });
+                            } else {
+                                // If jsonData is not a valid JSON array, display it as a string
+                                $('#customCodeLintingContainer').html(`<h3>${jsonData.message}</h3>`);
+                            }
+                        },
+                        complete: function () {
+                            $("#spinner-div").hide(); //Request is complete so hide spinner
+                        },
+                        error: function(err) {
+                            $("#spinner-div").hide(); //Request is complete so hide spinner
+                            console.error('Error fetching data:', err);
+                            console.log(err.responseText);
+                        }
+                    });
+                }
+            });
+
             $('#collaborationAnalysisNav').click(function () {
                 console.log("CA Clicked");
                 if ($("#collaborationAnalysisContainer").html().trim().length > 0) {
@@ -613,12 +737,16 @@
         }
 
         function getRandomColor() {
-            var letters = "0123456789ABCDEF";
-            var color = "#";
-            for (var i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
+            // Generates a random RGB value
+            var r = Math.floor(Math.random() * 256);
+            var g = Math.floor(Math.random() * 256);
+            var b = Math.floor(Math.random() * 256);
+
+            // Returns both the rgba color for background and rgb for border
+            return {
+                backgroundColor: 'rgba(' + r + ', ' + g + ', ' + b + ', 0.2)', // Opacity at 0.2 for background color
+                borderColor: 'rgba(' + r + ', ' + g + ', ' + b + ', 1)' // Full opacity for border color
+            };
         }
     </script>
 
