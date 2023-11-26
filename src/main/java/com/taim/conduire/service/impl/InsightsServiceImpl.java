@@ -237,14 +237,6 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
 
     public String getCodeQualityEnhancementsInsights(RepoData repoData) {
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
-        String codeQualityEnhancementInsightPrompt = getCodeQualityEnhancementInsightLLMPrompt();
-        String codeQualityEnhancementInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
-                codeQualityEnhancementInsightPrompt);
-        return codeQualityEnhancementInsightString;
-    }
-
-    private String getCodeQualityEnhancementInsightLLMPrompt() {
-
         String codeQualityEnhancementInsightPrompt = "The provided string is a map with \n" +
                 "developers as key and value with list of 2 strings where\n" +
                 "First string is the Title of the PR, and second string is the PR Code.\n" +
@@ -265,21 +257,14 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 "    },\n" +
                 "]\n" +
                 "Keep the score and criteria in the same order so later on it can be fetched.\n\n";
-
-        return codeQualityEnhancementInsightPrompt;
+        String codeQualityEnhancementInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
+                codeQualityEnhancementInsightPrompt);
+        return codeQualityEnhancementInsightString;
     }
+
 
     public String getBugDetectionInApplicationFlowInsights(RepoData repoData) {
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
-        String bugDetectionInApplicationFlowInsightPrompt = getBugDetectionInApplicationFlowInsightLLMPrompt();
-        String bugDetectionInApplicationFlowInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
-                bugDetectionInApplicationFlowInsightPrompt);
-        System.out.println(bugDetectionInApplicationFlowInsightString);
-        return bugDetectionInApplicationFlowInsightString;
-    }
-
-    private String getBugDetectionInApplicationFlowInsightLLMPrompt() {
-
         String bugDetectionInApplicationFlowInsightPrompt = "The provided string is a map with \n" +
                 "developers as key and value with list of 2 strings where\n" +
                 "First string is the Title of the PR, and second string is the PR Code.\n" +
@@ -308,26 +293,19 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 +
                 "  }\n" +
                 "]";
-
-        return bugDetectionInApplicationFlowInsightPrompt;
+        String bugDetectionInApplicationFlowInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
+                bugDetectionInApplicationFlowInsightPrompt);
+        System.out.println(bugDetectionInApplicationFlowInsightString);
+        return bugDetectionInApplicationFlowInsightString;
     }
 
     public String getCustomCodeLintingInsights(RepoData repoData) {
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
-        String getCustomCodeLintingInsightPrompt = getCustomCodeLintingInsightLLMPrompt();
-        String getCustomCodeLintingInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
-                getCustomCodeLintingInsightPrompt);
-        System.out.println(getCustomCodeLintingInsightString);
-        return getCustomCodeLintingInsightString;
-    }
-
-    private String getCustomCodeLintingInsightLLMPrompt() {
-
         String getCustomCodeLintingInsightPrompt = "The provided string is a map with \n" +
                 "developers as key and value with list of 2 strings where\n" +
                 "First string is the Title of the PR, and second string is the PR Code.\n" +
                 "Linting Check Criteria: Syntax Errors, Code Standards Adherence, Code Smells, Security Checks.\n" +
-                "I want you to conduct linting check based on the above mentioned criteria to find out whether the Linting rules are followed by pushed code.\n"+
+                "I want you to conduct linting check based on the above mentioned criteria to find out whether the Linting rules are followed by pushed code.\n" +
                 "and I want you to display actionable recommendations for improving the Linting Standards.\n" +
                 "and make your response in JSON Array format\n" +
                 "Generate a JSON Array with the following pattern:\n" +
@@ -339,8 +317,31 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 "    \"linting_comments\": [<linting_comment1>, <linting_comment2>, <linting_comment3>],\n" +
                 "  }\n" +
                 "]";
+        String getCustomCodeLintingInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
+                getCustomCodeLintingInsightPrompt);
+        System.out.println(getCustomCodeLintingInsightString);
+        return getCustomCodeLintingInsightString;
+    }
 
-        return getCustomCodeLintingInsightPrompt;
+
+    public String getTestCaseMinimizationInsights(RepoData repoData) {
+
+        Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
+        String testCaseMinimizationInsightLLMPrompt = "The provided string is a map with \n" +
+                "developers as key and value with list of 2 strings where\n" +
+                "First string is the Title of the PR, and second string is the PR Code.\n" +
+                "Based on the data provided, mention the number of PRs raised.\n" +
+                "And based on all the PRs can you give me an insight about which test cases are trivial" +
+                " or which of the test cases can be avoided?\n" +
+                " If there are no PRs or no test cases that you can get from the data, give the insight as: " +
+                " I did not get any feasible PR or test case. Try again with another repository." +
+                " Please provide your response using HTML Tags and use Bootstrap 5 classes for better readability.";
+
+        String testCaseMinimizationInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
+                testCaseMinimizationInsightLLMPrompt);
+        System.out.println(testCaseMinimizationInsightString);
+
+        return testCaseMinimizationInsightString;
     }
 
     public String getRepositoryPRsCollab(RepoData repoData) throws IOException, InterruptedException {
@@ -448,7 +449,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
     // This method would hit the 3 diff urls in the map and store them in three text
     // file: diff1.txt, diff2.txt, diff3.txt
     public void getCodefromDiffUrl(Map<String, String> contributorDiff, RepoData repoData,
-            Map<String, Integer> sortedMap) throws IOException {
+                                   Map<String, Integer> sortedMap) throws IOException {
         int count = 1;
         for (Map.Entry<String, String> entry : contributorDiff.entrySet()) {
             System.out.println("Individual: " + entry.getKey());

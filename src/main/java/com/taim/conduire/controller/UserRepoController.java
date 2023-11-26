@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.Map;
 
-// TODO --> Designite detected this class not being used --> unutilized abstraction.
 @Controller
 @RequestMapping("/users/repo")
 @Validated

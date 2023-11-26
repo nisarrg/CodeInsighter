@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 
-
-// TODO --> Designite detected this class not being used --> unutilized abstraction.
 @RestController
 @RequestMapping("/")
 @Validated

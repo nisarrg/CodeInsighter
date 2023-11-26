@@ -14,7 +14,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class CommonHelper {
 
     //TODO --> Design Smell: Deficient Encapsulation (public accessibility)
-	public static ApplicationContext ctx = null;
+	private static ApplicationContext ctx = null;
 
     //TODO --> Design Smell: Deficient Encapsulation (public accessibility)
 	private static final HashMap<String, ThreadPoolExecutor> poolMap = new HashMap<String, ThreadPoolExecutor>();

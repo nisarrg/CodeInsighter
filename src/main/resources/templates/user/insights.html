@@ -81,13 +81,15 @@
             <ul class="list-unstyled topnav-menu float-end mb-0">
 
                 <li class="dropdown d-none d-lg-inline-block">
-                    <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" data-toggle="fullscreen" href="#">
+                    <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" data-toggle="fullscreen"
+                       href="#">
                         <i class="fe-maximize noti-icon"></i>
                     </a>
                 </li>
 
                 <li class="dropdown notification-list topbar-dropdown">
-                    <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light" data-bs-toggle="dropdown"
+                       href="#" role="button" aria-haspopup="false" aria-expanded="false">
                         <img id="myImage" th:src="${userData.avatarUrl}" alt="user-image" class="rounded-circle">
                         <span id="myName" class="pro-user-name ms-1" th:text="${userData.name}">
                          <i class="mdi mdi-chevron-down"></i>
@@ -164,8 +166,10 @@
                         <div class="page-title-box">
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
-                                    <li class="breadcrumb-item"><a th:href="${'/users/'+ userData.id}" id="reposBreadcrumb">Repositories</a></li>
-                                    <li class="breadcrumb-item"><a th:href="${'/users/repo/'+ repoData.id}" th:text="${repoData.name}"></a></li>
+                                    <li class="breadcrumb-item"><a th:href="${'/users/'+ userData.id}"
+                                                                   id="reposBreadcrumb">Repositories</a></li>
+                                    <li class="breadcrumb-item"><a th:href="${'/users/repo/'+ repoData.id}"
+                                                                   th:text="${repoData.name}"></a></li>
                                     <li class="breadcrumb-item active"><span>Insights</span></li>
                                 </ol>
                             </div>
@@ -182,32 +186,45 @@
                     <div class="row">
                         <!-- Ensure that each button has the same classes for margin and padding -->
                         <div class="col-lg-2 mb-3 d-grid">
-                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#commonCodeMistakesContent" aria-expanded="false" aria-controls="commonCodeMistakesContent">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#commonCodeMistakesContent" aria-expanded="false"
+                                    aria-controls="commonCodeMistakesContent">
                                 <h5 class="font-size-15 text-uppercase text-white-50">Common Code Mistakes</h5>
                             </button>
                         </div>
                         <div class="col-lg-2 mb-3 d-grid">
-                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collaborationAnalysisContent" aria-expanded="false" aria-controls="collaborationAnalysisContent">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collaborationAnalysisContent" aria-expanded="false"
+                                    aria-controls="collaborationAnalysisContent">
                                 <h5 class="font-size-15 text-uppercase text-white-50">Collaboration Analysis</h5>
                             </button>
                         </div>
                         <div class="col-lg-2 mb-3 d-grid">
-                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#codeQualityEnhancementContent" aria-expanded="false" aria-controls="codeQualityEnhancementContent">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#codeQualityEnhancementContent" aria-expanded="false"
+                                    aria-controls="codeQualityEnhancementContent">
                                 <h5 class="font-size-15 text-uppercase text-white-50">Code Quality Enhancement</h5>
                             </button>
                         </div>
                         <div class="col-lg-2 mb-3 d-grid">
-                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#customCodeLintingContent" aria-expanded="false" aria-controls="customCodeLintingContent">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#customCodeLintingContent" aria-expanded="false"
+                                    aria-controls="customCodeLintingContent">
                                 <h5 class="font-size-15 text-uppercase text-white-50">Custom Code Linting</h5>
                             </button>
                         </div>
                         <div class="col-lg-2 mb-3 d-grid">
-                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#dependencyVersionCompatibilityContent" aria-expanded="false" aria-controls="dependencyVersionCompatibilityContent">
-                                <h5 class="font-size-15 text-uppercase text-white-50">Dependency Version Compatibility</h5>
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#dependencyVersionCompatibilityContent" aria-expanded="false"
+                                    aria-controls="dependencyVersionCompatibilityContent">
+                                <h5 class="font-size-15 text-uppercase text-white-50">Dependency Version
+                                    Compatibility</h5>
                             </button>
                         </div>
                         <div class="col-lg-2 mb-3 d-grid">
-                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#bugDetectionContent" aria-expanded="false" aria-controls="bugDetectionContent">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#bugDetectionContent" aria-expanded="false"
+                                    aria-controls="bugDetectionContent">
                                 <h5 class="font-size-15 text-uppercase text-white-50">Bug Detection</h5>
                             </button>
                         </div>
@@ -215,12 +232,16 @@
                     <div class="row justify-content-center">
                         <!-- Ensure that each button has the same classes for margin and padding -->
                         <div class="col-lg-2 mb-3 d-grid">
-                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#testCaseMinimizationContent" aria-expanded="false" aria-controls="testCaseMinimizationContent">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#testCaseMinimizationContent" aria-expanded="false"
+                                    aria-controls="testCaseMinimizationContent">
                                 <h5 class="font-size-15 text-uppercase text-white-50">Test Case Minimization</h5>
                             </button>
                         </div>
                         <div class="col-lg-2 mb-3 d-grid">
-                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#advanceCodeSearchContent" aria-expanded="false" aria-controls="advanceCodeSearchContent">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#advanceCodeSearchContent" aria-expanded="false"
+                                    aria-controls="advanceCodeSearchContent">
                                 <h5 class="font-size-15 text-uppercase text-white-50">Advance Code Search</h5>
                             </button>
                         </div>
@@ -285,6 +306,20 @@
                             </div>
                         </div>
                     </div>
+                    <div class="collapse" id="testCaseMinimizationContent">
+                        <div class="card card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h3 class="mb-0">Test Case Minimization</h3>
+                                <button class="btn btn-primary" id="testCaseMinimizationNav">Get Insights</button>
+                            </div>
+                            <br>
+                            <span>This feature leverages a Large Language Model (LLM) to analyze adherence to Linting Rules. It distinguishes itself from conventional code Linting by assessing code pushed by developers within open Pull Requests (PRs) and executing checks to ensure compliance with Linting standards. </span>
+                            <hr style="height:2px;">
+                            <div class="row justify-content-center">
+                                <div id="testCaseMinimizationContainer"></div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="collapse" id="dependencyVersionCompatibilityContent">
                         <div class="card card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -298,7 +333,8 @@
                         <div class="card card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <h3 class="mb-0">Bug Detection</h3>
-                                <button class="btn btn-primary" id="bugDetectionInApplicationFlowNav">Get Insights</button>
+                                <button class="btn btn-primary" id="bugDetectionInApplicationFlowNav">Get Insights
+                                </button>
                             </div>
                             <br>
                             <span>This feature employ a Large Language Model (LLM) to analyze any application's major flows to identify potential issues or gaps. This feature is different from traditional code review. Here, the application will consider code pushed by the developer in any open PR that can introduce unexpected bugs in the application's major flows. </span>
@@ -308,20 +344,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="collapse" id="testCaseMinimizationContent">
-                        <div class="card card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h3 class="mb-0">Test Case Minimization</h3>
-                                <button class="btn btn-primary" id="testCaseMinimizationNav">Get Insights</button>
-                            </div>
-                            <br>
-                            <span>Add your description here.</span>
-                            <hr style="height:2px;">
-                            <div class="row justify-content-center">
-                                <div id="testCaseMinimizationContainer"></div>
-                            </div>
-                        </div>
-                    </div>
+
                     <div class="collapse" id="advanceCodeSearchContent">
                         <div class="card card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -342,378 +365,408 @@
             </div>
             <!-- end row -->
 
-            </div>
+        </div>
 
-            <!-- ============================================================== -->
-            <!-- End Page content -->
-            <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- End Page content -->
+        <!-- ============================================================== -->
 
         <span id="dynamicURL" style="display: none"
               th:text="${#httpServletRequest.scheme + '://' + #httpServletRequest.serverName + ':' + #httpServletRequest.serverPort + #httpServletRequest.contextPath}">
         </span>
-        </div>
     </div>
-    <!-- END wrapper -->
+</div>
+<!-- END wrapper -->
 
 
-    <!-- Vendor js -->
-    <script th:src="@{/js/vendor.min.js}"></script>
+<!-- Vendor js -->
+<script th:src="@{/js/vendor.min.js}"></script>
 
-    <!-- Plugins js-->
-    <script th:src="@{/libs/flatpickr/flatpickr.min.js}"></script>
-    <script th:src="@{/libs/apexcharts/apexcharts.min.js}"></script>
+<!-- Plugins js-->
+<script th:src="@{/libs/flatpickr/flatpickr.min.js}"></script>
+<script th:src="@{/libs/apexcharts/apexcharts.min.js}"></script>
 
-    <script th:src="@{/libs/selectize/js/standalone/selectize.min.js}"></script>
+<script th:src="@{/libs/selectize/js/standalone/selectize.min.js}"></script>
 
-    <!-- Chart js -->
-    <script type="text/javascript" th:src="@{/libs/chart.js/Chart.min.js}"></script>
+<!-- Chart js -->
+<script type="text/javascript" th:src="@{/libs/chart.js/Chart.min.js}"></script>
 
-    <!-- Dashboar 1 init js-->
-    <script th:src="@{/js/pages/dashboard-1.init.js}"></script>
+<!-- Dashboar 1 init js-->
+<script th:src="@{/js/pages/dashboard-1.init.js}"></script>
 
-    <!-- App js-->
-    <script th:src="@{/js/app.min.js}"></script>
-    <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
+<!-- App js-->
+<script th:src="@{/js/app.min.js}"></script>
+<script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
 
-    <script type="text/javascript">
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                if (settings.type == 'POST' || settings.type == 'PUT' || settings.type == 'DELETE') {
-                    if (!(/^http:.*/.test(settings.url) || /^https:/
-                        .test(settings.url))) {
-                        // Only send the tokens to relative URLs i.e. locally.
-                        xhr.setRequestHeader("X-XSRF-TOKEN", Cookies.get('XSRF-TOKEN'));
-                    }
+<script type="text/javascript">
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+            if (settings.type == 'POST' || settings.type == 'PUT' || settings.type == 'DELETE') {
+                if (!(/^http:.*/.test(settings.url) || /^https:/
+                    .test(settings.url))) {
+                    // Only send the tokens to relative URLs i.e. locally.
+                    xhr.setRequestHeader("X-XSRF-TOKEN", Cookies.get('XSRF-TOKEN'));
                 }
             }
-        })
-
-        function redirectToLogout(dynamicURL) {
-            $('#logout-btn').on('click', function () {
-                $.post("/logout", function () {
-                    location.href = dynamicURL;
-                })
-            });
         }
+    })
 
-        $(document).ready(function() {
-            var dynamicURL = $("#dynamicURL").text();
-            redirectToLogout(dynamicURL);
-            var myRepoId = $("#myRepoId").text();
-            var myUserId = $("#myUserId").text();
-            var reposPage = "/users/" + myUserId;
-            $("#reposPage").attr("href", reposPage);
-            $("#reposBreadcrumb").attr("href", reposPage);
-            getInsights(myRepoId);
+    function redirectToLogout(dynamicURL) {
+        $('#logout-btn').on('click', function () {
+            $.post("/logout", function () {
+                location.href = dynamicURL;
+            })
+        });
+    }
+
+    $(document).ready(function () {
+        var dynamicURL = $("#dynamicURL").text();
+        redirectToLogout(dynamicURL);
+        var myRepoId = $("#myRepoId").text();
+        var myUserId = $("#myUserId").text();
+        var reposPage = "/users/" + myUserId;
+        $("#reposPage").attr("href", reposPage);
+        $("#reposBreadcrumb").attr("href", reposPage);
+        getInsights(myRepoId);
+    });
+
+    function getInsights(myRepoId) {
+        //Common Code Mistakes Insight Call
+        $('#commonCodeMistakesNav').click(function () {
+            console.log("CCM Clicked")
+            if ($("#commonCodeMistakesContainer").html().trim().length > 0) {
+                // Do nothing
+                console.log("Div has content. Doing nothing.");
+            } else {
+                $("#spinner-div").show(); //Load button clicked show spinner
+                $.ajax({
+                    url: 'get-insights/ccm',
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (jsonData) {
+                        console.log("CCMD: " + jsonData);
+                        console.log("CCM: " + jsonData.insights);
+                        $('#commonCodeMistakesContainer').html(jsonData.insights);
+                    },
+                    complete: function () {
+                        $("#spinner-div").hide(); //Request is complete so hide spinner
+                    },
+                    error: function (err) {
+                        $("#spinner-div").hide(); //Request is complete so hide spinner
+                        console.error('Error fetching data:', err);
+
+                        try {
+                            var errorData = JSON.parse(err.responseText);
+                            console.log('Error data:', errorData);
+                        } catch (e) {
+                            console.error('Error parsing JSON:', e);
+                        }
+
+                    }
+                });
+            }
         });
 
-        function getInsights(myRepoId) {
-            //Common Code Mistakes Insight Call
-            $('#commonCodeMistakesNav').click(function () {
-                console.log("CCM Clicked")
-                if ($("#commonCodeMistakesContainer").html().trim().length > 0) {
-                    // Do nothing
-                    console.log("Div has content. Doing nothing.");
-                } else {
-                    $("#spinner-div").show(); //Load button clicked show spinner
-                    $.ajax({
-                        url: 'get-insights/ccm',
-                        method: 'GET',
-                        dataType: 'json',
-                        success: function (jsonData) {
-                            console.log("CCMD: " + jsonData);
-                            console.log("CCM: " + jsonData.insights);
-                            $('#commonCodeMistakesContainer').html(jsonData.insights);
-                        },
-                        complete: function () {
-                            $("#spinner-div").hide(); //Request is complete so hide spinner
-                        },
-                        error: function (err) {
-                            $("#spinner-div").hide(); //Request is complete so hide spinner
-                            console.error('Error fetching data:', err);
+        //Common Quality Enhancement Insight Call
+        $('#codeQualityEnhancementNav').click(function () {
+            console.log("CQE Clicked")
+            if ($("#codeQualityEnhancementContainer").html().trim().length > 0) {
+                // Do nothing
+                console.log("Div has content. Doing nothing.");
+            } else {
+                $("#spinner-div").show(); //Load button clicked show spinner
+                $.ajax({
+                    url: 'get-insights/cqe',
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (jsonData) {
+                        if (Array.isArray(jsonData)) {
+                            jsonData.forEach((data, index) => {
+                                var chartContainer = $("<div>").attr("id", `chart-${index}`).addClass("chart-container").appendTo("#codeQualityEnhancementContainer");
+                                $("<h5>").html(`<span style="color: red;">${data.developer}</span> - ${data.pr_title}`).appendTo(chartContainer);
+                                $(`<span style="font-weight:bold;">Code Improvement Suggestions: </span>`).appendTo(chartContainer);
+                                var codeImprovementsList = $("<ul>").appendTo(chartContainer);
+                                data.code_improvements.forEach((improvement) => {
+                                    $("<li>").text(improvement).appendTo(codeImprovementsList);
+                                });
+                                var canvas = $("<canvas>").appendTo(chartContainer);
+                                var ctx = canvas[0].getContext("2d");
+                                var barColors = data.criteria.map(function () {
+                                    return getRandomColor();
+                                });
 
-                            try {
-                                var errorData = JSON.parse(err.responseText);
-                                console.log('Error data:', errorData);
-                            } catch (e) {
-                                console.error('Error parsing JSON:', e);
-                            }
+                                var backgroundColor = barColors.map(function (color) {
+                                    return color.backgroundColor;
+                                });
+                                var borderColor = barColors.map(function (color) {
+                                    return color.borderColor;
+                                });
 
-                        }
-                    });
-                }
-            });
-
-            //Common Quality Enhancement Insight Call
-            $('#codeQualityEnhancementNav').click(function () {
-                console.log("CQE Clicked")
-                if ($("#codeQualityEnhancementContainer").html().trim().length > 0) {
-                    // Do nothing
-                    console.log("Div has content. Doing nothing.");
-                } else {
-                    $("#spinner-div").show(); //Load button clicked show spinner
-                    $.ajax({
-                        url: 'get-insights/cqe',
-                        method: 'GET',
-                        dataType: 'json',
-                        success: function(jsonData) {
-                            if (Array.isArray(jsonData)) {
-                                jsonData.forEach((data, index) => {
-                                    var chartContainer = $("<div>").attr("id", `chart-${index}`).addClass("chart-container").appendTo("#codeQualityEnhancementContainer");
-                                    $("<h5>").html(`<span style="color: red;">${data.developer}</span> - ${data.pr_title}`).appendTo(chartContainer);
-                                    $(`<span style="font-weight:bold;">Code Improvement Suggestions: </span>`).appendTo(chartContainer);
-                                    var codeImprovementsList = $("<ul>").appendTo(chartContainer);
-                                    data.code_improvements.forEach((improvement) => {
-                                        $("<li>").text(improvement).appendTo(codeImprovementsList);
-                                    });
-                                    var canvas = $("<canvas>").appendTo(chartContainer);
-                                    var ctx = canvas[0].getContext("2d");
-                                    var barColors = data.criteria.map(function () {
-                                        return getRandomColor();
-                                    });
-
-                                    var backgroundColor = barColors.map(function(color) {
-                                        return color.backgroundColor;
-                                    });
-                                    var borderColor = barColors.map(function(color) {
-                                        return color.borderColor;
-                                    });
-
-                                    new Chart(ctx, {
-                                        type: 'bar',
-                                        data: {
-                                            labels: data.criteria,
-                                            datasets: [{
-                                                label: 'Score',
-                                                data: data.score,
-                                                backgroundColor: backgroundColor,
-                                                borderColor: borderColor,
-                                                borderWidth: 1
-                                            }]
-                                        },
-                                        options: {
-                                            scales: {
-                                                y: {
-                                                    beginAtZero: true,
-                                                    suggestedMin: 0,
-                                                    suggestedMax: 5
-                                                }
+                                new Chart(ctx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: data.criteria,
+                                        datasets: [{
+                                            label: 'Score',
+                                            data: data.score,
+                                            backgroundColor: backgroundColor,
+                                            borderColor: borderColor,
+                                            borderWidth: 1
+                                        }]
+                                    },
+                                    options: {
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true,
+                                                suggestedMin: 0,
+                                                suggestedMax: 5
                                             }
                                         }
+                                    }
+                                });
+                                $(`<hr>`).appendTo(chartContainer);
+                            });
+                        } else {
+                            // If jsonData is not a valid JSON array, display it as a string
+                            $('#codeQualityEnhancementContainer').html(`<h3>${jsonData.message}</h3>`);
+                        }
+                    },
+                    complete: function () {
+                        $("#spinner-div").hide(); //Request is complete so hide spinner
+                    },
+                    error: function (err) {
+                        $("#spinner-div").hide(); //Request is complete so hide spinner
+                        console.error('Error fetching data:', err);
+                        console.log(err.responseText);
+                    }
+                });
+            }
+        });
+
+        //Bug Detection In Application Flow Insight Call
+        $('#bugDetectionInApplicationFlowNav').click(function () {
+            console.log("BDAF Clicked")
+            if ($("#bugDetectionInApplicationFlowContainer").html().trim().length > 0) {
+                // Do nothing
+                console.log("Div has content. Doing nothing.");
+            } else {
+                $("#spinner-div").show(); //Load button clicked show spinner
+                $.ajax({
+                    url: 'get-insights/bdaf',
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (jsonData) {
+                        console.log("jsonData: " + jsonData)
+                        if (Array.isArray(jsonData)) {
+                            var insightContainer = $("<div>").addClass("container").appendTo("#bugDetectionInApplicationFlowContainer");
+                            $("<br>").appendTo(insightContainer);
+                            jsonData.forEach((data, index) => {
+                                $("<h5>").html(`<span style="color: red;">${data.developer}</span> - ${data.pr_title}`).appendTo(insightContainer);
+
+                                // Bugs Section
+                                var bugsContainer = $("<div>").addClass("row mt-2").appendTo(insightContainer);
+                                var bugsContainerDanger = $("<div>").addClass("alert alert-danger").attr("role", `alert`).appendTo(bugsContainer);
+                                $("<h4>").addClass("alert-heading").html(`<span>Bugs</span>`).appendTo(bugsContainerDanger);
+                                var bugHtmlString = "";
+
+                                if (data.bugs.length > 0 && Array.isArray(data.bugs)) {
+                                    var bugs = data.bugs;
+                                    bugs.forEach((bug, index) => {
+                                        bugHtmlString += '<p class="mb-0">' +
+                                            `<strong>Bug ${index + 1}:</strong> ${bug.issue}` +
+                                            '<pre class="bg-dark text-white mt-2 mb-2">' +
+                                            `<code class="language-xml">&lt;${bug.code_in_file}" /&gt;</code>` +
+                                            '</pre>';
+
+                                        if (bug.recommendation && Array.isArray(bug.recommendation)) {
+                                            var recommendations = bug.recommendation;
+                                            bugHtmlString += '<strong>Recommendation:</strong>' +
+                                                '<ul>';
+                                            recommendations.forEach((recommendation, index) => {
+                                                bugHtmlString += `<li>${recommendation}</li>`;
+                                            });
+                                            bugHtmlString += '</ul>';
+                                        }
+
+                                        bugHtmlString += '</p>';
                                     });
-                                    $(`<hr>`).appendTo(chartContainer);
-                                });
-                            } else {
-                                // If jsonData is not a valid JSON array, display it as a string
-                                $('#codeQualityEnhancementContainer').html(`<h3>${jsonData.message}</h3>`);
-                            }
-                        },
-                        complete: function () {
-                            $("#spinner-div").hide(); //Request is complete so hide spinner
-                        },
-                        error: function(err) {
-                            $("#spinner-div").hide(); //Request is complete so hide spinner
-                            console.error('Error fetching data:', err);
-                            console.log(err.responseText);
-                        }
-                    });
-                }
-            });
+                                } else {
+                                    bugHtmlString += '<strong>No Bugs Found</strong>';
+                                }
 
-            //Bug Detection In Application Flow Insight Call
-            $('#bugDetectionInApplicationFlowNav').click(function () {
-                console.log("BDAF Clicked")
-                if ($("#bugDetectionInApplicationFlowContainer").html().trim().length > 0) {
-                    // Do nothing
-                    console.log("Div has content. Doing nothing.");
-                } else {
-                    $("#spinner-div").show(); //Load button clicked show spinner
-                    $.ajax({
-                        url: 'get-insights/bdaf',
-                        method: 'GET',
-                        dataType: 'json',
-                        success: function (jsonData) {
-                            console.log("jsonData: " + jsonData)
-                            if (Array.isArray(jsonData)) {
-                                var insightContainer = $("<div>").addClass("container").appendTo("#bugDetectionInApplicationFlowContainer");
-                                $("<br>").appendTo(insightContainer);
-                                jsonData.forEach((data, index) => {
-                                    $("<h5>").html(`<span style="color: red;">${data.developer}</span> - ${data.pr_title}`).appendTo(insightContainer);
+                                $(bugHtmlString).appendTo(bugsContainerDanger);
 
-                                    // Bugs Section
-                                    var bugsContainer = $("<div>").addClass("row mt-2").appendTo(insightContainer);
-                                    var bugsContainerDanger = $("<div>").addClass("alert alert-danger").attr("role", `alert`).appendTo(bugsContainer);
-                                    $("<h4>").addClass("alert-heading").html(`<span>Bugs</span>`).appendTo(bugsContainerDanger);
-                                    var bugHtmlString = "";
+                                // Alert Section
+                                var alertsContainer = $("<div>").addClass("row mt-2").appendTo(insightContainer);
+                                var alertsContainerWarning = $("<div>").addClass("alert alert-warning").attr("role", `alert`).appendTo(alertsContainer);
+                                $("<h4>").addClass("alert-heading").html(`<span">Alerts</span>`).appendTo(alertsContainerWarning);
+                                var alertHtmlString = "";
 
-                                    if (data.bugs.length > 0 && Array.isArray(data.bugs)) {
-                                        var bugs = data.bugs;
-                                        bugs.forEach((bug, index) => {
-                                            bugHtmlString += '<p class="mb-0">' +
-                                                `<strong>Bug ${index + 1}:</strong> ${bug.issue}` +
-                                                '<pre class="bg-dark text-white mt-2 mb-2">' +
-                                                `<code class="language-xml">&lt;${bug.code_in_file}" /&gt;</code>` +
-                                                '</pre>';
-
-                                            if (bug.recommendation && Array.isArray(bug.recommendation)) {
-                                                var recommendations = bug.recommendation;
-                                                bugHtmlString += '<strong>Recommendation:</strong>' +
-                                                    '<ul>';
-                                                recommendations.forEach((recommendation, index) => {
-                                                    bugHtmlString += `<li>${recommendation}</li>`;
-                                                });
-                                                bugHtmlString += '</ul>';
-                                            }
-
-                                            bugHtmlString += '</p>';
-                                        });
-                                    } else {
-                                        bugHtmlString += '<strong>No Bugs Found</strong>';
-                                    }
-
-                                    $(bugHtmlString).appendTo(bugsContainerDanger);
-
-                                    // Alert Section
-                                    var alertsContainer = $("<div>").addClass("row mt-2").appendTo(insightContainer);
-                                    var alertsContainerWarning = $("<div>").addClass("alert alert-warning").attr("role", `alert`).appendTo(alertsContainer);
-                                    $("<h4>").addClass("alert-heading").html(`<span">Alerts</span>`).appendTo(alertsContainerWarning);
-                                    var alertHtmlString = "";
-
-                                    if (data.alerts.length > 0 && Array.isArray(data.alerts)) {
-                                        var alerts = data.alerts;
-                                        alertHtmlString += '<ul>';
-                                        alerts.forEach((alert, index) => {
-                                            alertHtmlString += `<li>${alert}</li>`;
-                                        });
-                                        alertHtmlString += '</ul>';
-                                    } else {
-                                        alertHtmlString += '<strong>No Alerts Found</strong>';
-                                    }
-
-                                    $(alertHtmlString).appendTo(alertsContainerWarning);
-
-                                    // General Recommendations Section
-                                    var generalRecommendationContainer = $("<div>").addClass("row mt-2").appendTo(insightContainer);
-                                    var generalRecommendationContainerInfo = $("<div>").addClass("alert alert-info").attr("role", `alert`).appendTo(generalRecommendationContainer);
-                                    $("<h4>").addClass("alert-heading").html(`<span">General Recommendations</span>`).appendTo(generalRecommendationContainerInfo);
-                                    var generalRecommendationHtmlString = "";
-
-                                    if (data.general_recommendation.length > 0 && Array.isArray(data.general_recommendation)) {
-                                        var generalRecommendation = data.general_recommendation;
-                                        generalRecommendationHtmlString += '<ul>';
-                                        generalRecommendation.forEach((recommendation, index) => {
-                                            generalRecommendationHtmlString += `<li>${recommendation}</li>`;
-                                        });
-                                        generalRecommendationHtmlString += '</ul>';
-                                    } else {
-                                        generalRecommendationHtmlString += '<strong>No Recommendation Found</strong>';
-                                    }
-
-                                    $(generalRecommendationHtmlString).appendTo(generalRecommendationContainerInfo);
-                                    $("<hr>").appendTo(generalRecommendationContainer);
-                                });
-                            } else {
-                                // If jsonData is not a valid JSON array, display it as a string
-                                $('#bugDetectionInApplicationFlowContainer').html(`<h3>${jsonData.message}</h3>`);
-                            }
-                        },
-
-                        complete: function () {
-                            $("#spinner-div").hide(); //Request is complete so hide spinner
-                        },
-                        error: function(err) {
-                            $("#spinner-div").hide(); //Request is complete so hide spinner
-                            console.error('Error fetching data:', err);
-                            console.log(err.responseText);
-                        }
-                    });
-                }
-            });
-
-            $('#customCodeLintingNav').click(function () {
-                console.log("CCL Clicked")
-                if ($("#customCodeLintingContainer").html().trim().length > 0) {
-                    // Do nothing
-                    console.log("Div has content. Doing nothing.");
-                } else {
-                    $("#spinner-div").show(); //Load button clicked show spinner
-                    $.ajax({
-                        url: 'get-insights/ccl',
-                        method: 'GET',
-                        dataType: 'json',
-                        success: function(jsonData) {
-                            if (Array.isArray(jsonData)) {
-                                jsonData.forEach((data, index) => {
-                                    var chartContainer = $("<div>").attr("id", `chart-${index}`).addClass("chart-container").appendTo("#customCodeLintingContainer");
-                                    $("<p>").html(`<span style="font-weight:bold;">Developer:</span> ${data.developer}`).appendTo(chartContainer);
-                                    $("<p>").html(`<span style="font-weight:bold;">PR Title:</span> ${data.pr_title}`).appendTo(chartContainer);
-                                    var followsLinting = data.follows_linting ? 'YES' : 'NO';
-                                    $("<p>").html(`<span style="font-weight:bold;">Follows Linting Standard?:</span> ${followsLinting}`).appendTo(chartContainer);
-
-                                    $("<p>").html(`<span style="font-weight:bold;">Linting Comments:</span> `).appendTo(chartContainer);
-                                    var codeImprovementsList = $("<ul>").appendTo(chartContainer);
-                                    data.linting_comments.forEach((improvement) => {
-                                        $("<li>").text(improvement).appendTo(codeImprovementsList);
+                                if (data.alerts.length > 0 && Array.isArray(data.alerts)) {
+                                    var alerts = data.alerts;
+                                    alertHtmlString += '<ul>';
+                                    alerts.forEach((alert, index) => {
+                                        alertHtmlString += `<li>${alert}</li>`;
                                     });
+                                    alertHtmlString += '</ul>';
+                                } else {
+                                    alertHtmlString += '<strong>No Alerts Found</strong>';
+                                }
+
+                                $(alertHtmlString).appendTo(alertsContainerWarning);
+
+                                // General Recommendations Section
+                                var generalRecommendationContainer = $("<div>").addClass("row mt-2").appendTo(insightContainer);
+                                var generalRecommendationContainerInfo = $("<div>").addClass("alert alert-info").attr("role", `alert`).appendTo(generalRecommendationContainer);
+                                $("<h4>").addClass("alert-heading").html(`<span">General Recommendations</span>`).appendTo(generalRecommendationContainerInfo);
+                                var generalRecommendationHtmlString = "";
+
+                                if (data.general_recommendation.length > 0 && Array.isArray(data.general_recommendation)) {
+                                    var generalRecommendation = data.general_recommendation;
+                                    generalRecommendationHtmlString += '<ul>';
+                                    generalRecommendation.forEach((recommendation, index) => {
+                                        generalRecommendationHtmlString += `<li>${recommendation}</li>`;
+                                    });
+                                    generalRecommendationHtmlString += '</ul>';
+                                } else {
+                                    generalRecommendationHtmlString += '<strong>No Recommendation Found</strong>';
+                                }
+
+                                $(generalRecommendationHtmlString).appendTo(generalRecommendationContainerInfo);
+                                $("<hr>").appendTo(generalRecommendationContainer);
+                            });
+                        } else {
+                            // If jsonData is not a valid JSON array, display it as a string
+                            $('#bugDetectionInApplicationFlowContainer').html(`<h3>${jsonData.message}</h3>`);
+                        }
+                    },
+
+                    complete: function () {
+                        $("#spinner-div").hide(); //Request is complete so hide spinner
+                    },
+                    error: function (err) {
+                        $("#spinner-div").hide(); //Request is complete so hide spinner
+                        console.error('Error fetching data:', err);
+                        console.log(err.responseText);
+                    }
+                });
+            }
+        });
+
+        //Test case minimization Insight Call
+        $('#testCaseMinimizationNav').click(function () {
+            console.log("TCM Clicked")
+            $("#spinner-div").show(); //Load button clicked show spinner
+            $.ajax({
+                url: 'get-insights/tcm',
+                method: 'GET',
+                success: function (resultData) {
+                    console.log("TCMD: " + resultData);
+                    $('#testCaseMinimizationContainer').html(resultData);
+                },
+                complete: function () {
+                    $("#spinner-div").hide(); //Request is complete so hide spinner
+                },
+                error: function (err) {
+                    $("#spinner-div").hide(); //Request is complete so hide spinner
+                    console.error('Error fetching data:', err);
+
+                    try {
+                        var errorData = JSON.parse(err.responseText);
+                        console.log('Error data:', errorData);
+                    } catch (e) {
+                        console.error('Error parsing JSON:', e);
+                    }
+
+                }
+            });
+
+        });
+
+        $('#customCodeLintingNav').click(function () {
+            console.log("CCL Clicked")
+            if ($("#customCodeLintingContainer").html().trim().length > 0) {
+                // Do nothing
+                console.log("Div has content. Doing nothing.");
+            } else {
+                $("#spinner-div").show(); //Load button clicked show spinner
+                $.ajax({
+                    url: 'get-insights/ccl',
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (jsonData) {
+                        if (Array.isArray(jsonData)) {
+                            jsonData.forEach((data, index) => {
+                                var chartContainer = $("<div>").attr("id", `chart-${index}`).addClass("chart-container").appendTo("#customCodeLintingContainer");
+                                $("<p>").html(`<span style="font-weight:bold;">Developer:</span> ${data.developer}`).appendTo(chartContainer);
+                                $("<p>").html(`<span style="font-weight:bold;">PR Title:</span> ${data.pr_title}`).appendTo(chartContainer);
+                                var followsLinting = data.follows_linting ? 'YES' : 'NO';
+                                $("<p>").html(`<span style="font-weight:bold;">Follows Linting Standard?:</span> ${followsLinting}`).appendTo(chartContainer);
+
+                                $("<p>").html(`<span style="font-weight:bold;">Linting Comments:</span> `).appendTo(chartContainer);
+                                var codeImprovementsList = $("<ul>").appendTo(chartContainer);
+                                data.linting_comments.forEach((improvement) => {
+                                    $("<li>").text(improvement).appendTo(codeImprovementsList);
                                 });
-                            } else {
-                                // If jsonData is not a valid JSON array, display it as a string
-                                $('#customCodeLintingContainer').html(`<h3>${jsonData.message}</h3>`);
-                            }
-                        },
-                        complete: function () {
-                            $("#spinner-div").hide(); //Request is complete so hide spinner
-                        },
-                        error: function(err) {
-                            $("#spinner-div").hide(); //Request is complete so hide spinner
-                            console.error('Error fetching data:', err);
-                            console.log(err.responseText);
+                            });
+                        } else {
+                            // If jsonData is not a valid JSON array, display it as a string
+                            $('#customCodeLintingContainer').html(`<h3>${jsonData.message}</h3>`);
                         }
-                    });
-                }
-            });
+                    },
+                    complete: function () {
+                        $("#spinner-div").hide(); //Request is complete so hide spinner
+                    },
+                    error: function (err) {
+                        $("#spinner-div").hide(); //Request is complete so hide spinner
+                        console.error('Error fetching data:', err);
+                        console.log(err.responseText);
+                    }
+                });
+            }
+        });
 
-            $('#collaborationAnalysisNav').click(function () {
-                console.log("CA Clicked");
-                if ($("#collaborationAnalysisContainer").html().trim().length > 0) {
-                    // Do nothing
-                    console.log("Div has content. Doing nothing.");
-                } else {
-                    $("#spinner-div").show(); //Load button clicked show spinner
-                    $.ajax({
-                        url: 'get-repo-prs-collab',
-                        method: 'GET',
-                        success: function (data) {
-                            console.log(data);
-                            $('#collaborationAnalysisContainer').html(data);
-                        },
-                        complete: function () {
-                            //$("#insightsTitle").html($('#collaborationAnalysisNav').text());
-                            $("#spinner-div").hide(); //Request is complete so hide spinner
-                        },
-                        error: function (err) {
-                            $("#spinner-div").hide(); //Request is complete so hide spinner
-                            console.error('Error fetching data:', err);
-                            console.log(err.responseText);
-                        }
-                    });
-                }
-            });
-        }
+        $('#collaborationAnalysisNav').click(function () {
+            console.log("CA Clicked");
+            if ($("#collaborationAnalysisContainer").html().trim().length > 0) {
+                // Do nothing
+                console.log("Div has content. Doing nothing.");
+            } else {
+                $("#spinner-div").show(); //Load button clicked show spinner
+                $.ajax({
+                    url: 'get-repo-prs-collab',
+                    method: 'GET',
+                    success: function (data) {
+                        console.log(data);
+                        $('#collaborationAnalysisContainer').html(data);
+                    },
+                    complete: function () {
+                        //$("#insightsTitle").html($('#collaborationAnalysisNav').text());
+                        $("#spinner-div").hide(); //Request is complete so hide spinner
+                    },
+                    error: function (err) {
+                        $("#spinner-div").hide(); //Request is complete so hide spinner
+                        console.error('Error fetching data:', err);
+                        console.log(err.responseText);
+                    }
+                });
+            }
+        });
+    }
 
-        function getRandomColor() {
-            // Generates a random RGB value
-            var r = Math.floor(Math.random() * 256);
-            var g = Math.floor(Math.random() * 256);
-            var b = Math.floor(Math.random() * 256);
+    function getRandomColor() {
+        // Generates a random RGB value
+        var r = Math.floor(Math.random() * 256);
+        var g = Math.floor(Math.random() * 256);
+        var b = Math.floor(Math.random() * 256);
 
-            // Returns both the rgba color for background and rgb for border
-            return {
-                backgroundColor: 'rgba(' + r + ', ' + g + ', ' + b + ', 0.2)', // Opacity at 0.2 for background color
-                borderColor: 'rgba(' + r + ', ' + g + ', ' + b + ', 1)' // Full opacity for border color
-            };
-        }
-    </script>
+        // Returns both the rgba color for background and rgb for border
+        return {
+            backgroundColor: 'rgba(' + r + ', ' + g + ', ' + b + ', 0.2)', // Opacity at 0.2 for background color
+            borderColor: 'rgba(' + r + ', ' + g + ', ' + b + ', 1)' // Full opacity for border color
+        };
+    }
+</script>
 
 </body>
 </html>
