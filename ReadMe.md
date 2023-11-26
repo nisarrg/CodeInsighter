@@ -95,9 +95,11 @@ Add Some citations and resources
 
 ## Screenshots
 
-- **Github OAuth Authentication**
+- **CodeInsighter Login**
 
 ![CodeInsighter Login](/reports/screenshots/CodeInsighterLogin.jpg)
+
+- **Github OAuth Authentication**
 
 User needs to login using the github credentials in order to get insights about the their repositories
 
@@ -148,38 +150,38 @@ Here, the user will get insights based on common types of mistakes occurring in 
 
 ![Dependency Version Compatibility](/reports/screenshots/DependencyVersionCompatibility.jpg)
 
-**2) Bug Detection in Application Flow:**
+**6) Bug Detection in Application Flow:**
 Here, the user will get insights based on common types of mistakes occurring in the code by using the code review comments.
 
 ![Bug Detection in Application Flow](/reports/screenshots/BugDetectioninApplicationFlow.jpg)
 
-**3) Test Case Minimization:**
+**7) Test Case Minimization:**
 Here, the user will get insights based on common types of mistakes occurring in the code by using the code review comments.
 
 ![Test Case Minimization](/reports/screenshots/TestCaseMinimization.jpg)
 
-**4) Advanced Code Search and Retrieval:**
+**8) Advanced Code Search and Retrieval:**
 Here, the user will get insights based on common types of mistakes occurring in the code by using the code review comments.
 
-![Advanced Code Search and Retrieval](/reports/screenshots/AdvancedCodeSearchandRetrieval.png)
+![Advanced Code Search and Retrieval](/reports/screenshots/AdvancedCodeSearchandRetrieval.jpg)
 
 ## Contributors
 - [Pooja Chauhan](https://git.cs.dal.ca/poojac) (B00971297)
 - [Pratik Sakaria](https://git.cs.dal.ca/psakaria) (B00954261)
-- [Nisarg Khacharia](https://git.cs.dal.ca/khacharia) (B00)
+- [Nisarg Khacharia](https://git.cs.dal.ca/khacharia) (B00959791)
 - [Sameer Amesara](https://git.cs.dal.ca/amesara) (B00961209)
 - [Zeel Ravalani](https://git.cs.dal.ca/ravalani) (B00917373)
 
 ## Smell Analysis Summary
 
-- Designite Report Files Attached
+- [Excel File Attached]()
 
 ## Member Contribution
 
-- Excel File Attached
+- [Excel File Attached]()
 
 ## Client Team Feedback
 
-- Excel File Attached
+- [Excel File Attached]()
 
 
