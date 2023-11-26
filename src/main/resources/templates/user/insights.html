@@ -662,7 +662,7 @@
                 method: 'GET',
                 success: function (resultData) {
                     console.log("TCMD: " + resultData);
-                    $('#testCaseMinimizationContainer').text(resultData);
+                    $('#testCaseMinimizationContainer').html(resultData);
                 },
                 complete: function () {
                     $("#spinner-div").hide(); //Request is complete so hide spinner
