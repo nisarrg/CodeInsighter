@@ -3,7 +3,11 @@ package com.taim.conduire.controller;
 import com.taim.conduire.domain.FormData;
 import com.taim.conduire.domain.RepoData;
 import com.taim.conduire.domain.UserData;
-import com.taim.conduire.service.*;
+import com.taim.conduire.service.ChatGPTService;
+import com.taim.conduire.service.InsightsService;
+import com.taim.conduire.service.RepoDataService;
+import com.taim.conduire.service.UserDataService;
+import com.taim.conduire.service.impl.InsightsServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +35,13 @@ public class UserRepoInsightsController {
     private RepoDataService repoDataService;
 
     @Autowired
-    private LLMService llmService;
-
-    @Autowired
     private InsightsService insightsService;
 
+    @Autowired
+    private InsightsServiceImpl insightsServiceImpl;
+
     @GetMapping("/{repo_id}/insights")
-    public String view(@PathVariable("repo_id") Integer repoId, Model model) {
+    public String view(@PathVariable("repo_id") Integer repoId, Model model) throws IOException {
         RepoData repoData = repoDataService.getOne(repoId);
         System.out.println("repoData: " + repoData);
         UserData userData = userDataService.getOne(repoData.getUserId());
@@ -67,6 +71,26 @@ public class UserRepoInsightsController {
         String codeQualityEnhancementInsightString = insightsService.getCodeQualityEnhancementsInsights(repoData);
         System.out.println("codeQualityEnhancementInsightString: " + codeQualityEnhancementInsightString);
         return ResponseEntity.ok(codeQualityEnhancementInsightString);
+    }
+
+    /**
+     * Handles the GET request to retrieve Dependency Version Control (DVC) insights for a repository.
+     *
+     * @param repoID The ID of the repository.
+     * @return ResponseEntity with insights on DVC or an error response.
+     */
+    @RequestMapping(value = "/{repo_id}/get-insights/dvc", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<String> getDVCInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
+        // Log the start of processing the DVC insights for the specified repository.
+        System.out.println("Processing DVC insights for repoID: " + repoID);
+
+        // Retrieve repository data based on the provided repository ID.
+        RepoData repoData = repoDataService.getOne(repoID);
+
+        // Process the dependency file to get versions.
+        // Return a response entity with the final generated response.
+        return ResponseEntity.ok(insightsServiceImpl.getDependencyVersionInsights(repoData));
     }
 
     @RequestMapping(value = "/{repo_id}/get-repo-prs-collab", method = RequestMethod.GET)

@@ -97,7 +97,8 @@ public class LLMServiceImpl implements LLMService {
                 dataset,
                 true,
                 true,
-                false);
+                false
+        );
 
         PiePlot plot = (PiePlot) chart.getPlot();
         // plot.setSection(0000.35);
@@ -125,7 +126,8 @@ public class LLMServiceImpl implements LLMService {
                 PlotOrientation.VERTICAL,
                 false,
                 true,
-                false);
+                false
+        );
         return chart;
     }
 
@@ -252,10 +254,8 @@ public class LLMServiceImpl implements LLMService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        // headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
-        // String apiUrl = String.format("%s/repos/%s/%s", githubApiUrl, owner, repo);
-        URI uri = URI.create(githubApiUrl + "/repos/" + owner + "/" + repo + "/contents" + "/" + path);
+        URI uri = URI.create(githubApiUrl + "/repos/" + owner + repo + "/contents" + "/" + path);
 
         RequestEntity<?> requestEntity = RequestEntity.get(uri).headers(headers).build();
         return restTemplate.exchange(requestEntity, String.class);
@@ -265,11 +265,9 @@ public class LLMServiceImpl implements LLMService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        // headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
-        // String apiUrl = String.format("%s/repos/%s/%s", githubApiUrl, owner, repo);
-        URI uri = URI.create(githubApiUrl + "/repos/" + owner + "/" + repo + "/contents");
-
+        URI uri = URI.create(githubApiUrl + "/repos/" + owner + repo + "/contents");
+        System.out.println(uri.toString());
         RequestEntity<?> requestEntity = RequestEntity.get(uri).headers(headers).build();
         return restTemplate.exchange(requestEntity, String.class);
     }
@@ -277,7 +275,7 @@ public class LLMServiceImpl implements LLMService {
     public ResponseEntity<String> getFileContent(String owner, String repo, String filePath) {
         HttpHeaders headers = createHeaders();
 
-        URI uri = URI.create(githubApiUrl + "/repos/" + owner + "/" + repo + "/contents/" + filePath);
+        URI uri = URI.create(githubApiUrl + "/repos/" + owner + repo + "/contents/" + filePath);
 
         RequestEntity<?> requestEntity = RequestEntity.get(uri).headers(headers).build();
         ResponseEntity<String> response = restTemplate.exchange(requestEntity, String.class);
@@ -294,11 +292,8 @@ public class LLMServiceImpl implements LLMService {
             content = content.replaceAll("\\s", "");
             System.out.println(content);
             String decodedContent = new String(Base64.getDecoder().decode(content), StandardCharsets.UTF_8);
-            // TODO: "At least"?
-            System.out.println("WE REACHED HERE ATLEAST!!!" + decodedContent);
             response = ResponseEntity.ok(decodedContent);
         }
-
         return response;
     }
 

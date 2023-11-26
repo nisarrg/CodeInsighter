@@ -14,7 +14,7 @@ import java.util.Map;
 //TODO --> Design Smell: what is the use of the class?; Two uncalled methods? why?
 @Service
 public class JSONUtilsImpl implements JSONUtils {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     // TODO --> check the usage of this method
     public List<Map<String, Object>> parseJSONResponse(String json) {

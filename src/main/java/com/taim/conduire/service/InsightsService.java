@@ -24,6 +24,8 @@ public interface InsightsService {
 
     String getCodeQualityEnhancementsInsights(RepoData repoData);
 
+    String getDependencyVersionInsights(RepoData repoData) throws IOException;
+
     String getBugDetectionInApplicationFlowInsights(RepoData repoData);
 
     String getCustomCodeLintingInsights(RepoData repoData);
@@ -33,4 +35,5 @@ public interface InsightsService {
     String getRepositoryPRsCollab(RepoData repoData) throws IOException, InterruptedException;
 
     String getAdvancedCodeSearchInsight(RepoData repoData, String input);
+
 }
