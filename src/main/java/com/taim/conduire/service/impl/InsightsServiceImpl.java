@@ -73,7 +73,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
     private boolean foundPomFlag = false;
 
 
-    private static int countTokens(String input) {
+    public static int countTokens(String input) {
         String[] tokens = input.split("\\s+|\\p{Punct}");
         return tokens.length;
     }
@@ -416,6 +416,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
     public String parsePOMintoMap(RepoData repoData) throws IOException {
         // Calculate the initial number of tokens available for processing.
         Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(DEPENDENCY_VERSION_INSIGHT_PROMPT);
+        System.out.println("In parsePOMintoMap llmTokenLimitWithPrompt tokens has:"+llmTokenLimitWithPrompt);
+        System.out.println("In parsePOMintoMap countTokens(DEPENDENCY_VERSION_INSIGHT_PROMPT) tokens has:"+countTokens(DEPENDENCY_VERSION_INSIGHT_PROMPT));
         // StringBuilder to store the parsed result.
         StringBuilder resultBuilder = new StringBuilder();
 
@@ -558,12 +560,13 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
     }
 
     /**
-     * Processes the contents of a directory in a repository, searching for the "pom.xml" file recursively.
+     * Processes a directory by retrieving its contents from the repository and recursively
+     * handling each item in the directory.
      *
      * @param owner    The owner of the repository.
-     * @param repo     The name of the repository.
-     * @param dirPath  The path of the current directory within the repository.
-     * @param basePath The base path representing the cumulative path up to the current directory.
+     * @param repo     The repository name.
+     * @param dirPath  The path of the current directory.
+     * @param basePath The base path for constructing file paths within the directory.
      */
     private void processDirectory(String owner, String repo, String dirPath, String basePath) {
         // Log a debug message to indicate the method entry
@@ -592,12 +595,12 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
                 String name = (String) item.get("name");
 
                 // Check if the current item is a "pom.xml" file and it has not been found yet
-                if (FILE_TYPE.equals(type) && name.equals("pom.xml") && !foundPomFlag) {
+                if (isPomFile(type, name) && !foundPomFlag) {
                     // Process the "pom.xml" file
                     processFile(owner, repo, path, basePath);
                     foundPomFlag = true;  // Set the flag to indicate that "pom.xml" has been found
                     break;  // Exit the loop since the file has been found
-                } else if (DIR_TYPE.equals(type) && (!foundPomFlag)) {
+                } else if (isDirectory(type) && (!foundPomFlag)) {
                     // Recursively process subdirectories if "pom.xml" has not been found yet
                     processDirectory(owner, repo, path, basePath);
                 }
@@ -709,11 +712,11 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
     }
 
     /**
-     * Processes a content item, checking if it is a pom.xml file or a directory, and takes appropriate actions.
+     * Processes a content item based on its type, name, and the status of a flag.
      *
-     * @param item   The content item represented as a map with key-value pairs.
-     * @param owner  The owner of the repository.
-     * @param repo   The name of the repository.
+     * @param item  The map representing the content item.
+     * @param owner The owner of the repository.
+     * @param repo  The repository name.
      */
     private void processContentItem(Map<String, Object> item, String owner, String repo) {
         // Log a message indicating the start of processing the content item.
@@ -728,7 +731,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
         String path = (String) item.get("path");
 
         // Check if the content item is a file, named "pom.xml", and the POM flag is not already found.
-        if (FILE_TYPE.equals(type) && name.equals("pom.xml") && !foundPomFlag) {
+        if (isPomFile(type, name) && !foundPomFlag) {
             // Log a message indicating the discovery of a pom.xml file.
             System.out.println("Found POM.XML file\n");
 
@@ -739,7 +742,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
             foundPomFlag = true;
         }
         // Check if the content item is a directory and the POM flag is not already found.
-        else if (DIR_TYPE.equals(type) && (!foundPomFlag)) {
+        else if (isDirectory(type) && (!foundPomFlag)) {
             // Process the directory using the processDirectory method.
             processDirectory(owner, repo, path, basePath);
         }
@@ -747,6 +750,28 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
         // Log a message indicating the completion of processing the content item.
         System.out.println("Content item processing completed.");
     }
+
+    /**
+     * Checks if the content item represents a "pom.xml" file.
+     *
+     * @param type The type of the content item.
+     * @param name The name of the content item.
+     * @return {@code true} if the content item is a "pom.xml" file, {@code false} otherwise.
+     */
+    private boolean isPomFile(String type, String name) {
+        return FILE_TYPE.equals(type) && "pom.xml".equals(name);
+    }
+
+    /**
+     * Checks if the content item represents a directory.
+     *
+     * @param type The type of the content item.
+     * @return {@code true} if the content item is a directory, {@code false} otherwise.
+     */
+    private boolean isDirectory(String type) {
+        return DIR_TYPE.equals(type);
+    }
+
 
     /**
      * Checks if the response from a service is valid.

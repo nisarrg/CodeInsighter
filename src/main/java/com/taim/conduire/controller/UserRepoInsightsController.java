@@ -4,6 +4,7 @@ import com.taim.conduire.domain.FormData;
 import com.taim.conduire.domain.RepoData;
 import com.taim.conduire.domain.UserData;
 import com.taim.conduire.service.*;
+import com.taim.conduire.service.impl.InsightsServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,20 +87,16 @@ public class UserRepoInsightsController {
             String versions = insightsService.processDependencyFile(repoData);
 
             if (versions == null) {
-                // Log that there was no version control file at the root level of the repository.
-                System.out.println("No version control file found at the root level of the repository.");
-
                 // Provide a prompt indicating the absence of a version control file.
                 String prompt = "This isn't a Java Maven repository. Kindly retry with one!";
 
                 // Return a response entity with the prompt.
                 return ResponseEntity.ok(prompt);
             } else {
-                // Log the start of processing chatGPT with the retrieved versions.
-                System.out.println("Processing chatGPT with versions: " + versions);
-
                 // Use chatGPT to generate insights based on the retrieved versions.
-                String finalResponse = chatGPTService.chat(versions);
+                System.out.println("countTokens(versions) is: "+ InsightsServiceImpl.countTokens(versions));
+                System.out.println(versions);
+               String finalResponse = chatGPTService.chat(versions);
 
                 // Log the generated final response.
                 System.out.println("Final response: " + finalResponse);
@@ -118,8 +115,6 @@ public class UserRepoInsightsController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
         }
     }
-
-
 
     @RequestMapping(value = "/{repo_id}/get-repo-prs-collab", method = RequestMethod.GET)
     @ResponseBody
