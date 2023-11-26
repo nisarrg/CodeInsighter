@@ -61,6 +61,11 @@ public class LLMServiceImpl implements LLMService {
         // TODO: Fix the indentation.
         // TODO: Complex method --> cyclomatic complexity is 9
 
+        if (repoPunchCard == null || repoPunchCard.isEmpty()) {
+            // Handle the case where repoPunchCard is null or empty
+            return weeklyCount; // return an array of zeros or handle it as needed
+        }
+
         // Sunday
         while (i <= 23) {
             List<Integer> tempList = repoPunchCard.get(i);
