@@ -24,4 +24,15 @@ public interface ConstantCodes {
 			" Give me the response in HTML tags/format using Bootstrap 5" +
 			" classes so I can directly append your response directly to my website.\n";
 
+	String DEPENDENCY_VERSION_INSIGHT_PR_PROMPT = "Below are the Open PRs that have changes to pom.xml, indicating upgrades/downgrades of project dependencies.";
+
+	// Index of the captured group representing the tag type in the regular expression match.
+	int TAG_TYPE_GROUP_INDEX = 1;
+
+	// Index of the captured group representing the artifactId in the regular expression match.
+	int ARTIFACT_ID_GROUP_INDEX = 2;
+
+	// Index of the captured group representing the version in the regular expression match.
+	int VERSION_GROUP_INDEX = 3;
+
 }

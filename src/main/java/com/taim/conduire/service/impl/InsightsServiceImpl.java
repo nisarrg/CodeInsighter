@@ -278,7 +278,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
      */
     @Override
      public String getDependencyVersionInsights(RepoData repoData) throws IOException {
-     // Process the repository's dependency file to obtain version information
+        // Process the repository's dependency file to obtain version information
         String versions = processDependencyFile(repoData);
 
         // Check if version information is available
@@ -404,49 +404,31 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
      *
      * @param repoData The repository data containing information about the repository.
      * @return A string containing insights and recommendations in HTML format.
-     * @throws IOException If an I/O error occurs during file reading or processing.
      */
-    public String parsePOMintoMap(RepoData repoData) throws IOException {
-        // Calculate the initial number of tokens available for processing.
-        Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(DEPENDENCY_VERSION_INSIGHT_PROMPT);
-        System.out.println("In parsePOMintoMap llmTokenLimitWithPrompt tokens has:"+llmTokenLimitWithPrompt);
-        System.out.println("In parsePOMintoMap countTokens(DEPENDENCY_VERSION_INSIGHT_PROMPT) tokens has:"+countTokens(DEPENDENCY_VERSION_INSIGHT_PROMPT));
-        // StringBuilder to store the parsed result.
-        StringBuilder resultBuilder = new StringBuilder();
-
+    public String parsePOMintoMap(RepoData repoData) {
         try {
             // Read content from the file and extract information.
             String content = new String(Files.readAllBytes(Paths.get(TEMP_FILE_PATH)));
-            resultBuilder = extractContent(content);
+
+            // Extracted content from the pom.xml file.
+            StringBuilder resultBuilder = extractContent(content);
 
             // Check if there was an issue extracting content.
             if (resultBuilder == null) {
                 System.out.println("Oops! There seems to be an issue in extracting content.");
                 return null;
-            } else {
-                // Append a message indicating the extraction of plugin/dependency information.
-                resultBuilder.append("In the above, I've gathered plugin/dependency information from the pom.xml of a repository.").append("\n");
-
-                // Adjust the available token limit based on the extracted content.
-                if (countTokens(resultBuilder.toString()) <= llmTokenLimitWithPrompt) {
-                    llmTokenLimitWithPrompt = llmTokenLimitWithPrompt - countTokens(resultBuilder.toString());
-                }
             }
+
+            // Append a message indicating the extraction of plugin/dependency information.
+            resultBuilder.append("In the above, I've gathered plugin/dependency information from the pom.xml of a repository.")
+                    .append("\n");
+
+            // Calculate the initial number of tokens available for processing.
+            int llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(DEPENDENCY_VERSION_INSIGHT_PROMPT);
 
             // Get the diff string by comparing with Pull Requests.
-            String diff = parsePRForPomFile(repoData, llmTokenLimitWithPrompt);
-
-            // Append the diff to the resultBuilder if it's not null.
-            if (diff != null) {
-                resultBuilder.append("Below are the Open PRs that have changes to pom.xml, indicating upgrades/downgrades of project dependencies.");
-                resultBuilder.append(DEPENDENCY_VERSION_INSIGHT_PROMPT).append(diff).append("\n");
-            } else {
-                // If there's no diff, append a placeholder message.
-                resultBuilder.append(DEPENDENCY_VERSION_INSIGHT_PROMPT).append("\n");
-            }
-
             // Return the final result as a string.
-            return resultBuilder.toString();
+            return parsePRForPomFile(repoData, llmTokenLimitWithPrompt);
         } catch (IOException e) {
             // Handle file reading exception and log an error message.
             System.err.println("Error reading file: " + e.getMessage());
@@ -462,6 +444,9 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
      * @return A string representing the merged diff code for "pom.xml" files in the Pull Requests.
      */
     public String parsePRForPomFile(RepoData repoData, Integer llmTokenLimitWithPrompt) {
+        boolean isDiffHeaderSet = false;
+        boolean isPomPresentInDiff = false;
+
         // Fetch developer and Pull Request code from the repository.
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
 
@@ -477,13 +462,19 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
 
                 // Check if "pom.xml" is present in the PR code.
                 if (devPRCode != null && isPomXmlPresent(devPRCode)) {
+                    isPomPresentInDiff = true;
                     // Get the entire diff patch relevant to "pom.xml".
                     String pomXmlDiff = getPomXmlDiff(devPRCode);
 
-                    // Check if the token count in the "pom.xml" diff is within the adjusted limit.
-                    if (countTokens(pomXmlDiff) <= llmTokenLimitWithPrompt) {
+                    // Check if the token count in the "pom.xml" diff and prompt is within the adjusted limit.
+                    if (countTokens(pomXmlDiff+DEPENDENCY_VERSION_INSIGHT_PR_PROMPT) <= llmTokenLimitWithPrompt) {
+                        if (!isDiffHeaderSet) {
+                            mergedPomXmlDiff.append(DEPENDENCY_VERSION_INSIGHT_PR_PROMPT).append(DEPENDENCY_VERSION_INSIGHT_PROMPT).append("\n");
+                            isDiffHeaderSet = true;
+                        }
+
                         // Append the "pom.xml" diff to the merged diff.
-                        mergedPomXmlDiff.append(pomXmlDiff).append("\n");
+                        mergedPomXmlDiff.append(pomXmlDiff);
 
                         // Adjust the token limit based on the appended diff content.
                         llmTokenLimitWithPrompt = llmTokenLimitWithPrompt - countTokens(pomXmlDiff + "\n");
@@ -492,8 +483,14 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
             }
         }
 
+        if (!isPomPresentInDiff)
+        {
+            // If there's no diff, append a placeholder message.
+            mergedPomXmlDiff.append(DEPENDENCY_VERSION_INSIGHT_PROMPT).append("\n");
+        }
+
         // Return the merged "pom.xml" diff code if at least one occurrence is found, otherwise return null.
-        return !mergedPomXmlDiff.isEmpty() ? mergedPomXmlDiff.toString() : null;
+        return mergedPomXmlDiff.toString();
     }
 
     /**
@@ -512,8 +509,6 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
             System.out.println("The 'pom.xml' file is present in the provided diff code.");
             return true;
         } else {
-            // If not present, log a message indicating its absence.
-            System.out.println("The 'pom.xml' file is not found in the provided diff code.");
             return false;
         }
     }
@@ -632,32 +627,62 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
             // Iterate through each match found by the pattern.
             while (matcher.find()) {
                 // Extract matched groups for tagType, artifactId, and version.
-                String tagType = matcher.group(1);
-                String artifactId = matcher.group(2);
-                String version = matcher.group(3);
+                String tagType = matcher.group(TAG_TYPE_GROUP_INDEX);
+                String artifactId = matcher.group(ARTIFACT_ID_GROUP_INDEX);
+                String version = matcher.group(VERSION_GROUP_INDEX);
 
                 // Check if both version and artifactId are found.
-                if (tagType != null && artifactId != null && version != null) {
+                if (isValid(tagType, artifactId, version)) {
                     // Append information to the result StringBuilder.
-                    resultBuilder.append("Tag Type: ").append(tagType);
-                    resultBuilder.append("  ArtifactId: ").append(artifactId);
-                    resultBuilder.append("  Version: ").append(version).append("\n");
+                    appendToResult(resultBuilder, tagType, artifactId, version);
                 }
             }
         } catch (PatternSyntaxException e) {
             // Handle the case where the regex pattern is invalid.
-            System.err.println("Invalid regex pattern: " + e.getMessage());
+            handleInvalidRegex(e);
         }
-
         // Check if any information was extracted.
         if (resultBuilder.isEmpty()) {
-            // Log a message indicating that no valid information was found.
-            System.out.println("No valid information found in the input.");
             return null;
         }
-
         // Return the StringBuilder containing extracted information.
         return resultBuilder;
+    }
+
+    /**
+     * Checks if the provided tagType, artifactId, and version are valid.
+     *
+     * @param tagType    The tag type extracted from the regex match.
+     * @param artifactId The artifactId extracted from the regex match.
+     * @param version    The version extracted from the regex match.
+     * @return True if both version and artifactId are found and not null; false otherwise.
+     */
+    private static boolean isValid(String tagType, String artifactId, String version) {
+        return tagType != null && artifactId != null && version != null;
+    }
+
+    /**
+     * Appends information to the provided StringBuilder.
+     *
+     * @param resultBuilder The StringBuilder to which information is appended.
+     * @param tagType       The tag type extracted from the regex match.
+     * @param artifactId    The artifactId extracted from the regex match.
+     * @param version       The version extracted from the regex match.
+     */
+    private static void appendToResult(StringBuilder resultBuilder, String tagType, String artifactId, String version) {
+        resultBuilder.append("Tag Type: ").append(tagType);
+        resultBuilder.append("  ArtifactId: ").append(artifactId);
+        resultBuilder.append("  Version: ").append(version).append("\n");
+    }
+
+    /**
+     * Handles the case where the regex pattern is invalid.
+     *
+     * @param e The PatternSyntaxException thrown during regex pattern compilation.
+     */
+    private static void handleInvalidRegex(PatternSyntaxException e) {
+        // Log an error message indicating an invalid regex pattern.
+        System.err.println("Invalid regex pattern: " + e.getMessage());
     }
 
     /**

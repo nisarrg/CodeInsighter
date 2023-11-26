@@ -89,21 +89,8 @@ public class UserRepoInsightsController {
         RepoData repoData = repoDataService.getOne(repoID);
 
         // Process the dependency file to get versions.
-        String versions = insightsServiceImpl.getDependencyVersionInsights(repoData);
-
-        if (versions == null) {
-            // Provide a prompt indicating the absence of a version control file.
-            String prompt = "This isn't a Java Maven repository. Kindly retry with one!";
-
-            // Return a response entity with the prompt.
-            return ResponseEntity.ok(prompt);
-        } else {
-            // Use chatGPT to generate insights based on the retrieved versions.
-            String finalResponse = chatGPTService.chat(versions);
-
-            // Return a response entity with the final generated response.
-            return ResponseEntity.ok(finalResponse);
-        }
+        // Return a response entity with the final generated response.
+        return ResponseEntity.ok(insightsServiceImpl.getDependencyVersionInsights(repoData));
     }
 
     @RequestMapping(value = "/{repo_id}/get-repo-prs-collab", method = RequestMethod.GET)
