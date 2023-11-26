@@ -3,12 +3,14 @@ package com.taim.conduire.controller;
 import com.taim.conduire.domain.FormData;
 import com.taim.conduire.domain.RepoData;
 import com.taim.conduire.domain.UserData;
-import com.taim.conduire.service.*;
+import com.taim.conduire.service.ChatGPTService;
+import com.taim.conduire.service.InsightsService;
+import com.taim.conduire.service.RepoDataService;
+import com.taim.conduire.service.UserDataService;
 import com.taim.conduire.service.impl.InsightsServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,6 +36,9 @@ public class UserRepoInsightsController {
 
     @Autowired
     private InsightsService insightsService;
+
+    @Autowired
+    private InsightsServiceImpl insightsServiceImpl;
 
     @GetMapping("/{repo_id}/insights")
     public String view(@PathVariable("repo_id") Integer repoId, Model model) throws IOException {
@@ -76,44 +81,28 @@ public class UserRepoInsightsController {
      */
     @RequestMapping(value = "/{repo_id}/get-insights/dvc", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<String> getDVCInsights(@PathVariable("repo_id") Integer repoID) {
-        try {
-            // Log the start of processing the DVC insights for the specified repository.
-            System.out.println("Processing DVC insights for repoID: " + repoID);
+    public ResponseEntity<String> getDVCInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
+        // Log the start of processing the DVC insights for the specified repository.
+        System.out.println("Processing DVC insights for repoID: " + repoID);
 
-            // Retrieve repository data based on the provided repository ID.
-            RepoData repoData = repoDataService.getOne(repoID);
+        // Retrieve repository data based on the provided repository ID.
+        RepoData repoData = repoDataService.getOne(repoID);
 
-            // Process the dependency file to get versions.
-            String versions = insightsService.processDependencyFile(repoData);
+        // Process the dependency file to get versions.
+        String versions = insightsServiceImpl.getDependencyVersionInsights(repoData);
 
-            if (versions == null) {
-                // Provide a prompt indicating the absence of a version control file.
-                String prompt = "This isn't a Java Maven repository. Kindly retry with one!";
+        if (versions == null) {
+            // Provide a prompt indicating the absence of a version control file.
+            String prompt = "This isn't a Java Maven repository. Kindly retry with one!";
 
-                // Return a response entity with the prompt.
-                return ResponseEntity.ok(prompt);
-            } else {
-                // Use chatGPT to generate insights based on the retrieved versions.
-                System.out.println("countTokens(versions) is: "+ InsightsServiceImpl.countTokens(versions));
-                System.out.println(versions);
-               String finalResponse = chatGPTService.chat(versions);
+            // Return a response entity with the prompt.
+            return ResponseEntity.ok(prompt);
+        } else {
+            // Use chatGPT to generate insights based on the retrieved versions.
+            String finalResponse = chatGPTService.chat(versions);
 
-                // Log the generated final response.
-                System.out.println("Final response: " + finalResponse);
-
-                // Return a response entity with the final generated response.
-                return ResponseEntity.ok(finalResponse);
-            }
-        } catch (IOException e) {
-            // Handle IOException, log, or return an appropriate error response.
-            e.printStackTrace(); // Log the exception or use a logging framework
-
-            // Log an internal server error message.
-            System.err.println("Internal Server Error");
-
-            // Return an internal server error response.
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
+            // Return a response entity with the final generated response.
+            return ResponseEntity.ok(finalResponse);
         }
     }
 

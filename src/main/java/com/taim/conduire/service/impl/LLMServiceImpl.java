@@ -257,7 +257,10 @@ public class LLMServiceImpl implements LLMService {
         // headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
         // String apiUrl = String.format("%s/repos/%s/%s", githubApiUrl, owner, repo);
-        URI uri = URI.create(githubApiUrl + "/repos/" + owner + "/" + repo + "/contents" + "/" + path);
+        URI uri = URI.create(githubApiUrl + "/repos/" + owner + repo + "/contents" + "/" + path);
+
+        System.out.println("Pooja Owner is"+owner+" repo: "+ repo+" path: "+path);
+        System.out.println("Pooja URI: "+uri);
 
         RequestEntity<?> requestEntity = RequestEntity.get(uri).headers(headers).build();
         return restTemplate.exchange(requestEntity, String.class);

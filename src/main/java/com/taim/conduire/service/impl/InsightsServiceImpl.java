@@ -271,13 +271,33 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
     }
 
     /**
+     * Retrieves Dependency Version Control (DVC) insights for a given repository.
+     *
+     * @param repoData The repository data for which DVC insights are requested.
+     * @return A string containing DVC insights or an informative message if not applicable.
+     */
+    @Override
+     public String getDependencyVersionInsights(RepoData repoData) throws IOException {
+     // Process the repository's dependency file to obtain version information
+        String versions = processDependencyFile(repoData);
+
+        // Check if version information is available
+        if (versions == null) {
+        // Return a message indicating that it's not a Java Maven repository
+            return "This repository doesn't seem to be a Java Maven repository. Kindly retry with one!";
+        } else {
+        // Use a natural language processing service to generate insights based on version information
+           return chatGPTService.chat(versions);
+        }
+     }
+
+    /**
      * Processes the dependency file for a given repository, extracts relevant information, and generates insights.
      *
      * @param repoData The repository data containing information about the repository.
      * @return A string containing insights and recommendations in HTML format.
      * @throws IOException If an I/O error occurs during file reading or processing.
      */
-    @Override
     public String processDependencyFile(RepoData repoData) throws IOException {
         // We start with the assumption that we haven't found a pom.xml file yet for this repository.
         foundPomFlag = false;
@@ -365,10 +385,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         // Attempt to append the content to a temporary file.
         try (PrintWriter printWriter = new PrintWriter(new FileWriter(TEMP_FILE_PATH, true))) {
             printWriter.println("File Name: " + title);
-            printWriter.println();
             printWriter.println("Content:");
             printWriter.println(content);
-            printWriter.println();
 
             // Log that the content has been successfully appended.
             logger.debug("Content successfully appended to the temporary file: " + TEMP_FILE_PATH);
@@ -453,7 +471,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         // Iterate through the entries in the map containing developer and PR code.
         for (Map.Entry<String, List<String>> entry : devAndPRCode.entrySet()) {
             // Check if there are more than 1 element in the list (indicating PR code is present).
-            if (entry.getValue().size() > 1) {
+            if ((entry.getValue().size() > 1) && (llmTokenLimitWithPrompt > 0)){
                 // Get the PR code from the list.
                 String devPRCode = entry.getValue().get(1);
 
