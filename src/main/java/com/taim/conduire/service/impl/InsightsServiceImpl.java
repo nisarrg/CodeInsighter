@@ -196,43 +196,43 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
 
         String llmInsightString;
 
-        Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(llmInsightPrompt);
+        Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(llmInsightPrompt); //4096 - 96 = 4000
         Map<String, List<String>> devAndPRCodeWithLimit = new HashMap<>();
+        if(!devAndPRCode.isEmpty()){
+            for (Map.Entry<String, List<String>> entry : devAndPRCode.entrySet()) {
 
-        for (Map.Entry<String, List<String>> entry : devAndPRCode.entrySet()) {
-
-            String element = entry.getKey() + "=" + entry.getValue().toString() + ",";
-            System.out.println("Element key check: " + entry.getKey());
-            System.out.println("Element VALUE check: " + entry.getValue());
-            if (countTokens(devAndPRCodeWithLimit + element) <= llmTokenLimitWithPrompt) {
-                devAndPRCodeWithLimit.put(entry.getKey(), entry.getValue());
-                llmTokenLimitWithPrompt -= countTokens(devAndPRCodeWithLimit + element);
+                String element = entry.getKey() + "=" + entry.getValue().toString() + ",";
+                if (countTokens(devAndPRCodeWithLimit + element) <= llmTokenLimitWithPrompt) {
+                    devAndPRCodeWithLimit.put(entry.getKey(), entry.getValue());
+                    llmTokenLimitWithPrompt -= countTokens(devAndPRCodeWithLimit + element);
+                }
             }
-        }
-        System.out.println("devAndPRCodeWithLimit Size: " + devAndPRCodeWithLimit.size());
-        System.out.println("Final code Token: " + countTokens(devAndPRCodeWithLimit.toString()));
-        if (devAndPRCodeWithLimit.isEmpty()) {
-            System.out.println("devAndPRCodeWithLimit: " + devAndPRCodeWithLimit.size());
-            llmInsightString = "{\"message\":\"There are no Open PR for this Repository\"}";
-        } else {
-            String devAndPRCodeWithLimitString;
-            if (devAndPRCodeWithLimit.size() > 3) {
-                devAndPRCodeWithLimitString = devAndPRCode.entrySet()
-                        .stream()
-                        .limit(3)
-                        .map(entry -> entry.getKey() + "=" + entry.getValue())
-                        .collect(Collectors.joining(", ", "{", "}"));
+            System.out.println("devAndPRCodeWithLimit Size: " + devAndPRCodeWithLimit.size());
+            System.out.println("Final code Token: " + countTokens(devAndPRCodeWithLimit.toString()));
+            if (devAndPRCodeWithLimit.isEmpty()) {
+                System.out.println("devAndPRCodeWithLimit: " + devAndPRCodeWithLimit.size());
+                llmInsightString = "{\"message\":\"There are no open PR for this Repository which can be processed by LLM. \"}";
             } else {
-                devAndPRCodeWithLimitString = devAndPRCodeWithLimit.toString();
+                String devAndPRCodeWithLimitString;
+                if (devAndPRCodeWithLimit.size() > 3) {
+                    devAndPRCodeWithLimitString = devAndPRCodeWithLimit.entrySet()
+                            .stream()
+                            .limit(3)
+                            .map(entry -> entry.getKey() + "=" + entry.getValue())
+                            .collect(Collectors.joining(", ", "{", "}"));
+                } else {
+                    devAndPRCodeWithLimitString = devAndPRCodeWithLimit.toString();
+                }
+                System.out.println("Final prompt Token: " + countTokens(llmInsightPrompt));
+                System.out.println("Final devAndPRCodeWithLimitString Token: " + countTokens(devAndPRCodeWithLimitString));
+                String promptAndCode = llmInsightPrompt + devAndPRCodeWithLimitString;
+
+                System.out.println("Final prompt + code Token: " + countTokens(promptAndCode));
+                llmInsightString = chatGPTService.chat(promptAndCode);
             }
-            System.out.println("Final prompt Token: " + countTokens(llmInsightPrompt));
-            System.out.println("Final devAndPRCodeWithLimitString Token: " + countTokens(devAndPRCodeWithLimitString));
-            String promptAndCode = llmInsightPrompt + devAndPRCodeWithLimitString;
-
-            System.out.println("Final prompt + code Token: " + countTokens(promptAndCode));
-            llmInsightString = chatGPTService.chat(promptAndCode);
+        } else {
+            llmInsightString = "{\"message\":\"There are no open PR for this Repository.\"}";
         }
-
         return llmInsightString;
 
     }
