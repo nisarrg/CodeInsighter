@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-//TODO --> Design Smell: Unnecessary Abstraction
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

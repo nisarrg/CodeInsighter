@@ -30,6 +30,10 @@ public interface InsightsService {
 
     String getCustomCodeLintingInsights(RepoData repoData);
 
+    String getTestCaseMinimizationInsights(RepoData repoData);
+
     String getRepositoryPRsCollab(RepoData repoData) throws IOException, InterruptedException;
+
+    String getAdvancedCodeSearchInsight(RepoData repoData, String input);
 
 }

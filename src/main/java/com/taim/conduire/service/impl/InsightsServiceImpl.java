@@ -7,6 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.taim.conduire.constants.ConstantCodes;
+import com.taim.conduire.constants.InsightsPrompts;
 import com.taim.conduire.domain.RepoData;
 import com.taim.conduire.domain.UserData;
 import com.taim.conduire.service.InsightsService;
@@ -41,7 +42,7 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 @Service
-public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
+public class InsightsServiceImpl implements InsightsService, ConstantCodes, InsightsPrompts  {
 
     @Autowired
     private RepoDataService repoDataService;
@@ -78,6 +79,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
         return tokens.length;
     }
 
+    @Override
     public HttpEntity<String> getAllHeadersEntity(String userAccessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept", "application/vnd.github+json");
@@ -87,6 +89,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
         return entity;
     }
 
+    @Override
     public void showAvailableAPIHits(HttpHeaders responseHeaders) {
         String limitHeader = responseHeaders.getFirst("X-RateLimit-Limit");
         String remainingHeader = responseHeaders.getFirst("X-RateLimit-Remaining");
@@ -104,6 +107,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
         }
     }
 
+    @Override
     public Map<String, List<String>> getRepositoryReviewComments(RepoData repoData) {
         String apiUrl = GITHUB_API_URL + GITHUB_REPOS + "/" + repoData.getName();
         System.out.println("apiUrl: " + apiUrl);
@@ -152,17 +156,10 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
         return reviewerComments;
     }
 
+    @Override
     public String getCommonCodeMistakesInsights(RepoData repoData) {
         Map<String, List<String>> reviewerComments = getRepositoryReviewComments(repoData);
-        String commonCodeMistakesPrompt = "These are open PR review comments by the reviewer:"
-                + reviewerComments.toString() + "\n." +
-                "Can you give me some insights of Common code mistakes based upon these comments.\n" +
-                "Please consider yourself as a Business Analyst and write in Technical English.\n" +
-                "And please frame it as if you are writing this response in <p></p> tag of html so to make sure its properly formatted "
-                +
-                "using html and shown to user. Make sure you break it into most important points and limit it to only 5 points "
-                +
-                "and highlight your reasoning. And Format the response in HTML tags and use Bootstrap classes for better readability";
+        String commonCodeMistakesPrompt = reviewerComments.toString() + COMMON_CODE_MISTAKES;
         String commonCodeMistakesInsight = chatGPTService.chat(commonCodeMistakesPrompt);
         Gson gson = new Gson();
         String jsonInsight = gson.toJson(commonCodeMistakesInsight);
@@ -172,6 +169,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
         return finalResult;
     }
 
+    @Override
     public Map<String, List<String>> getDevPRCode(RepoData repoData) {
         String parentRepoName = repoDataService.getParentRepo(repoData);
         Gson gson = new Gson();
@@ -223,77 +221,53 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
 
         String llmInsightString;
 
-        int llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(llmInsightPrompt);
+        Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(llmInsightPrompt);
         Map<String, List<String>> devAndPRCodeWithLimit = new HashMap<>();
+        if(!devAndPRCode.isEmpty()){
+            for (Map.Entry<String, List<String>> entry : devAndPRCode.entrySet()) {
 
-        for (Map.Entry<String, List<String>> entry : devAndPRCode.entrySet()) {
-
-            String element = entry.getKey() + "=" + entry.getValue().toString() + ",";
-            if (countTokens(devAndPRCodeWithLimit + element) <= llmTokenLimitWithPrompt) {
-                devAndPRCodeWithLimit.put(entry.getKey(), entry.getValue());
-                llmTokenLimitWithPrompt -= countTokens(devAndPRCodeWithLimit + element);
+                String element = entry.getKey() + "=" + entry.getValue().toString() + ",";
+                if (countTokens(devAndPRCodeWithLimit + element) <= llmTokenLimitWithPrompt) {
+                    devAndPRCodeWithLimit.put(entry.getKey(), entry.getValue());
+                    llmTokenLimitWithPrompt -= countTokens(devAndPRCodeWithLimit + element);
+                }
             }
-        }
-        System.out.println("devAndPRCodeWithLimit Size: " + devAndPRCodeWithLimit.size());
-        System.out.println("Final code Token: " + countTokens(devAndPRCodeWithLimit.toString()));
-        if (devAndPRCodeWithLimit.isEmpty()) {
-            System.out.println("devAndPRCodeWithLimit: " + devAndPRCodeWithLimit.size());
-            llmInsightString = "{\"message\":\"There are no Open PR for this Repository\"}";
-        } else {
-            String devAndPRCodeWithLimitString;
-            if (devAndPRCodeWithLimit.size() > 3) {
-                devAndPRCodeWithLimitString = devAndPRCode.entrySet()
-                        .stream()
-                        .limit(3)
-                        .map(entry -> entry.getKey() + "=" + entry.getValue())
-                        .collect(Collectors.joining(", ", "{", "}"));
+            System.out.println("devAndPRCodeWithLimit Size: " + devAndPRCodeWithLimit.size());
+            System.out.println("Final code Token: " + countTokens(devAndPRCodeWithLimit.toString()));
+            if (devAndPRCodeWithLimit.isEmpty()) {
+                System.out.println("devAndPRCodeWithLimit: " + devAndPRCodeWithLimit.size());
+                llmInsightString = "{\"message\":\"There are no open PR for this Repository which can be processed by LLM. \"}";
             } else {
-                devAndPRCodeWithLimitString = devAndPRCodeWithLimit.toString();
+                String devAndPRCodeWithLimitString;
+                if (devAndPRCodeWithLimit.size() > 3) {
+                    devAndPRCodeWithLimitString = devAndPRCodeWithLimit.entrySet()
+                            .stream()
+                            .limit(3)
+                            .map(entry -> entry.getKey() + "=" + entry.getValue())
+                            .collect(Collectors.joining(", ", "{", "}"));
+                } else {
+                    devAndPRCodeWithLimitString = devAndPRCodeWithLimit.toString();
+                }
+                System.out.println("Final prompt Token: " + countTokens(llmInsightPrompt));
+                System.out.println("Final devAndPRCodeWithLimitString Token: " + countTokens(devAndPRCodeWithLimitString));
+                String promptAndCode = llmInsightPrompt + devAndPRCodeWithLimitString;
+
+                System.out.println("Final prompt + code Token: " + countTokens(promptAndCode));
+                llmInsightString = chatGPTService.chat(promptAndCode);
             }
-            System.out.println("Final prompt Token: " + countTokens(llmInsightPrompt));
-            System.out.println("Final devAndPRCodeWithLimitString Token: " + countTokens(devAndPRCodeWithLimitString));
-            String promptAndCode = llmInsightPrompt + devAndPRCodeWithLimitString;
-
-            System.out.println("Final prompt + code Token: " + countTokens(promptAndCode));
-            llmInsightString = chatGPTService.chat(promptAndCode);
+        } else {
+            llmInsightString = "{\"message\":\"There are no open PR for this Repository.\"}";
         }
-
         return llmInsightString;
 
     }
 
+    @Override
     public String getCodeQualityEnhancementsInsights(RepoData repoData) {
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
-        String codeQualityEnhancementInsightPrompt = getCodeQualityEnhancementInsightLLMPrompt();
         String codeQualityEnhancementInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
-                codeQualityEnhancementInsightPrompt);
+                CODE_QUALITY_ENHANCEMENTS);
         return codeQualityEnhancementInsightString;
-    }
-
-    private String getCodeQualityEnhancementInsightLLMPrompt() {
-
-        String codeQualityEnhancementInsightPrompt = "The provided string is a map with \n" +
-                "developers as key and value with list of 2 strings where\n" +
-                "First string is the Title of the PR, and second string is the PR Code.\n" +
-                "Based on different criteria: Readability, Performance, Correctness, Scalability\n" +
-                "Can give a some Code improvements suggestions/comments and\n" +
-                "A score for each criteria from 0 to 5 as I want to show it in a visual graph format\n" +
-                "please mention for all 4 criteria (Readability, Performance, Correctness, Scalability) even if you don't find them you can score them as 0 if not found.\n"
-                +
-                "and make your response in JSON Array format\n" +
-                "Generate a JSON array with the following pattern:\n" +
-                "[\n" +
-                "    {\n" +
-                "        \"developer\": \"<developer name>\",\n" +
-                "        \"pr_title\": \"<pr title>\",\n" +
-                "        \"code_improvements\": [<suggestion1>, <suggestion2>, <suggestion3>],\n" +
-                "        \"score\": [<score1>, <score2>, <score3>, <score4>],\n" +
-                "        \"criteria\": [\"<criterion1>\", \"<criterion2>\", \"<criterion3>\", \"<criterion4>\"]\n" +
-                "    },\n" +
-                "]\n" +
-                "Keep the score and criteria in the same order so later on it can be fetched.\n\n";
-
-        return codeQualityEnhancementInsightPrompt;
     }
 
     /**
@@ -303,6 +277,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
      * @return A string containing insights and recommendations in HTML format.
      * @throws IOException If an I/O error occurs during file reading or processing.
      */
+    @Override
     public String processDependencyFile(RepoData repoData) throws IOException {
         // We start with the assumption that we haven't found a pom.xml file yet for this repository.
         foundPomFlag = false;
@@ -791,78 +766,32 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
 
     public String getBugDetectionInApplicationFlowInsights(RepoData repoData) {
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
-        String bugDetectionInApplicationFlowInsightPrompt = getBugDetectionInApplicationFlowInsightLLMPrompt();
         String bugDetectionInApplicationFlowInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
-                bugDetectionInApplicationFlowInsightPrompt);
+                BUG_DETECTION_IN_APPLICATION_FLOW);
         System.out.println(bugDetectionInApplicationFlowInsightString);
         return bugDetectionInApplicationFlowInsightString;
     }
 
-    private String getBugDetectionInApplicationFlowInsightLLMPrompt() {
-
-        String bugDetectionInApplicationFlowInsightPrompt = "The provided string is a map with \n" +
-                "developers as key and value with list of 2 strings where\n" +
-                "First string is the Title of the PR, and second string is the PR Code.\n" +
-                "I want you to conduct bug detection to find unexpected bugs being introduced by pushed code in the application flows.\n"
-                +
-                "and I want you to display actionable recommendations for resolving these bugs.\n" +
-                "Also, I want you to display alerts if this PR is introducing any bug in the application's major flows."
-                +
-                "and make your response in JSON Array format\n" +
-                "Generate a JSON Array with the following pattern:\n" +
-                "[\n" +
-                "  {\n" +
-                "    \"developer\": \"<developer_name>\",\n" +
-                "    \"pr_title\": \"<title_string>\",\n" +
-                "    \"bugs\": [\n" +
-                "      {\n" +
-                "        \"file_location\": \"<file_name_with_extension>\",\n" +
-                "        \"code_in_file\": \"<code_string>\",\n" +
-                "        \"issue\":  \"<issue_string>\",\n" +
-                "        \"recommendation\": [\"<recommendation1>\", \"<recommendation2>\", \"<recommendation3>\", \"<recommendation4>\"]\n"
-                +
-                "      }\n" +
-                "    ],\n" +
-                "    \"alerts\": [\"<alert1>\", \"<alert2>\", \"<alert3>\", \"<alert4>\"],\n" +
-                "    \"general_recommendation\": [\"<general_recommendation1>\", \"<general_recommendation2>\", \"<general_recommendation3>\", \"<general_recommendation4>\"]\n"
-                +
-                "  }\n" +
-                "]";
-
-        return bugDetectionInApplicationFlowInsightPrompt;
-    }
-
+    @Override
     public String getCustomCodeLintingInsights(RepoData repoData) {
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
-        String getCustomCodeLintingInsightPrompt = getCustomCodeLintingInsightLLMPrompt();
         String getCustomCodeLintingInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
-                getCustomCodeLintingInsightPrompt);
+                CUSTOM_CODE_LINTING);
         System.out.println(getCustomCodeLintingInsightString);
         return getCustomCodeLintingInsightString;
     }
 
-    private String getCustomCodeLintingInsightLLMPrompt() {
+    @Override
+    public String getTestCaseMinimizationInsights(RepoData repoData) {
 
-        String getCustomCodeLintingInsightPrompt = "The provided string is a map with \n" +
-                "developers as key and value with list of 2 strings where\n" +
-                "First string is the Title of the PR, and second string is the PR Code.\n" +
-                "Linting Check Criteria: Syntax Errors, Code Standards Adherence, Code Smells, Security Checks.\n" +
-                "I want you to conduct linting check based on the above mentioned criteria to find out whether the Linting rules are followed by pushed code.\n"+
-                "and I want you to display actionable recommendations for improving the Linting Standards.\n" +
-                "and make your response in JSON Array format\n" +
-                "Generate a JSON Array with the following pattern:\n" +
-                "[\n" +
-                "  {\n" +
-                "    \"developer\": \"<developer_name>\",\n" +
-                "    \"pr_title\": \"<title_string>\",\n" +
-                "    \"follows_linting\": \"<true or false>\",\n" +
-                "    \"linting_comments\": [<linting_comment1>, <linting_comment2>, <linting_comment3>],\n" +
-                "  }\n" +
-                "]";
-
-        return getCustomCodeLintingInsightPrompt;
+        Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
+        String testCaseMinimizationInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
+                TEST_CASE_MINIMIZATION);
+        System.out.println(testCaseMinimizationInsightString);
+        return testCaseMinimizationInsightString;
     }
 
+    @Override
     public String getRepositoryPRsCollab(RepoData repoData) throws IOException, InterruptedException {
         // Call getRepoContributors to get the top 3 contributors who commit the most
         Map<String, Integer> collabCommit = repoDataService.getRepoContributors(repoData);
@@ -1028,6 +957,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
         }
     }
 
+
     public String getSmellRating() throws IOException, InterruptedException {
         Map<String, String> roleInsights = new HashMap<>();
 
@@ -1068,11 +998,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
 
         }
 
-        fw.write("Your task is to determine which two contributors, when collaborating together, " +
-                "would be the most productive. Productivity is defined as a combination of commit count and code smells rating, "
-                +
-                "where lower code smells ratings are preferable.\n\n" +
-                "Provide the names of the two contributors and a brief explanation of why you consider them to be the most productive collaborators based on the given criteria.");
+        fw.write(COLLAB_ANALYSIS_FINAL_PART);
         fw.close();
         String finalPrompt = new String(
                 Files.readAllBytes(Paths.get(COLLAB_ANALYSIS_FILES_PATH + "SmellRatingPrompt.txt")));
@@ -1083,4 +1009,12 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
         return finalResponse;
     }
 
+    @Override
+    public String getAdvancedCodeSearchInsight(RepoData repoData, String input) {
+        Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
+        String AdvancedCodeSearchPrompt = "Check if there is/are any " + input + ADVANCED_CODE_SEARCH;
+        String AdvancedCodeSearchString = getInsightsFromPromptAndDevPRCode(devAndPRCode, AdvancedCodeSearchPrompt);
+        System.out.println(AdvancedCodeSearchString);
+        return AdvancedCodeSearchString;
+    }
 }
