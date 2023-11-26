@@ -36,4 +36,13 @@ public class ChatGPTServiceImpl implements ChatGPTService {
         // return the first response
         return response.getChoices().get(0).getMessage().getContent();
     }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public void setApiUrl(String apiUrl) {
+        this.apiUrl = apiUrl;
+    }
+
 }
