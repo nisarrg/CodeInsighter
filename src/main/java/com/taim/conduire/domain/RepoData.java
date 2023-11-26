@@ -8,6 +8,12 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * Entity class representing repository data.
+ * This class is used to map data from the "user_repos" table in the database.
+ *
+ * @author Zeel Ravalani
+ */
 @Entity
 @Table(name = "user_repos")
 @Getter @Setter @ToString
