@@ -319,13 +319,11 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         String repo = repoData.getName().substring(repoData.getName().indexOf("/"));
 
         // Fetch the content of the repository to inspect.
-        System.out.println("Exploring repository - Owner: " + owner + " Repository: " + repo);
         ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo);
 
         // Check if the response is valid and not null.
         if (response != null && isValidResponse(response)) {
             System.out.println("Successfully retrieved repository content.");
-            System.out.println(response);
 
             // Parse the JSON response to get a list of items in the repository.
             List<Map<String, Object>> contents = jsonUtils.parseJSONResponse(response.getBody());
@@ -364,16 +362,11 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
      * @param basePath The base path for the file.
      */
     private void processFile(String owner, String repo, String filePath, String basePath) {
-        // Log that we're diving into processing a file.
-        logger.debug("Processing a file.");
-
         // Ensure the filePath is URL-encoded and free of extra spaces.
         filePath = filePath.trim().replaceAll(" ", "%20");
-        logger.debug("Modified filePath for URL encoding: " + filePath);
 
         // Get the current working directory.
         String currentDirectory = System.getProperty("user.dir");
-        logger.debug("Our current working directory: " + currentDirectory);
 
         // Fetch the content of the file from the repository.
         ResponseEntity<String> response = llmService.getFileContent(owner, repo, filePath);
@@ -388,15 +381,10 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
             printWriter.println("Content:");
             printWriter.println(content);
 
-            // Log that the content has been successfully appended.
-            logger.debug("Content successfully appended to the temporary file: " + TEMP_FILE_PATH);
         } catch (IOException e) {
             // Log an error message if appending to the file fails.
             logger.debug("Oops! An error occurred while trying to append to the file: " + e.getMessage());
         }
-
-        // Log that the file processing is complete.
-        logger.debug("File processing completed.");
     }
 
     /**
@@ -505,8 +493,6 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
 
         // Check if "pom.xml" is present in the diff code.
         if (lowercaseDiffCode.contains("pom.xml")) {
-            // If present, log a message indicating its presence.
-            System.out.println("The 'pom.xml' file is present in the provided diff code.");
             return true;
         } else {
             return false;
@@ -557,21 +543,13 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
      * @param basePath The base path for constructing file paths within the directory.
      */
     private void processDirectory(String owner, String repo, String dirPath, String basePath) {
-        // Log a debug message to indicate the method entry
-        logger.debug("Entering processDirectory");
 
         try {
             // Retrieve the contents of the current directory from the repository
             ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo, dirPath);
 
-            // Log the response body for debugging purposes
-            logger.debug("Response body: {}", response.getBody());
-
             // Parse the JSON response to obtain a list of directory contents
             List<Map<String, Object>> contents = jsonUtils.parseJSONResponse(response.getBody());
-
-            // Log the parsed contents for debugging purposes
-            logger.debug("Contents: {}", contents);
 
             // Update the base path based on the current directory path
             updateBasePath(basePath, dirPath);
@@ -597,9 +575,6 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
             // Log an error message if an exception occurs during directory processing
             logger.error("Error processing directory: {}", e.getMessage(), e);
         }
-
-        // Log a debug message to indicate the method exit
-        logger.debug("Exiting processDirectory");
     }
 
     /**
@@ -693,9 +668,6 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
      * @param dirPath  The directory path to be appended.
      */
     private void updateBasePath(String basePath, String dirPath) {
-        // Log a message indicating the start of the base path update.
-        System.out.println("Inside updateBasePath, current basePath: " + basePath + ", dirPath: " + dirPath);
-
         // Check if the base path is not empty.
         if (StringUtils.hasText(basePath)) {
             // Append the directory path to the base path using the appropriate separator.
@@ -704,9 +676,6 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
             // If the base path is empty, set it to the directory path.
             basePath = dirPath;
         }
-
-        // Log a message indicating the updated base path.
-        System.out.println("Updated basePath: " + basePath);
     }
 
     /**
@@ -723,10 +692,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         String lowercasePath = path.toLowerCase();
 
         // Check if the file path contains any of the valid extensions.
-        boolean isValid = validExtensions.stream().noneMatch(extension -> lowercasePath.contains(extension));
-
         // Return the result indicating whether the file is valid or not.
-        return isValid;
+        return validExtensions.stream().noneMatch(extension -> lowercasePath.contains(extension));
     }
 
     /**
@@ -737,9 +704,6 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
      * @param repo  The repository name.
      */
     private void processContentItem(Map<String, Object> item, String owner, String repo) {
-        // Log a message indicating the start of processing the content item.
-        System.out.println("Processing content item...");
-
         // Initialize the base path to an empty string.
         String basePath = "";
 
@@ -764,9 +728,6 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
             // Process the directory using the processDirectory method.
             processDirectory(owner, repo, path, basePath);
         }
-
-        // Log a message indicating the completion of processing the content item.
-        System.out.println("Content item processing completed.");
     }
 
     /**

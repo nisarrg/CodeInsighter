@@ -254,13 +254,8 @@ public class LLMServiceImpl implements LLMService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        // headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
-        // String apiUrl = String.format("%s/repos/%s/%s", githubApiUrl, owner, repo);
         URI uri = URI.create(githubApiUrl + "/repos/" + owner + repo + "/contents" + "/" + path);
-
-        System.out.println("Pooja Owner is"+owner+" repo: "+ repo+" path: "+path);
-        System.out.println("Pooja URI: "+uri);
 
         RequestEntity<?> requestEntity = RequestEntity.get(uri).headers(headers).build();
         return restTemplate.exchange(requestEntity, String.class);
@@ -270,9 +265,7 @@ public class LLMServiceImpl implements LLMService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        // headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
-        //String apiUrl = String.format("%s/repos/%s/%s", githubApiUrl, owner, repo);
         URI uri = URI.create(githubApiUrl + "/repos/" + owner + repo + "/contents");
         System.out.println(uri.toString());
         RequestEntity<?> requestEntity = RequestEntity.get(uri).headers(headers).build();
@@ -299,7 +292,6 @@ public class LLMServiceImpl implements LLMService {
             content = content.replaceAll("\\s", "");
             System.out.println(content);
             String decodedContent = new String(Base64.getDecoder().decode(content), StandardCharsets.UTF_8);
-            // TODO: "At least"?
             response = ResponseEntity.ok(decodedContent);
         }
         return response;
