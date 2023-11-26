@@ -63,10 +63,14 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
 
     private static final Logger logger = LoggerFactory.getLogger(InsightsService.class);
 
+    // Constant representing the file type received from gitHub API response for the source code.
     private static final String FILE_TYPE = "file";
+
+    // Constant representing the directory type.
     private static final String DIR_TYPE = "dir";
 
-    private boolean found_pom_flag = false;
+    // Flag to indicate whether a pom.xml file has been found during processing.
+    private boolean foundPomFlag = false;
 
 
     private static int countTokens(String input) {
@@ -292,179 +296,247 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
         return codeQualityEnhancementInsightPrompt;
     }
 
+    /**
+     * Processes the dependency file for a given repository, extracts relevant information, and generates insights.
+     *
+     * @param repoData The repository data containing information about the repository.
+     * @return A string containing insights and recommendations in HTML format.
+     * @throws IOException If an I/O error occurs during file reading or processing.
+     */
     public String processDependencyFile(RepoData repoData) throws IOException {
-        //Set this as we can call other repos and if this is set once for one directory as true it will continue
-        // to be true for other repos as it's not set to false.
-        found_pom_flag = false;
+        // We start with the assumption that we haven't found a pom.xml file yet for this repository.
+        foundPomFlag = false;
 
-        // Check if the file exists
-        File file = new File(TMP_PATH);
-        if (file.exists()) {
-            // If the file exists, delete it
-            if (file.delete()) {
-                System.out.println("Existing file deleted.");
+        // Let's check if there's an existing temporary file from previous runs and clear it out if it exists.
+        File tempFile = new File(TEMP_FILE_PATH);
+        if (tempFile.exists()) {
+            // If we can successfully delete the existing file, we print a message.
+            if (tempFile.delete()) {
+                System.out.println("Cleared the slate by removing the existing temporary file.");
             } else {
-                System.err.println("Unable to delete existing file.");
+                // If deletion fails, we print an error message.
+                System.err.println("Oops! Something went wrong. Couldn't delete the existing temporary file.");
             }
         }
 
-        String owner = repoData.getName().substring(0,repoData.getName().indexOf("/"));
+        // Extract the owner and repository names from the RepoData object.
+        String owner = repoData.getName().substring(0, repoData.getName().indexOf("/"));
         String repo = repoData.getName().substring(repoData.getName().indexOf("/"));
 
-        //Repo Content Code
-        System.out.println("Owner is: "+owner+" Repo is: "+ repo);
+        // Fetch the content of the repository to inspect.
+        System.out.println("Exploring repository - Owner: " + owner + " Repository: " + repo);
         ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo);
 
-        if (response != null  && isValidResponse(response)) {
+        // Check if the response is valid and not null.
+        if (response != null && isValidResponse(response)) {
+            System.out.println("Successfully retrieved repository content.");
             System.out.println(response);
+
+            // Parse the JSON response to get a list of items in the repository.
             List<Map<String, Object>> contents = jsonUtils.parseJSONResponse(response.getBody());
 
-            // Searching for pom.xml
+            // Iterate through the items in the repository to search for pom.xml files.
             for (Map<String, Object> item : contents) {
                 processContentItem(item, owner, repo);
             }
         }
-        if (found_pom_flag) {
+
+        // If we found a pom.xml file during exploration, proceed with further processing.
+        if (foundPomFlag) {
+            // Parse the pom.xml file and generate insights.
             String parsed = parsePOMintoMap(repoData);
-            if(parsed == null)
+
+            // Check if parsing was successful.
+            if (parsed == null) {
+                // If parsing fails, return null.
                 return null;
-            else
+            } else {
+                // If parsing is successful, return the insights in HTML format.
                 return parsed;
+            }
         } else {
+            // If no pom.xml file was found, return null.
             return null;
         }
     }
 
-
+    /**
+     * Processes a file within a repository, retrieves its content, and appends the content to a temporary file.
+     *
+     * @param owner    The owner of the repository.
+     * @param repo     The name of the repository.
+     * @param filePath The path of the file to be processed.
+     * @param basePath The base path for the file.
+     */
     private void processFile(String owner, String repo, String filePath, String basePath) {
-        logger.debug("Processing file...");
+        // Log that we're diving into processing a file.
+        logger.debug("Processing a file.");
 
+        // Ensure the filePath is URL-encoded and free of extra spaces.
         filePath = filePath.trim().replaceAll(" ", "%20");
-        logger.debug("Modified filePath: " + filePath);
+        logger.debug("Modified filePath for URL encoding: " + filePath);
 
+        // Get the current working directory.
         String currentDirectory = System.getProperty("user.dir");
-        logger.debug("Current Working Directory: " + currentDirectory);
+        logger.debug("Our current working directory: " + currentDirectory);
 
+        // Fetch the content of the file from the repository.
         ResponseEntity<String> response = llmService.getFileContent(owner, repo, filePath);
         String content = response.getBody();
 
+        // Set the title of the file (used for logging).
         String title = filePath;
 
-            // Writing content to the file
-            try (PrintWriter printWriter = new PrintWriter(new FileWriter(TMP_PATH, true))) {
-                printWriter.println("File Name: " + title);
-                printWriter.println();
-                printWriter.println("Content:");
-                printWriter.println(content);
-                printWriter.println();
+        // Attempt to append the content to a temporary file.
+        try (PrintWriter printWriter = new PrintWriter(new FileWriter(TEMP_FILE_PATH, true))) {
+            printWriter.println("File Name: " + title);
+            printWriter.println();
+            printWriter.println("Content:");
+            printWriter.println(content);
+            printWriter.println();
 
-                logger.debug("Content has been written to the file: " + TMP_PATH);
-            } catch (IOException e) {
-                logger.debug("An error occurred while writing to the file: " + e.getMessage());
-            }
+            // Log that the content has been successfully appended.
+            logger.debug("Content successfully appended to the temporary file: " + TEMP_FILE_PATH);
+        } catch (IOException e) {
+            // Log an error message if appending to the file fails.
+            logger.debug("Oops! An error occurred while trying to append to the file: " + e.getMessage());
+        }
+
+        // Log that the file processing is complete.
         logger.debug("File processing completed.");
     }
 
+    /**
+     * Parses the content of a POM file, extracts plugin/dependency information, and provides insights.
+     *
+     * @param repoData The repository data containing information about the repository.
+     * @return A string containing insights and recommendations in HTML format.
+     * @throws IOException If an I/O error occurs during file reading or processing.
+     */
     public String parsePOMintoMap(RepoData repoData) throws IOException {
-        //Get intial number of tokens
+        // Calculate the initial number of tokens available for processing.
         Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(DEPENDENCY_VERSION_INSIGHT_PROMPT);
-        System.out.println("Inside parsePOMintoMap LLM_TOKEN_LIMIT is:"+LLM_TOKEN_LIMIT);
-        System.out.println("Inside parsePOMintoMap countTokens(DEPENDENCY_VERSION_INSIGHT_PROMPT) is :"+countTokens(DEPENDENCY_VERSION_INSIGHT_PROMPT));
-        System.out.println("Inside parsePOMintoMap llmTokenLimitWithPrompt is:"+llmTokenLimitWithPrompt);
-
-        System.out.println("Inside parsePOMintoMap()\n");
+        // StringBuilder to store the parsed result.
         StringBuilder resultBuilder = new StringBuilder();
 
         try {
-            // Read content from file and extract information
-            String content = new String(Files.readAllBytes(Paths.get("output.txt")));
+            // Read content from the file and extract information.
+            String content = new String(Files.readAllBytes(Paths.get(TEMP_FILE_PATH)));
             resultBuilder = extractContent(content);
 
+            // Check if there was an issue extracting content.
             if (resultBuilder == null) {
-                System.out.println("Issue in extracting content");
+                System.out.println("Oops! There seems to be an issue in extracting content.");
                 return null;
-            }
-            else {
-                System.out.println("after extractContent before llmTokenLimitWithPrompt is:"+llmTokenLimitWithPrompt);
-                System.out.println("countTokens(resultBuilder.toString() is:"+countTokens(resultBuilder.toString()));
-                resultBuilder.append("In the above I have plugin/dependencies' artifactID and version from the pom.xml of a repository.").append("\n");
+            } else {
+                // Append a message indicating the extraction of plugin/dependency information.
+                resultBuilder.append("In the above, I've gathered plugin/dependency information from the pom.xml of a repository.").append("\n");
+
+                // Adjust the available token limit based on the extracted content.
                 if (countTokens(resultBuilder.toString()) <= llmTokenLimitWithPrompt) {
-                    llmTokenLimitWithPrompt = llmTokenLimitWithPrompt-countTokens(resultBuilder.toString());
-                    System.out.println("after extractContent llmTokenLimitWithPrompt is:"+llmTokenLimitWithPrompt);
+                    llmTokenLimitWithPrompt = llmTokenLimitWithPrompt - countTokens(resultBuilder.toString());
                 }
             }
 
-            // Get diff string
+            // Get the diff string by comparing with Pull Requests.
             String diff = parsePRForPomFile(repoData, llmTokenLimitWithPrompt);
 
-            // Append diff to resultBuilder if it's not null
+            // Append the diff to the resultBuilder if it's not null.
             if (diff != null) {
-                resultBuilder.append("Below are the Open PRs that have changes to pom.xml which is either upgrading/downgrading project dependencies.");
+                resultBuilder.append("Below are the Open PRs that have changes to pom.xml, indicating upgrades/downgrades of project dependencies.");
                 resultBuilder.append(DEPENDENCY_VERSION_INSIGHT_PROMPT).append(diff).append("\n");
-            }
-            else
-            {
-                System.out.println("The diff is null");
+            } else {
+                // If there's no diff, append a placeholder message.
                 resultBuilder.append(DEPENDENCY_VERSION_INSIGHT_PROMPT).append("\n");
             }
 
+            // Return the final result as a string.
             return resultBuilder.toString();
         } catch (IOException e) {
-            // Handle file reading exception
+            // Handle file reading exception and log an error message.
             System.err.println("Error reading file: " + e.getMessage());
             return null;
         }
     }
 
-
+    /**
+     * Parses Pull Requests for changes in "pom.xml" files and compiles a merged diff code.
+     *
+     * @param repoData              The repository data containing information about the repository.
+     * @param llmTokenLimitWithPrompt The token limit for processing, adjusted based on previous content.
+     * @return A string representing the merged diff code for "pom.xml" files in the Pull Requests.
+     */
     public String parsePRForPomFile(RepoData repoData, Integer llmTokenLimitWithPrompt) {
-
-        System.out.println("Inside parsePRForPomFile llmTokenLimitWithPrompt is:"+llmTokenLimitWithPrompt);
+        // Fetch developer and Pull Request code from the repository.
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
 
-        // StringBuilder to store the merged diff code for all "pom.xml" occurrences
+        // StringBuilder to store the merged diff code for all "pom.xml" occurrences.
         StringBuilder mergedPomXmlDiff = new StringBuilder();
 
+        // Iterate through the entries in the map containing developer and PR code.
         for (Map.Entry<String, List<String>> entry : devAndPRCode.entrySet()) {
-            // If there are more than 1 element in the list then fetch the data
-
+            // Check if there are more than 1 element in the list (indicating PR code is present).
             if (entry.getValue().size() > 1) {
+                // Get the PR code from the list.
                 String devPRCode = entry.getValue().get(1);
 
-                // Check if pom.xml is present in the diff code
+                // Check if "pom.xml" is present in the PR code.
                 if (devPRCode != null && isPomXmlPresent(devPRCode)) {
-                    // Get the entire diff patch relevant to "pom.xml"
+                    // Get the entire diff patch relevant to "pom.xml".
                     String pomXmlDiff = getPomXmlDiff(devPRCode);
 
-                    System.out.println("pomXmlDiff is:"+pomXmlDiff);
-                    System.out.println("Before checking llmTokenLimitWithPrompt is:"+llmTokenLimitWithPrompt);
-                    System.out.println("Before checking countTokens(pomXmlDiff) is:"+countTokens(pomXmlDiff));
+                    // Check if the token count in the "pom.xml" diff is within the adjusted limit.
                     if (countTokens(pomXmlDiff) <= llmTokenLimitWithPrompt) {
-                        // Append the "pom.xml" diff to the merged diff
+                        // Append the "pom.xml" diff to the merged diff.
                         mergedPomXmlDiff.append(pomXmlDiff).append("\n");
-                        llmTokenLimitWithPrompt = llmTokenLimitWithPrompt-countTokens(pomXmlDiff+"\n");
-                        System.out.println("after checking llmTokenLimitWithPrompt is:"+llmTokenLimitWithPrompt);
+
+                        // Adjust the token limit based on the appended diff content.
+                        llmTokenLimitWithPrompt = llmTokenLimitWithPrompt - countTokens(pomXmlDiff + "\n");
                     }
                 }
             }
         }
-        // Return the merged "pom.xml" diff code if at least one occurrence is found, otherwise return null
+
+        // Return the merged "pom.xml" diff code if at least one occurrence is found, otherwise return null.
         return !mergedPomXmlDiff.isEmpty() ? mergedPomXmlDiff.toString() : null;
     }
 
+    /**
+     * Checks if the "pom.xml" file is present in the provided diff code.
+     *
+     * @param diffCode The diff code to be examined for the presence of "pom.xml".
+     * @return true if "pom.xml" is present, false otherwise.
+     */
     private boolean isPomXmlPresent(String diffCode) {
-        // Check if "pom.xml" is present in the diff code (case-insensitive)
-        return diffCode.toLowerCase().contains("pom.xml");
+        // Convert the diff code to lowercase for case-insensitive comparison.
+        String lowercaseDiffCode = diffCode.toLowerCase();
+
+        // Check if "pom.xml" is present in the diff code.
+        if (lowercaseDiffCode.contains("pom.xml")) {
+            // If present, log a message indicating its presence.
+            System.out.println("The 'pom.xml' file is present in the provided diff code.");
+            return true;
+        } else {
+            // If not present, log a message indicating its absence.
+            System.out.println("The 'pom.xml' file is not found in the provided diff code.");
+            return false;
+        }
     }
 
+    /**
+     * Extracts the relevant "pom.xml" diff patch from the given diff code.
+     *
+     * @param diffCode The full diff code containing changes to various files.
+     * @return The diff patch specific to the "pom.xml" file.
+     */
     private String getPomXmlDiff(String diffCode) {
-        // Split the diff code into lines
+        // Split the diff code into lines for processing
         String[] lines = diffCode.split("\\n");
 
         // Flag to determine if we are inside the relevant "pom.xml" section
         boolean inPomXmlSection = false;
 
-        // StringBuilder to store the relevant diff patch
+        // StringBuilder to store the relevant diff patch for "pom.xml"
         StringBuilder pomXmlDiff = new StringBuilder();
 
         // Iterate through each line of the diff code
@@ -481,101 +553,211 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes  {
             }
         }
 
+        // Return the extracted "pom.xml" diff patch as a string
         return pomXmlDiff.toString();
     }
 
+    /**
+     * Processes the contents of a directory in a repository, searching for the "pom.xml" file recursively.
+     *
+     * @param owner    The owner of the repository.
+     * @param repo     The name of the repository.
+     * @param dirPath  The path of the current directory within the repository.
+     * @param basePath The base path representing the cumulative path up to the current directory.
+     */
     private void processDirectory(String owner, String repo, String dirPath, String basePath) {
-
+        // Log a debug message to indicate the method entry
         logger.debug("Entering processDirectory");
 
         try {
+            // Retrieve the contents of the current directory from the repository
             ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo, dirPath);
+
+            // Log the response body for debugging purposes
             logger.debug("Response body: {}", response.getBody());
+
+            // Parse the JSON response to obtain a list of directory contents
             List<Map<String, Object>> contents = jsonUtils.parseJSONResponse(response.getBody());
+
+            // Log the parsed contents for debugging purposes
             logger.debug("Contents: {}", contents);
 
+            // Update the base path based on the current directory path
             updateBasePath(basePath, dirPath);
 
+            // Iterate through each item in the directory contents
             for (Map<String, Object> item : contents) {
                 String type = (String) item.get("type");
                 String path = (String) item.get("path");
                 String name = (String) item.get("name");
 
-                if (FILE_TYPE.equals(type) && name.equals("pom.xml") && !found_pom_flag) {
+                // Check if the current item is a "pom.xml" file and it has not been found yet
+                if (FILE_TYPE.equals(type) && name.equals("pom.xml") && !foundPomFlag) {
+                    // Process the "pom.xml" file
                     processFile(owner, repo, path, basePath);
-                    found_pom_flag=true;
-                    break;
-                } else if (DIR_TYPE.equals(type) && (!found_pom_flag)){
+                    foundPomFlag = true;  // Set the flag to indicate that "pom.xml" has been found
+                    break;  // Exit the loop since the file has been found
+                } else if (DIR_TYPE.equals(type) && (!foundPomFlag)) {
+                    // Recursively process subdirectories if "pom.xml" has not been found yet
                     processDirectory(owner, repo, path, basePath);
                 }
             }
         } catch (Exception e) {
+            // Log an error message if an exception occurs during directory processing
             logger.error("Error processing directory: {}", e.getMessage(), e);
         }
+
+        // Log a debug message to indicate the method exit
         logger.debug("Exiting processDirectory");
     }
 
+    /**
+     * Extracts plugin and dependency information from the given input using a regular expression pattern.
+     *
+     * @param input The input string containing plugin and dependency information.
+     * @return A StringBuilder containing information about plugin and dependency tags.
+     *         Returns null if no valid information is found.
+     */
     private static StringBuilder extractContent(String input) {
-        System.out.println("inside extractContent and the input is: " + input);
+
+        // StringBuilder to store the extracted information.
         StringBuilder resultBuilder = new StringBuilder();
+
+        // Regular expression pattern to match plugin and dependency tags with their artifactId and version.
         String patternString = "<(plugin|dependency)>.*?<artifactId>(.*?)</artifactId>.*?<version>(.*?)</version>.*?</(plugin|dependency)>";
 
         try {
+            // Compile the regular expression pattern for matching.
             Pattern pattern = Pattern.compile(patternString, Pattern.DOTALL);
+
+            // Create a matcher object to find matches in the input string.
             Matcher matcher = pattern.matcher(input);
 
+            // Iterate through each match found by the pattern.
             while (matcher.find()) {
-                // Extracts matched groups
+                // Extract matched groups for tagType, artifactId, and version.
                 String tagType = matcher.group(1);
                 String artifactId = matcher.group(2);
                 String version = matcher.group(3);
 
-                // Check if both version and artifactId are found
+                // Check if both version and artifactId are found.
                 if (tagType != null && artifactId != null && version != null) {
-                    // Appends information to the result StringBuilder
+                    // Append information to the result StringBuilder.
                     resultBuilder.append("Tag Type: ").append(tagType);
                     resultBuilder.append("  ArtifactId: ").append(artifactId);
                     resultBuilder.append("  Version: ").append(version).append("\n");
                 }
             }
         } catch (PatternSyntaxException e) {
-            // Handle the case where the regex pattern is invalid
+            // Handle the case where the regex pattern is invalid.
             System.err.println("Invalid regex pattern: " + e.getMessage());
         }
 
+        // Check if any information was extracted.
         if (resultBuilder.isEmpty()) {
+            // Log a message indicating that no valid information was found.
+            System.out.println("No valid information found in the input.");
             return null;
         }
 
+        // Return the StringBuilder containing extracted information.
         return resultBuilder;
     }
 
+    /**
+     * Updates the base path by appending the directory path if the base path is not empty.
+     * If the base path is empty, sets the base path to the directory path.
+     *
+     * @param basePath The current base path.
+     * @param dirPath  The directory path to be appended.
+     */
     private void updateBasePath(String basePath, String dirPath) {
-        basePath = StringUtils.hasText(basePath) ? basePath + File.separator + dirPath : dirPath;
+        // Log a message indicating the start of the base path update.
+        System.out.println("Inside updateBasePath, current basePath: " + basePath + ", dirPath: " + dirPath);
+
+        // Check if the base path is not empty.
+        if (StringUtils.hasText(basePath)) {
+            // Append the directory path to the base path using the appropriate separator.
+            basePath = basePath + File.separator + dirPath;
+        } else {
+            // If the base path is empty, set it to the directory path.
+            basePath = dirPath;
+        }
+
+        // Log a message indicating the updated base path.
+        System.out.println("Updated basePath: " + basePath);
     }
 
+    /**
+     * Checks if a file with the given path is a valid file based on its extension.
+     *
+     * @param path The path of the file to be checked.
+     * @return True if the file is valid, False otherwise.
+     */
     private boolean isValidFile(String path) {
+        // List of valid file extensions for images, documents, executables, and web-related files.
         List<String> validExtensions = Arrays.asList("jpg", "png", "svg", "class", "docx", "exe", "dll", "jar", "gif", "css", "html");
-        return validExtensions.stream().noneMatch(extension -> path.toLowerCase().contains(extension));
+
+        // Convert the file path to lowercase for case-insensitive comparison.
+        String lowercasePath = path.toLowerCase();
+
+        // Check if the file path contains any of the valid extensions.
+        boolean isValid = validExtensions.stream().noneMatch(extension -> lowercasePath.contains(extension));
+
+        // Return the result indicating whether the file is valid or not.
+        return isValid;
     }
 
+    /**
+     * Processes a content item, checking if it is a pom.xml file or a directory, and takes appropriate actions.
+     *
+     * @param item   The content item represented as a map with key-value pairs.
+     * @param owner  The owner of the repository.
+     * @param repo   The name of the repository.
+     */
     private void processContentItem(Map<String, Object> item, String owner, String repo) {
+        // Log a message indicating the start of processing the content item.
+        System.out.println("Processing content item...");
+
+        // Initialize the base path to an empty string.
         String basePath = "";
+
+        // Extract information about the content item.
         String type = (String) item.get("type");
         String name = (String) item.get("name");
         String path = (String) item.get("path");
 
-       if (FILE_TYPE.equals(type) && name.equals("pom.xml") && !found_pom_flag) {
+        // Check if the content item is a file, named "pom.xml", and the POM flag is not already found.
+        if (FILE_TYPE.equals(type) && name.equals("pom.xml") && !foundPomFlag) {
+            // Log a message indicating the discovery of a pom.xml file.
             System.out.println("Found POM.XML file\n");
+
+            // Process the pom.xml file using the processFile method.
             processFile(owner, repo, path, basePath);
-            found_pom_flag=true;
-        } else if (DIR_TYPE.equals(type) && (!found_pom_flag)){
+
+            // Set the POM flag to true, indicating the discovery of a pom.xml file.
+            foundPomFlag = true;
+        }
+        // Check if the content item is a directory and the POM flag is not already found.
+        else if (DIR_TYPE.equals(type) && (!foundPomFlag)) {
+            // Process the directory using the processDirectory method.
             processDirectory(owner, repo, path, basePath);
         }
+
+        // Log a message indicating the completion of processing the content item.
+        System.out.println("Content item processing completed.");
     }
 
+    /**
+     * Checks if the response from a service is valid.
+     *
+     * @param response The response entity received from the service.
+     * @return {@code true} if the response is not null, has a non-null body,
+     *         and the HTTP status code indicates success (2xx); otherwise, {@code false}.
+     */
     private boolean isValidResponse(ResponseEntity<String> response) {
-        return response != null && response.getBody() != null && response.getStatusCode().is2xxSuccessful();
+        // Check if the response is not null, has a non-null body, and the HTTP status code indicates success.
+        return (response != null && response.getBody() != null && response.getStatusCode().is2xxSuccessful());
     }
 
     private List<Map<String, Object>> parseJSONResponse(String responseBody) {

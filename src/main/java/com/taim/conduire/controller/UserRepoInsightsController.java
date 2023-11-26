@@ -66,28 +66,59 @@ public class UserRepoInsightsController {
         return ResponseEntity.ok(codeQualityEnhancementInsightString);
     }
 
+    /**
+     * Handles the GET request to retrieve Dependency Version Control (DVC) insights for a repository.
+     *
+     * @param repoID The ID of the repository.
+     * @return ResponseEntity with insights on DVC or an error response.
+     */
     @RequestMapping(value = "/{repo_id}/get-insights/dvc", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<String> getDVCInsights(@PathVariable("repo_id") Integer repoID) {
         try {
-            System.out.println("repoID: " + repoID + " insightType DVC");
+            // Log the start of processing the DVC insights for the specified repository.
+            System.out.println("Processing DVC insights for repoID: " + repoID);
+
+            // Retrieve repository data based on the provided repository ID.
             RepoData repoData = repoDataService.getOne(repoID);
+
+            // Process the dependency file to get versions.
             String versions = insightsService.processDependencyFile(repoData);
 
             if (versions == null) {
-                String prompt = "There was no version control file at the root level of the repository.";
-                //String finalResponse = chatGPTService.chat(prompt);
+                // Log that there was no version control file at the root level of the repository.
+                System.out.println("No version control file found at the root level of the repository.");
+
+                // Provide a prompt indicating the absence of a version control file.
+                String prompt = "This isn't a Java Maven repository. Kindly retry with one!";
+
+                // Return a response entity with the prompt.
                 return ResponseEntity.ok(prompt);
             } else {
+                // Log the start of processing chatGPT with the retrieved versions.
+                System.out.println("Processing chatGPT with versions: " + versions);
+
+                // Use chatGPT to generate insights based on the retrieved versions.
                 String finalResponse = chatGPTService.chat(versions);
+
+                // Log the generated final response.
+                System.out.println("Final response: " + finalResponse);
+
+                // Return a response entity with the final generated response.
                 return ResponseEntity.ok(finalResponse);
             }
         } catch (IOException e) {
-            // Handle IOException, log, or return an appropriate error response
+            // Handle IOException, log, or return an appropriate error response.
             e.printStackTrace(); // Log the exception or use a logging framework
+
+            // Log an internal server error message.
+            System.err.println("Internal Server Error");
+
+            // Return an internal server error response.
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
         }
     }
+
 
 
     @RequestMapping(value = "/{repo_id}/get-repo-prs-collab", method = RequestMethod.GET)
