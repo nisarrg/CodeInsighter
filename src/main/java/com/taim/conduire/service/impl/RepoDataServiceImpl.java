@@ -60,6 +60,13 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         return repository.findByUserId(userId);
     }
 
+    /**
+     * Creates an HTTP entity with headers for GitHub API requests.
+     *
+     * @param userAccessToken The user access token for authentication.
+     * @return HttpEntity<String> containing the necessary headers for GitHub API requests.
+     * @author Zeel Ravalani
+     */
     public HttpEntity<String> getAllHeadersEntity(String userAccessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept", "application/vnd.github+json");
@@ -69,31 +76,47 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         return entity;
     }
 
+    /**
+     * Displays information about available GitHub API hits based on the response headers.
+     *
+     * @param responseHeaders The HttpHeaders containing information about API rate limits.
+     * @author Zeel Ravalani
+     */
     @Override
     public void showAvailableAPIHits(HttpHeaders responseHeaders) {
         int limit = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Limit"));
         int remaining = Integer.parseInt(responseHeaders.getFirst("X-RateLimit-Remaining"));
 
-        System.out.println("GitHub API Hit Limit: " + limit);
-        System.out.println("GitHub API Hit Limit Remaining: " + remaining);
+        logger.debug("GitHub API Hit Limit: " + limit);
+        logger.debug("GitHub API Hit Limit Remaining: " + remaining);
     }
 
+
+    /**
+     * Retrieves repository data for a user from the GitHub API.
+     *
+     * @param userData The UserData object representing the user.
+     * @return String containing the repository data for the user.
+     * @author Zeel Ravalani
+     */
     @Override
     public String getRepoData(UserData userData) {
         String userRepoApiUrl = GITHUB_API_URL + GITHUB_USERS + "/" + userData.getUserName() + GITHUB_REPOS;
-        System.out.println("userRepoApiUrl: " + userRepoApiUrl);
+        logger.debug("userRepoApiUrl: " + userRepoApiUrl);
+
         ResponseEntity<String> response = restTemplate.exchange(userRepoApiUrl, HttpMethod.GET,
                 getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+
         showAvailableAPIHits(response.getHeaders());
         return response.getBody();
-
     }
+
 
     @Override
     public Map<String, Integer> getRepositoryLanguages(RepoData repoData) {
         // TODO: make a common function for these lines. --> not feasible in some cases.
         String repoLanguagesAPIURL = String.format("%s/repos/%s/languages", GITHUB_API_URL, repoData.getName());
-        System.out.println("Languages API: " + repoLanguagesAPIURL);
+        logger.debug("Languages API: " + repoLanguagesAPIURL);
 
         UserData userData = userDataService.getOne(repoData.getUserId());
         ResponseEntity<Map> response = restTemplate.exchange(repoLanguagesAPIURL, HttpMethod.GET,
@@ -105,7 +128,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
     @Override
     public Integer getRepositoryPRs(RepoData repoData) {
         String repoPRApiURL = String.format("%s/repos/%s/pulls", GITHUB_API_URL, getParentRepo(repoData));
-        System.out.println("Repository PR API: " + repoPRApiURL);
+        logger.debug("Repository PR API: " + repoPRApiURL);
 
         UserData userData = userDataService.getOne(repoData.getUserId());
 
@@ -121,7 +144,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
     @Override
     public Integer getRepositoryForksCount(RepoData repoData) {
         String parenRepoApiURL = String.format("%s/repos/%s", GITHUB_API_URL, getParentRepo(repoData));
-        System.out.println("Parent Repo API: " + parenRepoApiURL);
+        logger.debug("Parent Repo API: " + parenRepoApiURL);
 
         UserData userData = userDataService.getOne(repoData.getUserId());
 
@@ -142,7 +165,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
 
         if (isFork != null && isFork) {
             String repoURL = GITHUB_API_URL + GITHUB_REPOS + "/" + repoData.getName();
-            System.out.println("repoURL: " + repoURL);
+            logger.debug("repoURL: " + repoURL);
 
             UserData userData = userDataService.getOne(repoData.getUserId());
             ResponseEntity<String> response = restTemplate.exchange(repoURL, HttpMethod.GET,
@@ -163,7 +186,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
     @Override
     public String getRepoLOC(RepoData repoData) {
         String userRepoLocApiUrl = CODETABS_CLOC_API_URL + repoData.getName();
-        System.out.println("Repo LOC API: " + userRepoLocApiUrl);
+        logger.debug("Repo LOC API: " + userRepoLocApiUrl);
         boolean repoTooBig = false;
         List<Map<String, Object>> locArrMap = new ArrayList<>();
         try {
@@ -172,16 +195,16 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         } catch (HttpClientErrorException.BadRequest e) {
             String responseBody = e.getResponseBodyAsString();
             if (responseBody.contains("too big")) {
-                System.out.println("Repo Size > 500 MB: " + responseBody);
+                logger.debug("Repo Size > 500 MB: " + responseBody);
                 // TODO: This variable can be taken out of if-else --> DONE
             } else {
-                System.out.println("Other BadRequest Exception: " + responseBody);
+                logger.debug("Other BadRequest Exception: " + responseBody);
             }
             // above TO-DO refers to this variable which was inside the loop earlier
             repoTooBig = true;
 
         } catch (Exception e) {
-            System.out.println("An error occurred: " + e.getMessage());
+            logger.debug("An error occurred: " + e.getMessage());
             repoTooBig = true;
         }
         if (repoTooBig) {
@@ -194,7 +217,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
                 Integer linesOfCode = (Integer) loc.get("linesOfCode");
                 resultLoc.put(language, linesOfCode);
             }
-            System.out.println("\nTotal Loc: " + resultLoc.get("Total"));
+            logger.debug("\nTotal Loc: " + resultLoc.get("Total"));
 
             return "" + resultLoc.get("Total");
 
@@ -204,7 +227,7 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
     @Override
     public Map<String, Integer> getRepoContributors(RepoData repoData) {
         String apiUrl = String.format("%s/repos/%s/contributors", GITHUB_API_URL, repoData.getName());
-        System.out.println("Contributors API: " + apiUrl);
+        logger.debug("Contributors API: " + apiUrl);
         UserData userData = userDataService.getOne(repoData.getUserId());
         ResponseEntity<List> response = restTemplate.exchange(apiUrl, HttpMethod.GET,
                 getAllHeadersEntity(userData.getUserAccessToken()), List.class);
@@ -219,6 +242,14 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
         return resultContributors;
     }
 
+    /**
+     * Retrieves and processes repository data for a user from the GitHub API and updates the database.
+     *
+     * @param userData The UserData object representing the user.
+     * @return A String indicating the success of the repository data dump.
+     * @throws ParseException If an error occurs while parsing date strings.
+     * @author Zeel Ravalani
+     */
     @Override
     public String dumpRepoData(UserData userData) {
         try {

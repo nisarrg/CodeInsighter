@@ -11,7 +11,6 @@ import com.taim.conduire.constants.InsightsPrompts;
 import com.taim.conduire.domain.RepoData;
 import com.taim.conduire.domain.UserData;
 import com.taim.conduire.service.InsightsService;
-import com.taim.conduire.service.LLMService;
 import com.taim.conduire.service.RepoDataService;
 import com.taim.conduire.service.UserDataService;
 import org.jsoup.Jsoup;
@@ -20,10 +19,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
@@ -32,7 +28,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -58,9 +56,6 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
 
     @Autowired
     private JSONUtilsImpl jsonUtils;
-
-    @Autowired
-    private LLMService llmService;
 
     private static final Logger logger = LoggerFactory.getLogger(InsightsService.class);
 
@@ -99,8 +94,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
                 int limit = Integer.parseInt(limitHeader);
                 int remaining = Integer.parseInt(remainingHeader);
 
-                System.out.println("GitHub API Hit Limit: " + limit);
-                System.out.println("GitHub API Hit Limit Remaining: " + remaining);
+                logger.debug("GitHub API Hit Limit: " + limit);
+                logger.debug("GitHub API Hit Limit Remaining: " + remaining);
             } catch (NumberFormatException e) {
                 System.err.println("Error parsing API hit limit or remaining headers: " + e.getMessage());
             }
@@ -110,7 +105,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
     @Override
     public Map<String, List<String>> getRepositoryReviewComments(RepoData repoData) {
         String apiUrl = GITHUB_API_URL + GITHUB_REPOS + "/" + repoData.getName();
-        System.out.println("apiUrl: " + apiUrl);
+        logger.debug("apiUrl: " + apiUrl);
 
         UserData userData = userDataService.getOne(repoData.getUserId());
         HttpHeaders headers = new HttpHeaders();
@@ -135,7 +130,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         }
         String prReviewJsonArrayString = prReviewResposne.getBody();
         JsonArray prReviewJsonArray = gson.fromJson(prReviewJsonArrayString, JsonArray.class);
-        System.out.println("prReviewJsonArray: " + prReviewJsonArray.size());
+        logger.debug("prReviewJsonArray: " + prReviewJsonArray.size());
         Map<String, List<String>> reviewerComments = new HashMap<>();
 
         for (JsonElement element : prReviewJsonArray) {
@@ -152,7 +147,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
                 reviewerComments.computeIfAbsent(reviewer, k -> new ArrayList<>()).add(reviewerComment);
             }
         }
-        System.out.println("reviewerComments: " + reviewerComments.size());
+        logger.debug("reviewerComments: " + reviewerComments.size());
         return reviewerComments;
     }
 
@@ -164,7 +159,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         Gson gson = new Gson();
         String jsonInsight = gson.toJson(commonCodeMistakesInsight);
         String finalResult = "{\"insights\":" + jsonInsight + "}";
-        System.out.println("finalResult: " + finalResult);
+        logger.debug("finalResult: " + finalResult);
 
         return finalResult;
     }
@@ -174,7 +169,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         String parentRepoName = repoDataService.getParentRepo(repoData);
         Gson gson = new Gson();
         String repoPRDataURL = GITHUB_API_URL + GITHUB_REPOS + "/" + parentRepoName + GITHUB_PULLS + "?per_page=100";
-        System.out.println("repoPRDataURL: " + repoPRDataURL);
+        logger.debug("repoPRDataURL: " + repoPRDataURL);
 
         UserData userData = userDataService.getOne(repoData.getUserId());
         ResponseEntity<String> response = restTemplate.exchange(repoPRDataURL, HttpMethod.GET,
@@ -183,7 +178,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
 
         String jsonRepoPRsString = response.getBody();
         JsonArray jsonRepoPRsArray = gson.fromJson(jsonRepoPRsString, JsonArray.class);
-        System.out.println("No: of Open PR: " + jsonRepoPRsArray.size());
+        logger.debug("No: of Open PR: " + jsonRepoPRsArray.size());
         Map<String, List<String>> devAndPRCode = new HashMap<>();
 
         for (JsonElement element : jsonRepoPRsArray) {
@@ -212,7 +207,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
             }
         }
 
-        System.out.println("devAndPRCode Size: " + devAndPRCode.size());
+        logger.debug("devAndPRCode Size: " + devAndPRCode.size());
 
         return devAndPRCode;
     }
@@ -232,10 +227,10 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
                     llmTokenLimitWithPrompt -= countTokens(devAndPRCodeWithLimit + element);
                 }
             }
-            System.out.println("devAndPRCodeWithLimit Size: " + devAndPRCodeWithLimit.size());
-            System.out.println("Final code Token: " + countTokens(devAndPRCodeWithLimit.toString()));
+            logger.debug("devAndPRCodeWithLimit Size: " + devAndPRCodeWithLimit.size());
+            logger.debug("Final code Token: " + countTokens(devAndPRCodeWithLimit.toString()));
             if (devAndPRCodeWithLimit.isEmpty()) {
-                System.out.println("devAndPRCodeWithLimit: " + devAndPRCodeWithLimit.size());
+                logger.debug("devAndPRCodeWithLimit: " + devAndPRCodeWithLimit.size());
                 llmInsightString = "{\"message\":\"There are no open PR for this Repository which can be processed by LLM. \"}";
             } else {
                 String devAndPRCodeWithLimitString;
@@ -248,11 +243,11 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
                 } else {
                     devAndPRCodeWithLimitString = devAndPRCodeWithLimit.toString();
                 }
-                System.out.println("Final prompt Token: " + countTokens(llmInsightPrompt));
-                System.out.println("Final devAndPRCodeWithLimitString Token: " + countTokens(devAndPRCodeWithLimitString));
+                logger.debug("Final prompt Token: " + countTokens(llmInsightPrompt));
+                logger.debug("Final devAndPRCodeWithLimitString Token: " + countTokens(devAndPRCodeWithLimitString));
                 String promptAndCode = llmInsightPrompt + devAndPRCodeWithLimitString;
 
-                System.out.println("Final prompt + code Token: " + countTokens(promptAndCode));
+                logger.debug("Final prompt + code Token: " + countTokens(promptAndCode));
                 llmInsightString = chatGPTService.chat(promptAndCode);
             }
         } else {
@@ -307,7 +302,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         if (tempFile.exists()) {
             // If we can successfully delete the existing file, we print a message.
             if (tempFile.delete()) {
-                System.out.println("Cleared the slate by removing the existing temporary file.");
+                logger.debug("Cleared the slate by removing the existing temporary file.");
             } else {
                 // If deletion fails, we print an error message.
                 System.err.println("Oops! Something went wrong. Couldn't delete the existing temporary file.");
@@ -315,22 +310,22 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         }
 
         // Extract the owner and repository names from the RepoData object.
-        String owner = repoData.getName().substring(0, repoData.getName().indexOf("/"));
-        String repo = repoData.getName().substring(repoData.getName().indexOf("/"));
+//        String owner = repoData.getName().substring(0, repoData.getName().indexOf("/"));
+//        String repo = repoData.getName().substring(repoData.getName().indexOf("/"));
 
         // Fetch the content of the repository to inspect.
-        ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo);
+        ResponseEntity<String> response = getRepositoryContents(repoData);
 
         // Check if the response is valid and not null.
-        if (response != null && isValidResponse(response)) {
-            System.out.println("Successfully retrieved repository content.");
+        if (isValidResponse(response)) {
+            logger.debug("Successfully retrieved repository content.");
 
             // Parse the JSON response to get a list of items in the repository.
             List<Map<String, Object>> contents = jsonUtils.parseJSONResponse(response.getBody());
 
             // Iterate through the items in the repository to search for pom.xml files.
             for (Map<String, Object> item : contents) {
-                processContentItem(item, owner, repo);
+                processContentItem(item, repoData);
             }
         }
 
@@ -340,13 +335,9 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
             String parsed = parsePOMintoMap(repoData);
 
             // Check if parsing was successful.
-            if (parsed == null) {
-                // If parsing fails, return null.
-                return null;
-            } else {
-                // If parsing is successful, return the insights in HTML format.
-                return parsed;
-            }
+            // If parsing fails, return null.
+            // If parsing is successful, return the insights in HTML format.
+            return parsed;
         } else {
             // If no pom.xml file was found, return null.
             return null;
@@ -356,12 +347,10 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
     /**
      * Processes a file within a repository, retrieves its content, and appends the content to a temporary file.
      *
-     * @param owner    The owner of the repository.
-     * @param repo     The name of the repository.
      * @param filePath The path of the file to be processed.
      * @param basePath The base path for the file.
      */
-    private void processFile(String owner, String repo, String filePath, String basePath) {
+    private void processFile(RepoData repoData, String filePath, String basePath) {
         // Ensure the filePath is URL-encoded and free of extra spaces.
         filePath = filePath.trim().replaceAll(" ", "%20");
 
@@ -369,7 +358,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         String currentDirectory = System.getProperty("user.dir");
 
         // Fetch the content of the file from the repository.
-        ResponseEntity<String> response = llmService.getFileContent(owner, repo, filePath);
+        ResponseEntity<String> response = getFileContent(repoData, filePath);
         String content = response.getBody();
 
         // Set the title of the file (used for logging).
@@ -403,7 +392,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
 
             // Check if there was an issue extracting content.
             if (resultBuilder == null) {
-                System.out.println("Oops! There seems to be an issue in extracting content.");
+                logger.debug("Oops! There seems to be an issue in extracting content.");
                 return null;
             }
 
@@ -492,11 +481,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         String lowercaseDiffCode = diffCode.toLowerCase();
 
         // Check if "pom.xml" is present in the diff code.
-        if (lowercaseDiffCode.contains("pom.xml")) {
-            return true;
-        } else {
-            return false;
-        }
+        return lowercaseDiffCode.contains("pom.xml");
     }
 
     /**
@@ -537,16 +522,14 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
      * Processes a directory by retrieving its contents from the repository and recursively
      * handling each item in the directory.
      *
-     * @param owner    The owner of the repository.
-     * @param repo     The repository name.
      * @param dirPath  The path of the current directory.
      * @param basePath The base path for constructing file paths within the directory.
      */
-    private void processDirectory(String owner, String repo, String dirPath, String basePath) {
+    private void processDirectory(RepoData repoData, String dirPath, String basePath) {
 
         try {
             // Retrieve the contents of the current directory from the repository
-            ResponseEntity<String> response = llmService.getRepositoryContents(owner, repo, dirPath);
+            ResponseEntity<String> response = getRepositoryContents(repoData, dirPath);
 
             // Parse the JSON response to obtain a list of directory contents
             List<Map<String, Object>> contents = jsonUtils.parseJSONResponse(response.getBody());
@@ -563,12 +546,12 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
                 // Check if the current item is a "pom.xml" file and it has not been found yet
                 if (isPomFile(type, name) && !foundPomFlag) {
                     // Process the "pom.xml" file
-                    processFile(owner, repo, path, basePath);
+                    processFile(repoData, path, basePath);
                     foundPomFlag = true;  // Set the flag to indicate that "pom.xml" has been found
                     break;  // Exit the loop since the file has been found
                 } else if (isDirectory(type) && (!foundPomFlag)) {
                     // Recursively process subdirectories if "pom.xml" has not been found yet
-                    processDirectory(owner, repo, path, basePath);
+                    processDirectory(repoData, path, basePath);
                 }
             }
         } catch (Exception e) {
@@ -700,10 +683,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
      * Processes a content item based on its type, name, and the status of a flag.
      *
      * @param item  The map representing the content item.
-     * @param owner The owner of the repository.
-     * @param repo  The repository name.
      */
-    private void processContentItem(Map<String, Object> item, String owner, String repo) {
+    private void processContentItem(Map<String, Object> item, RepoData repoData) {
         // Initialize the base path to an empty string.
         String basePath = "";
 
@@ -715,10 +696,10 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         // Check if the content item is a file, named "pom.xml", and the POM flag is not already found.
         if (isPomFile(type, name) && !foundPomFlag) {
             // Log a message indicating the discovery of a pom.xml file.
-            System.out.println("Found POM.XML file\n");
+            logger.debug("Found POM.XML file\n");
 
             // Process the pom.xml file using the processFile method.
-            processFile(owner, repo, path, basePath);
+            processFile(repoData, path, basePath);
 
             // Set the POM flag to true, indicating the discovery of a pom.xml file.
             foundPomFlag = true;
@@ -726,7 +707,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         // Check if the content item is a directory and the POM flag is not already found.
         else if (isDirectory(type) && (!foundPomFlag)) {
             // Process the directory using the processDirectory method.
-            processDirectory(owner, repo, path, basePath);
+            processDirectory(repoData, path, basePath);
         }
     }
 
@@ -772,7 +753,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
         String bugDetectionInApplicationFlowInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
                 BUG_DETECTION_IN_APPLICATION_FLOW);
-        System.out.println(bugDetectionInApplicationFlowInsightString);
+        logger.debug(bugDetectionInApplicationFlowInsightString);
         return bugDetectionInApplicationFlowInsightString;
     }
 
@@ -781,7 +762,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
         String getCustomCodeLintingInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
                 CUSTOM_CODE_LINTING);
-        System.out.println(getCustomCodeLintingInsightString);
+        logger.debug(getCustomCodeLintingInsightString);
         return getCustomCodeLintingInsightString;
     }
 
@@ -791,7 +772,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
         String testCaseMinimizationInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
                 TEST_CASE_MINIMIZATION);
-        System.out.println(testCaseMinimizationInsightString);
+        logger.debug(testCaseMinimizationInsightString);
         return testCaseMinimizationInsightString;
     }
 
@@ -817,7 +798,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         int count = 0;
         for (Map.Entry<String, Integer> entry : sortedMap.entrySet()) {
             if (count < 3) {
-                System.out.println(entry.getKey() + ": " + entry.getValue());
+                logger.debug(entry.getKey() + ": " + entry.getValue());
                 top3Contributors.put(entry.getKey(), entry.getValue());
                 count++;
             } else {
@@ -835,11 +816,11 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
 
             // Get Repo from variable repoData
             String repoName = repoData.getName().substring(repoData.getName().indexOf("/"));
-            System.out.println("repo name for collab: owner: " + owner + " reponame: " + repoName);
+            logger.debug("repo name for collab: owner: " + owner + " reponame: " + repoName);
 
             String apiUrl = String.format("%s/repos/%s%s/pulls?state=all&sort=created&direction=desc&per_page=1&page=1",
                     GITHUB_API_URL, owner, repoName);
-            System.out.println("apiUrl for collab-analysis story: " + apiUrl);
+            logger.debug("apiUrl for collab-analysis story: " + apiUrl);
 
             UserData userData = userDataService.getOne(repoData.getUserId());
 
@@ -864,7 +845,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
                                 String diffUrl = jsonNode.get("diff_url").asText();
 
                                 // Print and store in map
-                                System.out.println("diffUrl for user: " + owner + " is: " + diffUrl);
+                                logger.debug("diffUrl for user: " + owner + " is: " + diffUrl);
                                 contributorDiff.put(owner, diffUrl);
                             }
 
@@ -878,14 +859,14 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
                     contributorDiff.put(owner, "No PR found");
             } catch (Exception e) {
                 contributorDiff.put(owner, "No PR found");
-                System.out.println("dcontributorDiff: " + contributorDiff);
+                logger.debug("dcontributorDiff: " + contributorDiff);
                 e.printStackTrace();
             }
         }
 
         // Print the map of contributor against it's respective diff url
         for (Map.Entry<String, String> test : contributorDiff.entrySet()) {
-            System.out.println("Contributor: " + test.getKey() + "\nDiff Url: " + test.getValue());
+            logger.debug("Contributor: " + test.getKey() + "\nDiff Url: " + test.getValue());
         }
 
         // get the code for the respective diff urls and store them in 3 separate text
@@ -904,7 +885,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
             Map<String, Integer> sortedMap) throws IOException {
         int count = 1;
         for (Map.Entry<String, String> entry : contributorDiff.entrySet()) {
-            System.out.println("Individual: " + entry.getKey());
+            logger.debug("Individual: " + entry.getKey());
             int commitCount = sortedMap.get(entry.getKey());
             Files.createDirectories(Paths.get(COLLAB_ANALYSIS_FILES_PATH));
             String fileName = COLLAB_ANALYSIS_FILES_PATH + "diff" + count + ".txt";
@@ -922,11 +903,11 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
                                     "\nCommit Count: " + commitCount +
                                     "\n\nDiff File:\nIgnore the code, the Code Smell Rating is 10." +
                                     "\n\nModify this prompt to receive the output in a semi-colon separated string. For Example: Contributor; Commit-Count; Smell-Rating");
-                    System.out.println("The Code Smell Rating is 10.");
+                    logger.debug("The Code Smell Rating is 10.");
                 } else {
-                    System.out.println("Inside else: " + entry.getValue());
+                    logger.debug("Inside else: " + entry.getValue());
                     downloadURLToFile(entry.getValue(), fileName, entry.getKey(), commitCount);
-                    System.out.println("Content downloaded successfully.");
+                    logger.debug("Content downloaded successfully.");
                 }
                 fw.close();
             } catch (Exception e) {
@@ -965,7 +946,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
     public String getSmellRating() throws IOException, InterruptedException {
         Map<String, String> roleInsights = new HashMap<>();
 
-        System.out.println("In Smell Rating Method inside RepoDataServiceImpl");
+        logger.debug("In Smell Rating Method inside RepoDataServiceImpl");
         Files.createDirectories(Paths.get(COLLAB_ANALYSIS_FILES_PATH));
         FileWriter fw = new FileWriter(COLLAB_ANALYSIS_FILES_PATH + "SmellRatingPrompt.txt");
         fw.write(
@@ -979,7 +960,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
             String fileName = COLLAB_ANALYSIS_FILES_PATH + "diff" + i + ".txt";
             String prompt = new String(Files.readAllBytes(Paths.get(fileName)));
             String response = chatGPTService.chat(prompt);
-            System.out.println(response);
+            logger.debug(response);
 
             // Split the string using the ; delimiter
             String[] parts = response.split(";");
@@ -991,11 +972,11 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
 
             // Access the individual parts
             String contributor = parts[0];
-            System.out.println(contributor);
+            logger.debug(contributor);
             int commitCount = Integer.parseInt(parts[1]);
-            System.out.println(commitCount);
+            logger.debug(String.valueOf(commitCount));
             int rating = (int) Double.parseDouble(parts[2]);
-            System.out.println(rating);
+            logger.debug(String.valueOf(rating));
 
             fw.write(contributor + "\nCommit Count: " + commitCount + "\nCode Smells Rating: "
                     + rating + "\n\n");
@@ -1008,7 +989,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
                 Files.readAllBytes(Paths.get(COLLAB_ANALYSIS_FILES_PATH + "SmellRatingPrompt.txt")));
         Thread.sleep(30000);
         String finalResponse = chatGPTService.chat(finalPrompt);
-        System.out.println("Collab Analysis GPT Response:\n" + finalResponse);
+        logger.debug("Collab Analysis GPT Response:\n" + finalResponse);
 
         return finalResponse;
     }
@@ -1018,7 +999,56 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
         String AdvancedCodeSearchPrompt = "Check if there is/are any " + input + ADVANCED_CODE_SEARCH;
         String AdvancedCodeSearchString = getInsightsFromPromptAndDevPRCode(devAndPRCode, AdvancedCodeSearchPrompt);
-        System.out.println(AdvancedCodeSearchString);
+        logger.debug(AdvancedCodeSearchString);
         return AdvancedCodeSearchString;
     }
+
+    public ResponseEntity<String> getRepositoryContents(RepoData repoData) {
+
+        UserData userData = userDataService.getOne(repoData.getUserId());
+        String apiURL = GITHUB_API_URL + GITHUB_REPOS + "/" + repoData.getName() + "/contents";
+        logger.debug(apiURL);
+        ResponseEntity<String> response = restTemplate.exchange(apiURL, HttpMethod.GET,
+                getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+        return response;
+    }
+
+    public ResponseEntity<String> getFileContent(RepoData repoData, String filePath) {
+        UserData userData = userDataService.getOne(repoData.getUserId());
+        String apiURL = GITHUB_API_URL + GITHUB_REPOS + "/" + repoData.getName() + "/contents/" + filePath;
+        logger.debug(apiURL);
+        ResponseEntity<String> response = restTemplate.exchange(apiURL, HttpMethod.GET,
+                getAllHeadersEntity(userData.getUserAccessToken()), String.class);
+
+        // TODO: Flip the condition and get an early return
+        if (response.getStatusCodeValue() == 200) {
+            // The response contains base64-encoded content, so decode it
+            String content = response.getBody();
+            logger.debug("RESPONSE 200");
+            logger.debug(content);
+            // content =
+            // content.substring(content.indexOf("content")+9,content.indexOf("encoding")-3);
+            content = jsonUtils.parseJSONResponseAsTree(content);
+            // TODO: As the reason for double backslashes.
+            content = content.replaceAll("\\s", "");
+            logger.debug(content);
+            String decodedContent = new String(Base64.getDecoder().decode(content), StandardCharsets.UTF_8);
+            response = ResponseEntity.ok(decodedContent);
+        }
+        return response;
+    }
+
+    public ResponseEntity<String> getRepositoryContents(RepoData repoData, String path) {
+        UserData userData = userDataService.getOne(repoData.getUserId());
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept", "application/vnd.github+json");
+        headers.set("Authorization", "Bearer " + userData.getUserAccessToken());
+        headers.set("X-GitHub-Api-Version", "2022-11-28");
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        URI uri = URI.create(GITHUB_API_URL + "/repos/" + repoData.getName() + "/contents" + "/" + path);
+
+        RequestEntity<?> requestEntity = RequestEntity.get(uri).headers(headers).build();
+        return restTemplate.exchange(requestEntity, String.class);
+    }
+
 }
