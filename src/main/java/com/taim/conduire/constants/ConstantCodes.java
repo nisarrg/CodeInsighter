@@ -12,7 +12,7 @@ public interface ConstantCodes {
 	String COLLAB_ANALYSIS_FILES_PATH = "src/main/resources/files/";
 
 	// Temporary file path for storing content during processing.
-	String TEMP_FILE_PATH = "output.txt";
+	String TEMP_FILE_PATH = "src/main/resources/files/output.txt";
 
 	// Constant representing the prompt for dependency version insights.
 	String DEPENDENCY_VERSION_INSIGHT_PROMPT = "\nWith the above data, provide me insights which tell me whether there" +

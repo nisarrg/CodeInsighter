@@ -1,10 +1,10 @@
-package com.taim.conduire.service;
+package com.taim.conduire.service.impl;
 
 import com.taim.conduire.constants.ConstantCodes;
 import com.taim.conduire.domain.RepoData;
 import com.taim.conduire.domain.UserData;
-import com.taim.conduire.service.impl.ChatGPTServiceImpl;
-import com.taim.conduire.service.impl.InsightsServiceImpl;
+import com.taim.conduire.service.RepoDataService;
+import com.taim.conduire.service.UserDataService;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-public class InsightsServiceTest implements ConstantCodes {
+public class InsightsServiceImplTest implements ConstantCodes {
 
     @Mock
     private RepoDataService repoDataService;
