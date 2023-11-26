@@ -9,7 +9,13 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
-//TODO --> Design Smell: Broken Modularization
+
+/**
+ * Entity class representing user data.
+ * This class is used to map data from the "users" table in the database.
+ *
+ * @author Zeel Ravalani
+ */
 @Entity
 @Table(name = "users")
 @Getter @Setter @ToString

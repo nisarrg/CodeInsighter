@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 
-
-// TODO --> Designite detected this class not being used --> unutilized abstraction.
 @RestController
 @RequestMapping("/")
 @Validated
@@ -28,16 +26,32 @@ public class LoginController {
     private UserDataService userDataService;
 
 
+    /**
+     * Controller method for handling user-related requests.
+     *
+     * @param principal        The OAuth2User representing the authenticated user.
+     * @param authorizedClient The OAuth2AuthorizedClient representing the authorized client.
+     * @return A string representation of the user data or an appropriate message.
+     * @author Zeel Ravalani
+     */
     @RequestMapping(value = "/user", method = RequestMethod.GET)
-    public String user(@AuthenticationPrincipal OAuth2User principal, @RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient) {
+    public String user(
+            @AuthenticationPrincipal OAuth2User principal,
+            @RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient
+    ) {
+        // Retrieving the user's access token
         String accessToken = authorizedClient.getAccessToken().getTokenValue();
-        System.out.println("User Access Token: " + accessToken);
+        logger.debug("User Access Token: " + accessToken);
+
+        // Initializing user data
         UserData userData = null;
 
-        if(userDataService.findByGithubUserId(principal.getAttribute("id")) != null) {
+        // Checking if user data already exists
+        if (userDataService.findByGithubUserId(principal.getAttribute("id")) != null) {
             userData = userDataService.findByGithubUserId(principal.getAttribute("id"));
             userData.setLastVisitedOn(new Date());
-        }else {
+        } else {
+            // Creating new user data if not exists
             userData = new UserData();
             userData.setCreatedAt(new Date());
             userData.setGithubUserId(principal.getAttribute("id"));
@@ -57,16 +71,16 @@ public class LoginController {
             userData.setVisible('Y');
             userData.setLastVisitedOn(new Date());
         }
+
+        // Updating user data with the current access token
         userData.setUserAccessToken(accessToken);
         userData = userDataService.update(userData);
 
-        String message = "";
-        if(userData != null) {
-            message = "Data added in the object";
-        }else {
-            message = "Data not added in the object";
-        }
+        // Creating and logging a message based on the result
+        String message = (userData != null) ? "Data added in the object" : "Data not added in the object";
         logger.debug(message);
+
+        // Returning the user data ID as a string
         return "" + userData.getId();
     }
 }

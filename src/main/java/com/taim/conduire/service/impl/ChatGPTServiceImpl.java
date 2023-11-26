@@ -22,6 +22,13 @@ public class ChatGPTServiceImpl implements ChatGPTService {
     @Value("${openai.api.url}")
     private String apiUrl;
 
+    /**
+     * Initiates a chat conversation by sending a prompt to the LLM (Language Model) API.
+     * @author Sameer Amesara
+     * @param prompt The prompt to be sent to the LLM for generating a response.
+     * @return The response message from the LLM API, or "No response" if the response or choices are null or empty.
+     */
+    @Override
     public String chat(String prompt) {
         // create a request
         LLMRequest request = new LLMRequest(model, prompt);
@@ -35,4 +42,13 @@ public class ChatGPTServiceImpl implements ChatGPTService {
         // return the first response
         return response.getChoices().get(0).getMessage().getContent();
     }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public void setApiUrl(String apiUrl) {
+        this.apiUrl = apiUrl;
+    }
+
 }
