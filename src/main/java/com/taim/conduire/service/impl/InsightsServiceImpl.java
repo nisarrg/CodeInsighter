@@ -262,6 +262,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
         String codeQualityEnhancementInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
                 CODE_QUALITY_ENHANCEMENTS);
+        logger.debug(codeQualityEnhancementInsightString);
         return codeQualityEnhancementInsightString;
     }
 
@@ -757,6 +758,12 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         return bugDetectionInApplicationFlowInsightString;
     }
 
+    /**
+     * Retrieves custom code linting insights based on the provided repository data.
+     * @author Sameer Amesara
+     * @param repoData The repository data used to generate insights.
+     * @return A string containing insights related to custom code linting.
+     */
     @Override
     public String getCustomCodeLintingInsights(RepoData repoData) {
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
