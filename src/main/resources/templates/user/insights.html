@@ -476,77 +476,80 @@
         //Common Quality Enhancement Insight Call
         $('#codeQualityEnhancementNav').click(function () {
             console.log("CQE Clicked")
-            if ($("#codeQualityEnhancementContainer").html().trim().length > 0) {
-                // Do nothing
-                console.log("Div has content. Doing nothing.");
-            } else {
-                $("#spinner-div").show(); //Load button clicked show spinner
-                $.ajax({
-                    url: 'get-insights/cqe',
-                    method: 'GET',
-                    dataType: 'json',
-                    success: function (jsonData) {
-                        if (Array.isArray(jsonData)) {
-                            jsonData.forEach((data, index) => {
-                                var chartContainer = $("<div>").attr("id", `chart-${index}`).addClass("chart-container").appendTo("#codeQualityEnhancementContainer");
-                                $("<h5>").html(`<span style="color: red;">${data.developer}</span> - ${data.pr_title}`).appendTo(chartContainer);
+            $("#spinner-div").show(); //Load button clicked show spinner
+            $.ajax({
+                url: 'get-insights/cqe',
+                method: 'GET',
+                dataType: 'json',
+                success: function (jsonData) {
+                    console.log(jsonData);
+                    if (Array.isArray(jsonData) && jsonData.length > 0) {
+                        jsonData.forEach((data, index) => {
+                            var chartContainer = $("<div>").attr("id", `chart-${index}`).addClass("chart-container").appendTo("#codeQualityEnhancementContainer");
+                            $("<h5>").html(`<span style="color: red;">${data.developer}</span> - ${data.pr_title}`).appendTo(chartContainer);
+                            if (data.code_improvements && data.code_improvements.length > 0) {
                                 $(`<span style="font-weight:bold;">Code Improvement Suggestions: </span>`).appendTo(chartContainer);
                                 var codeImprovementsList = $("<ul>").appendTo(chartContainer);
                                 data.code_improvements.forEach((improvement) => {
                                     $("<li>").text(improvement).appendTo(codeImprovementsList);
                                 });
-                                var canvas = $("<canvas>").appendTo(chartContainer);
-                                var ctx = canvas[0].getContext("2d");
-                                var barColors = data.criteria.map(function () {
-                                    return getRandomColor();
-                                });
+                                if (!data.score.every(val => val === 0)) {
+                                    console.log("Score: " + data.score);
+                                    var canvas = $("<canvas>").appendTo(chartContainer);
+                                    var ctx = canvas[0].getContext("2d");
+                                    var barColors = data.criteria.map(function () {
+                                        return getRandomColor();
+                                    });
 
-                                var backgroundColor = barColors.map(function (color) {
-                                    return color.backgroundColor;
-                                });
-                                var borderColor = barColors.map(function (color) {
-                                    return color.borderColor;
-                                });
+                                    var backgroundColor = barColors.map(function (color) {
+                                        return color.backgroundColor;
+                                    });
+                                    var borderColor = barColors.map(function (color) {
+                                        return color.borderColor;
+                                    });
 
-                                new Chart(ctx, {
-                                    type: 'bar',
-                                    data: {
-                                        labels: data.criteria,
-                                        datasets: [{
-                                            label: 'Score',
-                                            data: data.score,
-                                            backgroundColor: backgroundColor,
-                                            borderColor: borderColor,
-                                            borderWidth: 1
-                                        }]
-                                    },
-                                    options: {
-                                        scales: {
-                                            y: {
-                                                beginAtZero: true,
-                                                suggestedMin: 0,
-                                                suggestedMax: 5
+                                    new Chart(ctx, {
+                                        type: 'bar',
+                                        data: {
+                                            labels: data.criteria,
+                                            datasets: [{
+                                                label: 'Score',
+                                                data: data.score,
+                                                backgroundColor: backgroundColor,
+                                                borderColor: borderColor,
+                                                borderWidth: 1
+                                            }]
+                                        },
+                                        options: {
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true,
+                                                    suggestedMin: 0,
+                                                    suggestedMax: 5
+                                                }
                                             }
                                         }
-                                    }
-                                });
-                                $(`<hr>`).appendTo(chartContainer);
-                            });
-                        } else {
-                            // If jsonData is not a valid JSON array, display it as a string
-                            $('#codeQualityEnhancementContainer').html(`<h3>${jsonData.message}</h3>`);
-                        }
-                    },
-                    complete: function () {
-                        $("#spinner-div").hide(); //Request is complete so hide spinner
-                    },
-                    error: function (err) {
-                        $("#spinner-div").hide(); //Request is complete so hide spinner
-                        console.error('Error fetching data:', err);
-                        console.log(err.responseText);
+                                    });
+                                }
+                            } else {
+                                $("<h3>").html(`<span style="color: #263b0f;">No Code improvements need for this PR</span>`).appendTo(chartContainer);
+                            }
+                            $(`<hr>`).appendTo(chartContainer);
+                        });
+                    } else {
+                        // If jsonData is not a valid JSON array, display it as a string
+                        $('#codeQualityEnhancementContainer').html(`<h3>${jsonData.message}</h3>`);
                     }
-                });
-            }
+                },
+                complete: function () {
+                    $("#spinner-div").hide(); //Request is complete so hide spinner
+                },
+                error: function (err) {
+                    $("#spinner-div").hide(); //Request is complete so hide spinner
+                    console.error('Error fetching data:', err);
+                    console.log(err.responseText);
+                }
+            });
         });
 
         //Bug Detection In Application Flow Insight Call
