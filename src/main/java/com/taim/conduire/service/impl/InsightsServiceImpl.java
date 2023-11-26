@@ -239,14 +239,6 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
 
     public String getCodeQualityEnhancementsInsights(RepoData repoData) {
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
-        String codeQualityEnhancementInsightPrompt = getCodeQualityEnhancementInsightLLMPrompt();
-        String codeQualityEnhancementInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
-                codeQualityEnhancementInsightPrompt);
-        return codeQualityEnhancementInsightString;
-    }
-
-    private String getCodeQualityEnhancementInsightLLMPrompt() {
-
         String codeQualityEnhancementInsightPrompt = "The provided string is a map with \n" +
                 "developers as key and value with list of 2 strings where\n" +
                 "First string is the Title of the PR, and second string is the PR Code.\n" +
@@ -267,22 +259,13 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 "    },\n" +
                 "]\n" +
                 "Keep the score and criteria in the same order so later on it can be fetched.\n\n";
-
-        return codeQualityEnhancementInsightPrompt;
+        String codeQualityEnhancementInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
+                codeQualityEnhancementInsightPrompt);
+        return codeQualityEnhancementInsightString;
     }
 
     public String getBugDetectionInApplicationFlowInsights(RepoData repoData) {
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
-        System.out.println("devAndPRCode map: " + devAndPRCode);
-        String bugDetectionInApplicationFlowInsightPrompt = getBugDetectionInApplicationFlowInsightLLMPrompt();
-        String bugDetectionInApplicationFlowInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
-                bugDetectionInApplicationFlowInsightPrompt);
-        System.out.println(bugDetectionInApplicationFlowInsightString);
-        return bugDetectionInApplicationFlowInsightString;
-    }
-
-    private String getBugDetectionInApplicationFlowInsightLLMPrompt() {
-
         String bugDetectionInApplicationFlowInsightPrompt = "The provided string is a map with \n" +
                 "developers as key and value with list of 2 strings where\n" +
                 "First string is the Title of the PR, and second string is the PR Code.\n" +
@@ -311,26 +294,20 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 +
                 "  }\n" +
                 "]";
-
-        return bugDetectionInApplicationFlowInsightPrompt;
+        String bugDetectionInApplicationFlowInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
+                bugDetectionInApplicationFlowInsightPrompt);
+        System.out.println(bugDetectionInApplicationFlowInsightString);
+        return bugDetectionInApplicationFlowInsightString;
     }
 
     public String getCustomCodeLintingInsights(RepoData repoData) {
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
-        String getCustomCodeLintingInsightPrompt = getCustomCodeLintingInsightLLMPrompt();
-        String getCustomCodeLintingInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
-                getCustomCodeLintingInsightPrompt);
-        System.out.println(getCustomCodeLintingInsightString);
-        return getCustomCodeLintingInsightString;
-    }
-
-    private String getCustomCodeLintingInsightLLMPrompt() {
-
         String getCustomCodeLintingInsightPrompt = "The provided string is a map with \n" +
                 "developers as key and value with list of 2 strings where\n" +
                 "First string is the Title of the PR, and second string is the PR Code.\n" +
                 "Linting Check Criteria: Syntax Errors, Code Standards Adherence, Code Smells, Security Checks.\n" +
-                "I want you to conduct linting check based on the above mentioned criteria to find out whether the Linting rules are followed by pushed code.\n"+
+                "I want you to conduct linting check based on the above mentioned criteria to find out whether the Linting rules are followed by pushed code.\n"
+                +
                 "and I want you to display actionable recommendations for improving the Linting Standards.\n" +
                 "and make your response in JSON Array format\n" +
                 "Generate a JSON Array with the following pattern:\n" +
@@ -342,8 +319,30 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 "    \"linting_comments\": [<linting_comment1>, <linting_comment2>, <linting_comment3>],\n" +
                 "  }\n" +
                 "]";
+        String getCustomCodeLintingInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
+                getCustomCodeLintingInsightPrompt);
+        System.out.println(getCustomCodeLintingInsightString);
+        return getCustomCodeLintingInsightString;
+    }
 
-        return getCustomCodeLintingInsightPrompt;
+    public String getTestCaseMinimizationInsights(RepoData repoData) {
+
+        Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
+        String testCaseMinimizationInsightLLMPrompt = "The provided string is a map with \n" +
+                "developers as key and value with list of 2 strings where\n" +
+                "First string is the Title of the PR, and second string is the PR Code.\n" +
+                "Based on the data provided, mention the number of PRs raised.\n" +
+                "And based on all the PRs can you give me an insight about which test cases are trivial" +
+                " or which of the test cases can be avoided?\n" +
+                " If there are no PRs or no test cases that you can get from the data, give the insight as: " +
+                " I did not get any feasible PR or test case. Try again with another repository." +
+                " Please provide your response using HTML Tags and use Bootstrap 5 classes for better readability.";
+
+        String testCaseMinimizationInsightString = getInsightsFromPromptAndDevPRCode(devAndPRCode,
+                testCaseMinimizationInsightLLMPrompt);
+        System.out.println(testCaseMinimizationInsightString);
+
+        return testCaseMinimizationInsightString;
     }
 
     public String getRepositoryPRsCollab(RepoData repoData) throws IOException, InterruptedException {
@@ -555,11 +554,14 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 "would be the most productive. Productivity is defined as a combination of commit count and code smells rating, "
                 +
                 "where lower code smells ratings are preferable.\n\n" +
-                "Provide the names of the two contributors and a brief explanation of why you consider them to be the most productive collaborators based on the given criteria."+
-                "Give the output in the following format and always double check that the output is in this format exactyl:" +
+                "Provide the names of the two contributors and a brief explanation of why you consider them to be the most productive collaborators based on the given criteria."
+                +
+                "Give the output in the following format and always double check that the output is in this format exactyl:"
+                +
                 "<div style=\"background-color: #dcf4f9; color: #2f7787; padding: 10px;\">\n" +
                 "    <h2>Most Productive Collaborators</h2>\n" +
-                "    <p>Based on commit count and code smells ratings, the two most productive collaborators for the GitHub repository are:</p>\n" +
+                "    <p>Based on commit count and code smells ratings, the two most productive collaborators for the GitHub repository are:</p>\n"
+                +
                 "    \n" +
                 "    <ol>\n" +
                 "        <li>\n" +
@@ -604,15 +606,20 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 + "in the following piece of code and if there is, mention " +
                 "the component name, file name, line number and display that code snippet. "
                 + "Give the output in html tags & bootstrap components. Give the Component Name as heading (h3), " +
-                "file name in italics, line number in normal text and the code snippet in monospace font in white font color and " +
-                "keep the background color of the code snippet as \"#323a36\". The background color of the remaining components should be \"#c4df9b\" and " +
-                "the font color should be \"#508500\". Double Check if the Output is in HTML format or not. That is a major requirement from you. Following is the sample output format desired:"+
-                "<div style=\"background-color: #c4df9b; padding: 10px; border-radius: 8px; font-family: Nunito, sans-serif; font-size: .875rem; font-weight: 400; line-height: 1.5; color: #508500;\">\n" +
+                "file name in italics, line number in normal text and the code snippet in monospace font in white font color and "
+                +
+                "keep the background color of the code snippet as \"#323a36\". The background color of the remaining components should be \"#c4df9b\" and "
+                +
+                "the font color should be \"#508500\". Double Check if the Output is in HTML and Strictly in HTML only. Following is the sample output format desired:"
+                +
+                "<div style=\"background-color: #c4df9b; padding: 10px; border-radius: 8px; font-family: Nunito, sans-serif; font-size: .875rem; font-weight: 400; line-height: 1.5; color: #508500;\">\n"
+                +
                 "\n" +
                 "    <h3 style=\"color: #508500;\">Component Name: {$ComponentName}</h3>\n" +
                 "    <p style=\"color: #508500;\"><em>File Name: {$FileName}</em></p>\n" +
                 "    <p style=\"color: #508500;\">Line Number: {$LineNumber}</p>\n" +
-                "    <pre style=\"background-color: #323a36; padding: 10px; border-radius: 4px; overflow: auto; color: #f2f2f3;\">\n" +
+                "    <pre style=\"background-color: #323a36; padding: 10px; border-radius: 4px; overflow: auto; color: #f2f2f3;\">\n"
+                +
                 "        {$CodeComponent}\n" +
                 "    </pre>\n" +
                 "\t\n" +
