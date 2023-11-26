@@ -100,7 +100,6 @@ public class LLMServiceImpl implements LLMService {
         PiePlot plot = (PiePlot) chart.getPlot();
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        // TODO --> Implementation smell: remove magic numbers: 400, 300
         ChartUtilities.writeChartAsPNG(outputStream, chart, 400, 300);
         return outputStream.toByteArray();
     }
@@ -134,7 +133,6 @@ public class LLMServiceImpl implements LLMService {
         // TODO: Ask what is 23, 46, 69, ...???. remove magic numbers.
         // TODO: Make all those statements inside while loop common.
         // TODO: Remove all unnecessary comments. And add meaningful comments instead of sunday, monday.
-        // TODO: Fix the indentation.
         //TODO: Complex method --> cyclomatic complexity is 9
 
         //Sunday
@@ -146,7 +144,6 @@ public class LLMServiceImpl implements LLMService {
         weeklyCount[x] = count;
         x++;
         count = 0;
-        //System.out.println("Value of i is: " + i);
         //Monday
         while (i <= 46) {
             List<Integer> tempList = repoPunchCard.get(i);
@@ -156,7 +153,6 @@ public class LLMServiceImpl implements LLMService {
         weeklyCount[x] = count;
         x++;
         count = 0;
-        //System.out.println("Value of i is: " + i);
         //Tuesday
         while (i <= 69) {
             List<Integer> tempList = repoPunchCard.get(i);
