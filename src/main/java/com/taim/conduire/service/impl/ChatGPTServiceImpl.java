@@ -22,6 +22,7 @@ public class ChatGPTServiceImpl implements ChatGPTService {
     @Value("${openai.api.url}")
     private String apiUrl;
 
+    @Override
     public String chat(String prompt) {
         // create a request
         LLMRequest request = new LLMRequest(model, prompt);

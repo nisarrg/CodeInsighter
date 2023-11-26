@@ -88,6 +88,7 @@ public class LLMServiceImpl implements LLMService {
             dataset.setValue(entry.getKey(), entry.getValue());
         }
 
+        // TODO: Why 8tab space instead of 4?
         JFreeChart chart = ChartFactory.createPieChart(
                 "Your Pie Chart Title",
                 dataset,
