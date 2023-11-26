@@ -60,16 +60,23 @@ public interface InsightsPrompts {
             "developers as key and value with list of 2 strings where\n" +
             "First string is the Title of the PR, and second string is the PR Code.\n" +
             "Linting Check Criteria: Syntax Errors, Code Standards Adherence, Code Smells, Security Checks.\n" +
-            "I want you to conduct linting check based on the above mentioned criteria to find out whether the Linting rules are followed by pushed code.\n" +
+            "I want you to conduct linting check based on the above mentioned criteria to find out whether the Linting rules are followed by pushed code.\n"+
             "and I want you to display actionable recommendations for improving the Linting Standards.\n" +
-            "and make your response in JSON Array format\n" +
+            "and make your response in JSON Array format.\n" +
+            "Note: If a PR code follows linting standards then don't include in the below JSON.\n" +
             "Generate a JSON Array with the following pattern:\n" +
             "[\n" +
             "  {\n" +
             "    \"developer\": \"<developer_name>\",\n" +
             "    \"pr_title\": \"<title_string>\",\n" +
-            "    \"follows_linting\": \"<true or false>\",\n" +
-            "    \"linting_comments\": [<linting_comment1>, <linting_comment2>, <linting_comment3>],\n" +
+            "	 \"lintings\":[\n" +
+            "       {\n" +
+            "	   		\"file_location\": \"<file_name_with_extension>\",\n" +
+            "	       	\"code_in_file\": \"<code_string>\",\n" +
+            "	       	\"issue\":  \"<criteria which is violated>\",\n" +
+            "	       	\"linting_comments\": [\"<comment1>\", \"<comment2>\", \"<comment3>\"]\n" +
+            "	    }\n" +
+            "     ],\n" +
             "  }\n" +
             "]";
 
@@ -104,6 +111,18 @@ public interface InsightsPrompts {
             "    </pre>\n" +
             "\t\n" +
             "</div>\n";
+
+    // Constant representing the prompt for dependency version insights.
+    String DEPENDENCY_VERSION_INSIGHT_PROMPT = "\nWith the above data, provide me insights which tell me whether there" +
+            " is a compatibility mismatch issue or if is it breaking any changes in the versions if any. Also, list me" +
+            " actionable recommendations for compatibility matching for the given versions and any other general " +
+            "insights of the artifactIDs versions being used. Give your answers with a heading for section and a " +
+            "paragraph/list. The headings are Compatibility Mismatch Issue, Actionable Recommendations and " +
+            "General Insights List the dependencies/plugins that are causing issues and state why." +
+            " Give me the response in HTML tags/format using Bootstrap 5" +
+            " classes so I can directly append your response directly to my website.\n";
+
+    String DEPENDENCY_VERSION_INSIGHT_PR_PROMPT = "Below are the Open PRs that have changes to pom.xml, indicating upgrades/downgrades of project dependencies.";
 
     String COLLAB_ANALYSIS_FINAL_PART = "Your task is to determine which two contributors, when collaborating together, " +
             "would be the most productive. Productivity is defined as a combination of commit count and code smells rating, "

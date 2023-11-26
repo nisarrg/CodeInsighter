@@ -23,7 +23,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class RepoDataServiceImplTest {
@@ -137,6 +137,71 @@ public class RepoDataServiceImplTest {
         } catch (Exception e) {
             fail("Unexpected exception type: " + e.getClass().getSimpleName());
         }
+    }
+
+    @Test
+    public void testGetRepositoryPRs() {
+        // Mocking required data
+        RepoData repoData = new RepoData();
+        repoData.setName("exampleRepo");
+        repoData.setUserId(1);
+        UserData userData = new UserData();
+        when(userDataService.getOne(anyInt())).thenReturn(userData);
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("X-RateLimit-Limit", "5000");
+        responseHeaders.set("X-RateLimit-Remaining", "4999");
+
+        // Mocking REST response
+        String mockJsonResponse = "[{\"some\":\"data\"},{\"another\":\"data\"}]";
+        ResponseEntity<String> mockResponseEntity = ResponseEntity.ok().headers(responseHeaders).body(mockJsonResponse);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class)))
+                .thenReturn(mockResponseEntity);
+
+        // Invoke the method being tested
+        Integer prCount = repoDataService.getRepositoryPRs(repoData);
+
+        // Verifying interactions and assertions
+        verify(userDataService, times(1)).getOne(anyInt());
+        verify(restTemplate, times(1)).exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class));
+
+        // Assert the returned PR count matches the size of the mocked JSON array
+        int expectedPRCount = 2; // Assuming 2 items in the mocked JSON array
+        assert prCount != null;
+        assert prCount.equals(expectedPRCount);
+    }
+
+    @Test
+    public void testGetRepositoryForksCount() {
+        // Mocking required data
+        RepoData repoData = new RepoData();
+        repoData.setName("exampleRepo");
+        repoData.setUserId(1);
+
+        UserData userData = new UserData();
+        when(userDataService.getOne(anyInt())).thenReturn(userData);
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("X-RateLimit-Limit", "5000");
+        responseHeaders.set("X-RateLimit-Remaining", "4999");
+
+        // Mocking REST response
+        String mockJsonResponse = "{\"forks_count\": 5}"; // Simulating JSON response
+        ResponseEntity<String> mockResponseEntity = ResponseEntity.ok().headers(responseHeaders).body(mockJsonResponse);;
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class)))
+                .thenReturn(mockResponseEntity);
+
+        // Invoke the method being tested
+        Integer forksCount = repoDataService.getRepositoryForksCount(repoData);
+
+        // Verifying interactions and assertions
+        verify(userDataService, times(1)).getOne(anyInt());
+        verify(restTemplate, times(1)).exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class));
+
+        // Assert the returned forks count matches the mocked JSON response
+        int expectedForksCount = 5;
+        assert forksCount != null;
+        assert forksCount.equals(expectedForksCount);
     }
 
     @Test
@@ -320,36 +385,45 @@ public class RepoDataServiceImplTest {
     }
 
     @Test
-    void getRepositoryPRsTest(){
+    public void testGetRepoLOCRepoTooBigException() {
+        // Mocking required data
         RepoData repoData = new RepoData();
+        repoData.setName("repoName"); // Set the repo name for testing
+
+        // Simulating HttpClientErrorException with a specific response body
+        String responseBody = "{\"message\": \"Repo Size > 500 MB\"}";
+        HttpClientErrorException mockException = new HttpClientErrorException(
+                HttpStatus.BAD_REQUEST, "Bad Request", responseBody.getBytes(), null);
+
+        when(restTemplate.getForObject(anyString(), eq(List.class)))
+                .thenThrow(mockException);
+
+        // Invoke the method being tested
+        String result = repoDataService.getRepoLOC(repoData);
+
+        // Verify interactions and assertions
+        verify(restTemplate, times(1)).getForObject(anyString(), eq(List.class));
+        assert result.equals("Repo > 500 MB");
     }
 
-//    @Test
-//    public void testGetRepoContributors_Negative() {
-//        // Mocking RepoData object
-//        RepoData repoData = new RepoData();
-//        repoData.setName("nonexistentRepo");
-//        repoData.setUserId(1);
-//
-//        // Setting contributors to null to simulate the scenario when API response doesn't contain contributors
-//        List<Map<String, Object>> contributors = null;
-//
-//        // Mocking a response from GitHub API with null contributors
-//        String apiUrl = "https://api.github.com/repos/username/nonexistentRepo/contributors";
-//        HttpHeaders responseHeaders = new HttpHeaders();
-//        responseHeaders.set("X-RateLimit-Limit", "5000");
-//        responseHeaders.set("X-RateLimit-Remaining", "4999");
-//        ResponseEntity<List> responseEntity = ResponseEntity.ok().headers(responseHeaders).body(null);
-//
-//        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(List.class)))
-//                .thenReturn(responseEntity);
-//
-//        Map<String, Integer> repoContributors = repoDataService.getRepoContributors(repoData);
-//
-//        assertNotNull(repoContributors);
-//        assertTrue(repoContributors.isEmpty());
-//        // Add assertions or handling for the scenario when the repository doesn't exist or the GitHub API call fails
-//    }
+    @Test
+    public void testGetRepoLOCGenericException() {
+        // Mocking required data
+        RepoData repoData = new RepoData();
+        repoData.setName("repoName"); // Set the repo name for testing
+
+        // Simulating a generic exception
+        when(restTemplate.getForObject(anyString(), eq(List.class)))
+                .thenThrow(new RuntimeException("An error occurred"));
+
+        // Invoke the method being tested
+        String result = repoDataService.getRepoLOC(repoData);
+
+        // Verify interactions and assertions
+        verify(restTemplate, times(1)).getForObject(anyString(), eq(List.class));
+        assert result.equals("Repo > 500 MB"); // As the catch block returns this string for any exception
+    }
+
 
     private Map<String, Object> createContributorMap(String name, int contributions) {
         return Map.of("login", name, "contributions", contributions);
