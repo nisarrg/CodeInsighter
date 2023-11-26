@@ -31,4 +31,6 @@ public interface InsightsService {
     String getTestCaseMinimizationInsights(RepoData repoData);
 
     String getRepositoryPRsCollab(RepoData repoData) throws IOException, InterruptedException;
+
+    String getAdvancedCodeSearchInsight(RepoData repoData, String input);
 }

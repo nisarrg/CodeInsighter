@@ -50,15 +50,18 @@ public class UserRepoInsightsController {
 
     @RequestMapping(value = "/{repo_id}/get-insights/ccm", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     @ResponseBody
-    public ResponseEntity<String> getCommonCodeMistakesInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
+    public ResponseEntity<String> getCommonCodeMistakesInsights(@PathVariable("repo_id") Integer repoID)
+            throws IOException {
         System.out.println("repoID: " + repoID + "insightType CCM ");
         RepoData repoData = repoDataService.getOne(repoID);
         String commonCodeMistakesInsight = insightsService.getCommonCodeMistakesInsights(repoData);
         return ResponseEntity.ok(commonCodeMistakesInsight);
     }
+
     @RequestMapping(value = "/{repo_id}/get-insights/cqe", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<String> getCodeQualityEnhancementsInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
+    public ResponseEntity<String> getCodeQualityEnhancementsInsights(@PathVariable("repo_id") Integer repoID)
+            throws IOException {
         System.out.println("repoID: " + repoID + " insightType CQE");
         RepoData repoData = repoDataService.getOne(repoID);
         String codeQualityEnhancementInsightString = insightsService.getCodeQualityEnhancementsInsights(repoData);
@@ -68,7 +71,8 @@ public class UserRepoInsightsController {
 
     @RequestMapping(value = "/{repo_id}/get-repo-prs-collab", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<String> getRepoPRsForCollab(@PathVariable("repo_id") Integer repoID) throws IOException, InterruptedException {
+    public ResponseEntity<String> getRepoPRsForCollab(@PathVariable("repo_id") Integer repoID)
+            throws IOException, InterruptedException {
         RepoData repoData = repoDataService.getOne(repoID);
         System.out.println("repoData: " + repoData);
         return ResponseEntity.ok(insightsService.getRepositoryPRsCollab(repoData));
@@ -76,17 +80,32 @@ public class UserRepoInsightsController {
 
     @RequestMapping(value = "/{repo_id}/get-insights/bdaf", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<String> getBugDetectionInApplicationFlowInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
+    public ResponseEntity<String> getBugDetectionInApplicationFlowInsights(@PathVariable("repo_id") Integer repoID)
+            throws IOException {
         System.out.println("repoID: " + repoID + " insightType BDAF");
         RepoData repoData = repoDataService.getOne(repoID);
-        String bugDetectionInApplicationFlowInsightString = insightsService.getBugDetectionInApplicationFlowInsights(repoData);
+        String bugDetectionInApplicationFlowInsightString = insightsService
+                .getBugDetectionInApplicationFlowInsights(repoData);
         System.out.println("bugDetectionInApplicationFlowInsightString: " + bugDetectionInApplicationFlowInsightString);
         return ResponseEntity.ok(bugDetectionInApplicationFlowInsightString);
     }
 
+    @RequestMapping(value = "/{repo_id}/advanced-code-search", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<String> AdvancedCodeSearch(@PathVariable("repo_id") Integer repoID,
+            @RequestParam("inputData") String input) throws IOException {
+        System.out.println("repoID: " + repoID + " insightType ACSI");
+        input.replaceAll("%20", " ");
+        RepoData repoData = repoDataService.getOne(repoID);
+        String getAdvancedCodeSearchInsightString = insightsService.getAdvancedCodeSearchInsight(repoData, input);
+        System.out.println("getAdvancedCodeSearchInsightString: " + getAdvancedCodeSearchInsightString);
+        return ResponseEntity.ok(getAdvancedCodeSearchInsightString);
+    }
+
     @RequestMapping(value = "/{repo_id}/get-insights/ccl", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<String> getCustomCodeLintingInsightInsights(@PathVariable("repo_id") Integer repoID) throws IOException {
+    public ResponseEntity<String> getCustomCodeLintingInsightInsights(@PathVariable("repo_id") Integer repoID)
+            throws IOException {
         System.out.println("repoID: " + repoID + " insightType CCL");
         RepoData repoData = repoDataService.getOne(repoID);
         String customCodeLintingInsightString = insightsService.getCustomCodeLintingInsights(repoData);

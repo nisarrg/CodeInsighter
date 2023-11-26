@@ -59,7 +59,8 @@ public class LLMServiceImpl implements LLMService {
         System.out.println(apiUrl);
         String apiResponse = restTemplate.getForObject(apiUrl, String.class);
         // TODO --> Implementation smell: long statement
-        List<List<Integer>> codeFrequencyStats = objectMapper.readValue(apiResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
+        List<List<Integer>> codeFrequencyStats = objectMapper.readValue(apiResponse,
+                objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
         return codeFrequencyStats;
     }
 
@@ -68,7 +69,8 @@ public class LLMServiceImpl implements LLMService {
         System.out.println(apiUrl);
         String apiResponse = restTemplate.getForObject(apiUrl, String.class);
         // TODO --> Implementation smell: long statement
-        List<List<Integer>> repoPunchCard = objectMapper.readValue(apiResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
+        List<List<Integer>> repoPunchCard = objectMapper.readValue(apiResponse,
+                objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
         computeWeeklyCommits(repoPunchCard);
         return repoPunchCard;
     }
@@ -78,7 +80,8 @@ public class LLMServiceImpl implements LLMService {
         System.out.println(apiUrl);
         String apiResponse = restTemplate.getForObject(apiUrl, String.class);
         // TODO --> Implementation smell: long statement
-        List<List<Integer>> repoPunchCard = objectMapper.readValue(apiResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
+        List<List<Integer>> repoPunchCard = objectMapper.readValue(apiResponse,
+                objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
         return computeWeeklyCommits(repoPunchCard);
     }
 
@@ -94,11 +97,10 @@ public class LLMServiceImpl implements LLMService {
                 dataset,
                 true,
                 true,
-                false
-        );
+                false);
 
         PiePlot plot = (PiePlot) chart.getPlot();
-        //plot.setSection(0000.35);
+        // plot.setSection(0000.35);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         // TODO --> Implementation smell: remove magic numbers: 400, 300
@@ -123,8 +125,7 @@ public class LLMServiceImpl implements LLMService {
                 PlotOrientation.VERTICAL,
                 false,
                 true,
-                false
-        );
+                false);
         return chart;
     }
 
@@ -134,11 +135,12 @@ public class LLMServiceImpl implements LLMService {
         int i = 0, x = 0;
         // TODO: Ask what is 23, 46, 69, ...???. remove magic numbers.
         // TODO: Make all those statements inside while loop common.
-        // TODO: Remove all unnecessary comments. And add meaningful comments instead of sunday, monday.
+        // TODO: Remove all unnecessary comments. And add meaningful comments instead of
+        // sunday, monday.
         // TODO: Fix the indentation.
-        //TODO: Complex method --> cyclomatic complexity is 9
+        // TODO: Complex method --> cyclomatic complexity is 9
 
-        //Sunday
+        // Sunday
         while (i <= 23) {
             List<Integer> tempList = repoPunchCard.get(i);
             count = count + tempList.get(2);
@@ -147,8 +149,8 @@ public class LLMServiceImpl implements LLMService {
         weeklyCount[x] = count;
         x++;
         count = 0;
-        //System.out.println("Value of i is: " + i);
-        //Monday
+        // System.out.println("Value of i is: " + i);
+        // Monday
         while (i <= 46) {
             List<Integer> tempList = repoPunchCard.get(i);
             count = count + tempList.get(2);
@@ -157,8 +159,8 @@ public class LLMServiceImpl implements LLMService {
         weeklyCount[x] = count;
         x++;
         count = 0;
-        //System.out.println("Value of i is: " + i);
-        //Tuesday
+        // System.out.println("Value of i is: " + i);
+        // Tuesday
         while (i <= 69) {
             List<Integer> tempList = repoPunchCard.get(i);
             count = count + tempList.get(2);
@@ -167,7 +169,7 @@ public class LLMServiceImpl implements LLMService {
         weeklyCount[x] = count;
         x++;
         count = 0;
-        //Wednesday
+        // Wednesday
         while (i <= 92) {
             List<Integer> tempList = repoPunchCard.get(i);
             count = count + tempList.get(2);
@@ -176,7 +178,7 @@ public class LLMServiceImpl implements LLMService {
         weeklyCount[x] = count;
         x++;
         count = 0;
-        //Thursday
+        // Thursday
         while (i <= 115) {
             List<Integer> tempList = repoPunchCard.get(i);
             count = count + tempList.get(2);
@@ -185,7 +187,7 @@ public class LLMServiceImpl implements LLMService {
         weeklyCount[x] = count;
         x++;
         count = 0;
-        //Friday
+        // Friday
         while (i <= 138) {
             List<Integer> tempList = repoPunchCard.get(i);
             count = count + tempList.get(2);
@@ -194,7 +196,7 @@ public class LLMServiceImpl implements LLMService {
         weeklyCount[x] = count;
         x++;
         count = 0;
-        //Saturday
+        // Saturday
         while (i <= 161) {
             List<Integer> tempList = repoPunchCard.get(i);
             count = count + tempList.get(2);
@@ -210,7 +212,7 @@ public class LLMServiceImpl implements LLMService {
     public byte[] downloadRepositoryCode(String owner, String repoName) {
         String downloadUrl = githubApiUrl + "/repos/" + owner + "/" + repoName + "/zipball";
         HttpHeaders headers = new HttpHeaders();
-        //headers.setBearerAuth(apiToken);
+        // headers.setBearerAuth(apiToken);
         HttpEntity<String> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<byte[]> responseEntity = restTemplate.exchange(
@@ -223,7 +225,8 @@ public class LLMServiceImpl implements LLMService {
             return responseEntity.getBody();
         } else {
             // TODO: unnecessary else statement
-            throw new RuntimeException("Failed to download repository code. Status code: " + responseEntity.getStatusCodeValue());
+            throw new RuntimeException(
+                    "Failed to download repository code. Status code: " + responseEntity.getStatusCodeValue());
         }
     }
 
@@ -236,7 +239,7 @@ public class LLMServiceImpl implements LLMService {
 
     public String getRepoData() {
         String apiUrl = String.format("%s/repos/%s/%s", githubApiUrl, owner, repo);
-        //String apiUrl = githubApiUrl + "/repos/" + owner + "/" + repoName;
+        // String apiUrl = githubApiUrl + "/repos/" + owner + "/" + repoName;
         return restTemplate.getForObject(apiUrl, String.class);
     }
 
@@ -249,9 +252,9 @@ public class LLMServiceImpl implements LLMService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        //headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        // headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
-        //String apiUrl = String.format("%s/repos/%s/%s", githubApiUrl, owner, repo);
+        // String apiUrl = String.format("%s/repos/%s/%s", githubApiUrl, owner, repo);
         URI uri = URI.create(githubApiUrl + "/repos/" + owner + "/" + repo + "/contents" + "/" + path);
 
         RequestEntity<?> requestEntity = RequestEntity.get(uri).headers(headers).build();
@@ -262,9 +265,9 @@ public class LLMServiceImpl implements LLMService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        //headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        // headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
-        //String apiUrl = String.format("%s/repos/%s/%s", githubApiUrl, owner, repo);
+        // String apiUrl = String.format("%s/repos/%s/%s", githubApiUrl, owner, repo);
         URI uri = URI.create(githubApiUrl + "/repos/" + owner + "/" + repo + "/contents");
 
         RequestEntity<?> requestEntity = RequestEntity.get(uri).headers(headers).build();
@@ -284,7 +287,8 @@ public class LLMServiceImpl implements LLMService {
             String content = response.getBody();
             System.out.println("RESPONSE 200");
             System.out.println(content);
-            //content = content.substring(content.indexOf("content")+9,content.indexOf("encoding")-3);
+            // content =
+            // content.substring(content.indexOf("content")+9,content.indexOf("encoding")-3);
             content = jsonUtils.parseJSONResponseAsTree(content);
             // TODO: As the reason for double backslashes.
             content = content.replaceAll("\\s", "");
@@ -301,7 +305,7 @@ public class LLMServiceImpl implements LLMService {
     private HttpHeaders createHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
-        //headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        // headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         return headers;
     }

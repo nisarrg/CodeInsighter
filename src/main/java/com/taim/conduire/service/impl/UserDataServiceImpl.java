@@ -13,11 +13,11 @@ import java.util.List;
 
 @Service
 public class UserDataServiceImpl implements UserDataService {
-	private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger();
 
     @Autowired
     private UserDataRepository repository;
-    
+
     public JpaRepository<UserData, Integer> getRepository() {
         return repository;
     }

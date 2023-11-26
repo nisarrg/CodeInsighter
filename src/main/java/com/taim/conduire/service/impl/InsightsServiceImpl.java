@@ -196,41 +196,43 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
 
         String llmInsightString;
 
-        Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(llmInsightPrompt);
+        Integer llmTokenLimitWithPrompt = LLM_TOKEN_LIMIT - countTokens(llmInsightPrompt); //4096 - 96 = 4000
         Map<String, List<String>> devAndPRCodeWithLimit = new HashMap<>();
+        if(!devAndPRCode.isEmpty()){
+            for (Map.Entry<String, List<String>> entry : devAndPRCode.entrySet()) {
 
-        for (Map.Entry<String, List<String>> entry : devAndPRCode.entrySet()) {
-
-            String element = entry.getKey() + "=" + entry.getValue().toString() + ",";
-            if (countTokens(devAndPRCodeWithLimit + element) <= llmTokenLimitWithPrompt) {
-                devAndPRCodeWithLimit.put(entry.getKey(), entry.getValue());
-                llmTokenLimitWithPrompt -= countTokens(devAndPRCodeWithLimit + element);
+                String element = entry.getKey() + "=" + entry.getValue().toString() + ",";
+                if (countTokens(devAndPRCodeWithLimit + element) <= llmTokenLimitWithPrompt) {
+                    devAndPRCodeWithLimit.put(entry.getKey(), entry.getValue());
+                    llmTokenLimitWithPrompt -= countTokens(devAndPRCodeWithLimit + element);
+                }
             }
-        }
-        System.out.println("devAndPRCodeWithLimit Size: " + devAndPRCodeWithLimit.size());
-        System.out.println("Final code Token: " + countTokens(devAndPRCodeWithLimit.toString()));
-        if (devAndPRCodeWithLimit.isEmpty()) {
-            System.out.println("devAndPRCodeWithLimit: " + devAndPRCodeWithLimit.size());
-            llmInsightString = "{\"message\":\"There are no Open PR for this Repository\"}";
-        } else {
-            String devAndPRCodeWithLimitString;
-            if (devAndPRCodeWithLimit.size() > 3) {
-                devAndPRCodeWithLimitString = devAndPRCode.entrySet()
-                        .stream()
-                        .limit(3)
-                        .map(entry -> entry.getKey() + "=" + entry.getValue())
-                        .collect(Collectors.joining(", ", "{", "}"));
+            System.out.println("devAndPRCodeWithLimit Size: " + devAndPRCodeWithLimit.size());
+            System.out.println("Final code Token: " + countTokens(devAndPRCodeWithLimit.toString()));
+            if (devAndPRCodeWithLimit.isEmpty()) {
+                System.out.println("devAndPRCodeWithLimit: " + devAndPRCodeWithLimit.size());
+                llmInsightString = "{\"message\":\"There are no open PR for this Repository which can be processed by LLM. \"}";
             } else {
-                devAndPRCodeWithLimitString = devAndPRCodeWithLimit.toString();
+                String devAndPRCodeWithLimitString;
+                if (devAndPRCodeWithLimit.size() > 3) {
+                    devAndPRCodeWithLimitString = devAndPRCodeWithLimit.entrySet()
+                            .stream()
+                            .limit(3)
+                            .map(entry -> entry.getKey() + "=" + entry.getValue())
+                            .collect(Collectors.joining(", ", "{", "}"));
+                } else {
+                    devAndPRCodeWithLimitString = devAndPRCodeWithLimit.toString();
+                }
+                System.out.println("Final prompt Token: " + countTokens(llmInsightPrompt));
+                System.out.println("Final devAndPRCodeWithLimitString Token: " + countTokens(devAndPRCodeWithLimitString));
+                String promptAndCode = llmInsightPrompt + devAndPRCodeWithLimitString;
+
+                System.out.println("Final prompt + code Token: " + countTokens(promptAndCode));
+                llmInsightString = chatGPTService.chat(promptAndCode);
             }
-            System.out.println("Final prompt Token: " + countTokens(llmInsightPrompt));
-            System.out.println("Final devAndPRCodeWithLimitString Token: " + countTokens(devAndPRCodeWithLimitString));
-            String promptAndCode = llmInsightPrompt + devAndPRCodeWithLimitString;
-
-            System.out.println("Final prompt + code Token: " + countTokens(promptAndCode));
-            llmInsightString = chatGPTService.chat(promptAndCode);
+        } else {
+            llmInsightString = "{\"message\":\"There are no open PR for this Repository.\"}";
         }
-
         return llmInsightString;
 
     }
@@ -261,7 +263,6 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 codeQualityEnhancementInsightPrompt);
         return codeQualityEnhancementInsightString;
     }
-
 
     public String getBugDetectionInApplicationFlowInsights(RepoData repoData) {
         Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
@@ -305,7 +306,8 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 "developers as key and value with list of 2 strings where\n" +
                 "First string is the Title of the PR, and second string is the PR Code.\n" +
                 "Linting Check Criteria: Syntax Errors, Code Standards Adherence, Code Smells, Security Checks.\n" +
-                "I want you to conduct linting check based on the above mentioned criteria to find out whether the Linting rules are followed by pushed code.\n" +
+                "I want you to conduct linting check based on the above mentioned criteria to find out whether the Linting rules are followed by pushed code.\n"
+                +
                 "and I want you to display actionable recommendations for improving the Linting Standards.\n" +
                 "and make your response in JSON Array format\n" +
                 "Generate a JSON Array with the following pattern:\n" +
@@ -322,7 +324,6 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
         System.out.println(getCustomCodeLintingInsightString);
         return getCustomCodeLintingInsightString;
     }
-
 
     public String getTestCaseMinimizationInsights(RepoData repoData) {
 
@@ -449,7 +450,7 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
     // This method would hit the 3 diff urls in the map and store them in three text
     // file: diff1.txt, diff2.txt, diff3.txt
     public void getCodefromDiffUrl(Map<String, String> contributorDiff, RepoData repoData,
-                                   Map<String, Integer> sortedMap) throws IOException {
+            Map<String, Integer> sortedMap) throws IOException {
         int count = 1;
         for (Map.Entry<String, String> entry : contributorDiff.entrySet()) {
             System.out.println("Individual: " + entry.getKey());
@@ -553,7 +554,34 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
                 "would be the most productive. Productivity is defined as a combination of commit count and code smells rating, "
                 +
                 "where lower code smells ratings are preferable.\n\n" +
-                "Provide the names of the two contributors and a brief explanation of why you consider them to be the most productive collaborators based on the given criteria.");
+                "Provide the names of the two contributors and a brief explanation of why you consider them to be the most productive collaborators based on the given criteria."
+                +
+                "Give the output in the following format and always double check that the output is in this format exactyl:"
+                +
+                "<div style=\"background-color: #dcf4f9; color: #2f7787; padding: 10px;\">\n" +
+                "    <h2>Most Productive Collaborators</h2>\n" +
+                "    <p>Based on commit count and code smells ratings, the two most productive collaborators for the GitHub repository are:</p>\n"
+                +
+                "    \n" +
+                "    <ol>\n" +
+                "        <li>\n" +
+                "            <strong>${Contributor-1}</strong>\n" +
+                "            <ul>\n" +
+                "                <li>Commit Count: ${Contributor1-CommitCount}</li>\n" +
+                "                <li>Code Smells Rating:${Contributor1-SmellRating}</li>\n" +
+                "            </ul>\n" +
+                "        </li>\n" +
+                "        <li>\n" +
+                "            <strong>${Contributor-2}</strong>\n" +
+                "            <ul>\n" +
+                "                <li>Commit Count:  ${Contributor2-CommitCount}</li>\n" +
+                "                <li>Code Smells Rating: ${Contributor2-SmellRating}</li>\n" +
+                "            </ul>\n" +
+                "        </li>\n" +
+                "    </ol>\n" +
+                "\n" +
+                "<p>${Explanation}</p>\n" +
+                "</div>");
         fw.close();
         String finalPrompt = new String(
                 Files.readAllBytes(Paths.get(COLLAB_ANALYSIS_FILES_PATH + "SmellRatingPrompt.txt")));
@@ -562,6 +590,42 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
         System.out.println("Collab Analysis GPT Response:\n" + finalResponse);
 
         return finalResponse;
+    }
+
+    public String getAdvancedCodeSearchInsight(RepoData repoData, String input) {
+        Map<String, List<String>> devAndPRCode = getDevPRCode(repoData);
+        String AdvancedCodeSearchPrompt = getAdvancedCodeSearchPrompt(input);
+        String AdvancedCodeSearchString = getInsightsFromPromptAndDevPRCode(devAndPRCode, AdvancedCodeSearchPrompt);
+        System.out.println(AdvancedCodeSearchString);
+        return AdvancedCodeSearchString;
+    }
+
+    private String getAdvancedCodeSearchPrompt(String input) {
+
+        String AdvancedCodeSearchPrompt = "Check if there is/are any " + input
+                + "in the following piece of code and if there is, mention " +
+                "the component name, file name, line number and display that code snippet. "
+                + "Give the output in html tags & bootstrap components. Give the Component Name as heading (h3), " +
+                "file name in italics, line number in normal text and the code snippet in monospace font in white font color and "
+                +
+                "keep the background color of the code snippet as \"#323a36\". The background color of the remaining components should be \"#c4df9b\" and "
+                +
+                "the font color should be \"#508500\". Double Check if the Output is in HTML and Strictly in HTML only. Following is the sample output format desired:"
+                +
+                "<div style=\"background-color: #c4df9b; padding: 10px; border-radius: 8px; font-family: Nunito, sans-serif; font-size: .875rem; font-weight: 400; line-height: 1.5; color: #508500;\">\n"
+                +
+                "\n" +
+                "    <h3 style=\"color: #508500;\">Component Name: {$ComponentName}</h3>\n" +
+                "    <p style=\"color: #508500;\"><em>File Name: {$FileName}</em></p>\n" +
+                "    <p style=\"color: #508500;\">Line Number: {$LineNumber}</p>\n" +
+                "    <pre style=\"background-color: #323a36; padding: 10px; border-radius: 4px; overflow: auto; color: #f2f2f3;\">\n"
+                +
+                "        {$CodeComponent}\n" +
+                "    </pre>\n" +
+                "\t\n" +
+                "</div>\n";
+
+        return AdvancedCodeSearchPrompt;
     }
 
 }
