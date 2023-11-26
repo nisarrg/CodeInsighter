@@ -37,7 +37,7 @@ public class LLMServiceImpl implements LLMService {
     private String owner;
     @Value("${github.repository.name}")
     private String repo;
-    // TODO: WTF. accessToken hardcoded.
+    // TODO: accessToken hardcoded?
     @Value("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")
     private String accessToken;
     @Autowired
@@ -55,30 +55,30 @@ public class LLMServiceImpl implements LLMService {
     }
 
     public List<List<Integer>> getRepositoryCodeFrequency() throws IOException {
+        List<List<Integer>> codeFrequencyStats;
         String apiUrl = String.format("%s/repos/%s/%s/stats/code_frequency", githubApiUrl, owner, repo);
         System.out.println(apiUrl);
         String apiResponse = restTemplate.getForObject(apiUrl, String.class);
-        // TODO --> Implementation smell: long statement
-        List<List<Integer>> codeFrequencyStats = objectMapper.readValue(apiResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
+        codeFrequencyStats = objectMapper.readValue(apiResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
         return codeFrequencyStats;
     }
 
     public List<List<Integer>> getRepositoryPunchCard() throws IOException {
+        List<List<Integer>> repoPunchCard;
         String apiUrl = String.format("%s/repos/%s/%s/stats/punch_card", githubApiUrl, owner, repo);
         System.out.println(apiUrl);
         String apiResponse = restTemplate.getForObject(apiUrl, String.class);
-        // TODO --> Implementation smell: long statement
-        List<List<Integer>> repoPunchCard = objectMapper.readValue(apiResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
+        repoPunchCard = objectMapper.readValue(apiResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
         computeWeeklyCommits(repoPunchCard);
         return repoPunchCard;
     }
 
     public int[] getRepositoryPunchCardtest(String name) throws IOException {
+        List<List<Integer>> repoPunchCard;
         String apiUrl = String.format("%s/repos/%s/stats/punch_card", githubApiUrl, name);
         System.out.println(apiUrl);
         String apiResponse = restTemplate.getForObject(apiUrl, String.class);
-        // TODO --> Implementation smell: long statement
-        List<List<Integer>> repoPunchCard = objectMapper.readValue(apiResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
+        repoPunchCard = objectMapper.readValue(apiResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, List.class));
         return computeWeeklyCommits(repoPunchCard);
     }
 
@@ -88,7 +88,6 @@ public class LLMServiceImpl implements LLMService {
             dataset.setValue(entry.getKey(), entry.getValue());
         }
 
-        // TODO: Why 8tab space instead of 4?
         JFreeChart chart = ChartFactory.createPieChart(
                 "Your Pie Chart Title",
                 dataset,
@@ -98,7 +97,6 @@ public class LLMServiceImpl implements LLMService {
         );
 
         PiePlot plot = (PiePlot) chart.getPlot();
-        //plot.setSection(0000.35);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         // TODO --> Implementation smell: remove magic numbers: 400, 300

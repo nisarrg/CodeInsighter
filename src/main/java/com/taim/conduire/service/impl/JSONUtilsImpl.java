@@ -46,13 +46,6 @@ public class JSONUtilsImpl implements JSONUtils {
             // Extract the value from the "content" field
             String content = jsonNode.get("content").asText();
 
-            // TODO: Unnecessary comments
-            // Decode the base64-encoded content
-            /*byte[] decodedBytes = java.util.Base64.getDecoder().decode(content);
-            String decodedContent = new String(decodedBytes);
-
-            System.out.println("Content: " + decodedContent);*/
-
             return content;
         } catch (Exception e) {
             e.printStackTrace();

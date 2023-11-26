@@ -55,9 +55,10 @@ public class RepoDataServiceImplTest {
 
     @Test
     public void testFindByGithubRepoId_Negative() {
-        when(repository.findByGithubRepoId(2)).thenReturn(null);
+        final int dummyRepoId = 2;
+        when(repository.findByGithubRepoId(dummyRepoId)).thenReturn(null);
 
-        RepoData foundRepoData = repoDataService.findByGithubRepoId(2);
+        RepoData foundRepoData = repoDataService.findByGithubRepoId(dummyRepoId);
 
         assertNull(foundRepoData);
     }
@@ -65,7 +66,7 @@ public class RepoDataServiceImplTest {
     @Test
     public void testFindByUserId_Positive() {
         // Mocking user ID and creating a list of RepoData for that user
-        int userId = 123;
+        final int userId = 123;
         List<RepoData> repoList = new ArrayList<>();
         repoList.add(new RepoData());
         repoList.add(new RepoData());
@@ -80,7 +81,7 @@ public class RepoDataServiceImplTest {
     @Test
     public void testFindByUserId_Negative() {
         // Mocking user ID and providing an empty list of RepoData
-        int userId = 456;
+        final int userId = 456;
         List<RepoData> emptyRepoList = new ArrayList<>();
 
         when(repository.findByUserId(userId)).thenReturn(emptyRepoList);
@@ -249,12 +250,14 @@ public class RepoDataServiceImplTest {
         repoData.setName("exampleRepo");
         repoData.setUserId(1);
 
+        final int expectedLinesOfCode = 1000;
+
         // Mocking a response from the external API for repository lines of code (LOC)
         String apiUrl = "https://api.codetabs.com/v1/loc?github=exampleRepo";
         List<Map<String, Object>> locArrMap = new ArrayList<>();
         Map<String, Object> language1 = new HashMap<>();
         language1.put("language", "Total");
-        language1.put("linesOfCode", 1000);
+        language1.put("linesOfCode", expectedLinesOfCode);
         locArrMap.add(language1);
 
         when(restTemplate.getForObject(apiUrl, List.class)).thenReturn(locArrMap);

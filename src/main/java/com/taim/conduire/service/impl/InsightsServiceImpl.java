@@ -232,7 +232,6 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes {
         }
 
         return llmInsightString;
-
     }
 
     public String getCodeQualityEnhancementsInsights(RepoData repoData) {
