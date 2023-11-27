@@ -1,4 +1,3 @@
-
 Table of Contents
 =================
 
@@ -229,11 +228,11 @@ Here, the user can efficiently locate specific code flows within any codebase.
 
 ## Smell Analysis Summary
 
-- [Excel File Attached]()
+- [Excel File Attached](/reports/codeSmellAnalysis/smell_analysis_summary.xlsx)
 
 ## Member Contribution and Client Feedbacks
 
-- [Excel File Attached]()
+- [Excel File Attached](/reports/feedbacks/contribution_statement.xlsx)
 
 
 
