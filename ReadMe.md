@@ -255,7 +255,7 @@ This feature would work only with the Java project that are build using maven.
 
 ## Submission Presentation
 
-- [Excel File Attached](/reports/submission_presentation.pptx)
+- [File Attached](/reports/submission_presentation.pptx)
 
 
 
