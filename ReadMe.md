@@ -9,6 +9,7 @@ Table of Contents
 * [External Dependencies](#external-dependencies)
 * [Resources Used for CodeInsighter](#resources-used-for-codeinsighter)
 * [User Scenarios](#user-scenarios)
+* [Limitations](#limitations)
 * [Contributors](#contributors)
 * [Smell Analysis Summary](#smell-analysis-summary)
 * [Member Contribution](#member-contribution)
@@ -219,6 +220,17 @@ Here, the user can efficiently locate specific code flows within any codebase.
 
 ![Advanced Code Search and Retrieval](/reports/screenshots/AdvancedCodeSearchandRetrieval.jpg)
 
+## Limitations
+- **Fixed Number of tokens:** 
+OpenAI API's current version allows only 4098 tokens at a time. Hence, processing of big PRs is not possible. Hence, we are filtering the PRs on the basis of tokens.
+- **Complex Tasks:**
+The current version of OpenAI's API used in the application is unable to to handle complex, multi-step tasks or actions might be limited. It might struggle with intricate commands or tasks requiring a sequence of actions.
+- **API Rate Limitations:**
+The current version of OpenAI's API used has rate limitations on the number of requests or API calls, which can impact the continuity of service.
+- **Request Processing Time:** 
+The processing time of each insight may vary according to the complexity of PRs and the prompt.
+- **Dependency Version Compatibility feature:**
+This feature would work only with the Java project that are build using maven.
 ## Contributors
 - [Pooja Chauhan](https://git.cs.dal.ca/poojac) (B00971297)
 - [Pratik Sakaria](https://git.cs.dal.ca/psakaria) (B00954261)
