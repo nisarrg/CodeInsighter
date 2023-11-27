@@ -6,9 +6,10 @@ Table of Contents
 * [Pre-requisites](#pre-requisites)
 * [Local Database Setup](#local-database-setup)
 * [Running the Application Locally](#running-the-application-locally)
+* [Deployment Steps](#deployment-steps)
 * [External Dependencies](#external-dependencies)
 * [Resources Used for CodeInsighter](#resources-used-for-codeinsighter)
-* [Screenshots](#screenshots)
+* [User Scenarios](#user-scenarios)
 * [Contributors](#contributors)
 * [Smell Analysis Summary](#smell-analysis-summary)
 * [Member Contribution](#member-contribution)
@@ -69,6 +70,55 @@ For build and running the application locally you would require:
   mvn spring-boot:run
 ```
 
+## Deployment Steps
+
+#### Prerequisites
+Before deploying the application, ensure you have the following prerequisites:
+- Access to a server or host machine where the application will be deployed.
+- Docker installed on the server.
+- SSH access to the deployment server with necessary permissions.
+
+#### Deployment Process
+
+- **Build the Application**
+
+Ensure the application is built using Maven. Run the following
+command:
+   ```bash
+   mvn clean install
+   ```
+
+- **Publish Docker Image**
+
+Push the Docker image to Docker Hub by executing the following commands:
+   ```bash
+  docker login -u YOUR_DOCKER_USERNAME -p YOUR_DOCKER_PASSWORD docker.io
+  docker build -t docker.io/group12project/llm_insights:<VERSION> .
+  docker push docker.io/group12project/llm_insights:<VERSION>
+   ```
+- **Deploy the Application**
+
+SSH into the deployment server:
+   ```bash
+  ssh -i <path-to-your-private-key> YOUR_SERVER_USER@YOUR_SERVER_IP
+   ```
+Then run the following commands on the server to deploy the application:
+```bash
+docker login -u YOUR_DOCKER_USERNAME -p YOUR_DOCKER_PASSWORD docker.io
+docker pull docker.io/group12project/llm_insights:<VERSION>
+docker container rm -f my-app || true
+docker run -d -p YOUR_DESIRED_PORT:8080 --name my-app docker.io/group12project/llm_insights:<VERSION>
+   ```
+Replace **<VERSION>** with the appropriate version or commit SHA and YOUR_DESIRED_PORT with the port number you want to expose the application on.
+
+- **Verify the Deployment**
+  
+Access the deployed application via the browser using the server's IP address and the specified port.
+
+
+
+
+
 ## External Dependencies
 
 | Dependency Name                      | Version    | Description                                                                 |
@@ -91,9 +141,14 @@ For build and running the application locally you would require:
 | jsoup                                | 1.10.2     | Java library for working with HTML parsing and manipulation                 |
 
 ## Resources Used for CodeInsighter
-Add Some citations and resources
 
-## Screenshots
+- [UBOLD BootStrap Theme for Frontend](https://coderthemes.com/ubold/)
+- [Jquery Plugin for Frontend](https://jquery.com/)
+- [Intellij Idea Ultimate for development](https://www.jetbrains.com/idea/)
+- [Codetabs for calculating lines of code](https://codetabs.com/count-loc/count-loc-online.html)
+- [OpenAI API for LLM Insights](https://platform.openai.com/docs/guides/text-generation/chat-completions-api)
+
+## User Scenarios
 
 - **CodeInsighter Login**
 
@@ -131,37 +186,37 @@ Here, the user will get insights based on common types of mistakes occurring in 
 ![Common Code Mistakes](/reports/screenshots/CommonCodeMistakes.jpg)
 
 **2) Collaboration Analysis:**
-Here, the user will get insights based on common types of mistakes occurring in the code by using the code review comments.
+Here, the user will get insights on Collaboration Analysis. Using this feature, users can identify active contributors and their impact on the repository. This feature analyzes collaboration patterns, such as who works together frequently on issues and pull requests.
 
 ![Collaboration Analysis](/reports/screenshots/CollaborationAnalysis.jpg)
 
 **3) Code Quality Enhancement:**
-Here, the user will get insights based on common types of mistakes occurring in the code by using the code review comments.
+Here, the user will get insights on code improvements based on different criteria like Readability, Performance, Correctness, and Scalability. On open Pull Requests (PRs) by the first 3 developers who recently raised a PR, so that we can ensure code quality, adherence to coding standards, and catch potential issues early in the development process.
 
 ![Code Quality Enhancement](/reports/screenshots/CodeQualityEnhancement.jpg)
 
 **4) Custom Code Linting:**
-Here, the user will get insights based on common types of mistakes occurring in the code by using the code review comments.
+Here, the user will get insights on adherence to Linting Rules. This feature distinguishes itself from conventional code Linting by assessing code pushed by developers within open Pull Requests (PRs) and executing checks to ensure compliance with Linting standards.
 
 ![Custom Code Linting](/reports/screenshots/CustomCodeLinting.jpg)
 
 **5) Dependency Version Compatibility:**
-Here, the user will get insights based on common types of mistakes occurring in the code by using the code review comments.
+Here, the user will get insights based on Dependency Version Compatibility. Currently, it is limited for Java Maven projects that has pom.xml.
 
 ![Dependency Version Compatibility](/reports/screenshots/DependencyVersionCompatibility.jpg)
 
 **6) Bug Detection in Application Flow:**
-Here, the user will get insights based on common types of mistakes occurring in the code by using the code review comments.
+Here, the user will get insights on bug detection in application's Flow. Using this feature, users can identify application's major flaws. This featur  e is different from traditional code review. Here, the application will consider code pushed by the developer in any open PR that can introduce unexpected bugs in the application's major flows..
 
 ![Bug Detection in Application Flow](/reports/screenshots/BugDetectioninApplicationFlow.jpg)
 
 **7) Test Case Minimization:**
-Here, the user will get insights based on common types of mistakes occurring in the code by using the code review comments.
+Here, the user will get insights on Test Case Minimization. This feature will analyse trivial test cases in a repository. It will check test cases corresponding to each Pull Request and will provide insights about them.
 
 ![Test Case Minimization](/reports/screenshots/TestCaseMinimization.jpg)
 
 **8) Advanced Code Search and Retrieval:**
-Here, the user will get insights based on common types of mistakes occurring in the code by using the code review comments.
+Here, the user can efficiently locate specific code flows within any codebase.
 
 ![Advanced Code Search and Retrieval](/reports/screenshots/AdvancedCodeSearchandRetrieval.jpg)
 
@@ -176,12 +231,9 @@ Here, the user will get insights based on common types of mistakes occurring in 
 
 - [Excel File Attached]()
 
-## Member Contribution
+## Member Contribution and Client Feedbacks
 
 - [Excel File Attached]()
 
-## Client Team Feedback
-
-- [Excel File Attached]()
 
 
