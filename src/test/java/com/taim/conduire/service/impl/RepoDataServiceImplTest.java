@@ -165,7 +165,7 @@ public class RepoDataServiceImplTest {
         verify(userDataService, times(1)).getOne(anyInt());
         verify(restTemplate, times(1)).exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class));
 
-        // Assert the returned PR count matches the size of the mocked JSON array
+
         int expectedPRCount = 2; // Assuming 2 items in the mocked JSON array
         assert prCount != null;
         assert prCount.equals(expectedPRCount);
@@ -286,10 +286,7 @@ public class RepoDataServiceImplTest {
                 .thenReturn(responseEntity);
 
         String parentRepo = repoDataService.getParentRepo(forkedRepoData);
-
-        assertNotNull(parentRepo);
         assertEquals("username/parentRepo", parentRepo);
-        // Add assertions based on the expected response from the GitHub API for a forked repository
     }
 
     @Test
@@ -303,9 +300,7 @@ public class RepoDataServiceImplTest {
         // The method should return the same name as it's not a forked repository
         String parentRepo = repoDataService.getParentRepo(nonForkedRepoData);
 
-        assertNotNull(parentRepo);
         assertEquals("nonForkedRepo", parentRepo);
-        // Add assertions or handling for the scenario when the repository is not a fork
     }
 
     @Test
@@ -329,7 +324,6 @@ public class RepoDataServiceImplTest {
 
         String repoLOC = repoDataService.getRepoLOC(repoData);
 
-        assertNotNull(repoLOC);
         assertEquals("1000", repoLOC);
     }
 
@@ -349,7 +343,6 @@ public class RepoDataServiceImplTest {
         String repoLOC = repoDataService.getRepoLOC(repoData);
 
         assertEquals("Repo > 500 MB", repoLOC);
-        // Add assertions or handling for the scenario when the repository size exceeds the limit or the API call fails
     }
 
     @Test

@@ -122,7 +122,6 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
             JsonObject repoSourceJsonObject = repoJsonObject.get("source").getAsJsonObject();
             String repoSourceURL = repoSourceJsonObject.get("url").getAsString();
             String prReviewCommentsURL = String.format(repoSourceURL + GITHUB_PULLS + GITHUB_COMMENTS);
-            // TODO: extract the same part form if-else
             prReviewResposne = restTemplate.exchange(prReviewCommentsURL, HttpMethod.GET, entity, String.class);
         } else {
             String prReviewCommentsURL = String.format(apiUrl + GITHUB_PULLS + GITHUB_COMMENTS);
@@ -134,7 +133,6 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         Map<String, List<String>> reviewerComments = new HashMap<>();
 
         for (JsonElement element : prReviewJsonArray) {
-            // TODO: Early return
             if (element.isJsonObject()) {
                 JsonObject reviewCommentObject = element.getAsJsonObject();
                 String reviewer;
@@ -1025,8 +1023,6 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
         logger.debug(apiURL);
         ResponseEntity<String> response = restTemplate.exchange(apiURL, HttpMethod.GET,
                 getAllHeadersEntity(userData.getUserAccessToken()), String.class);
-
-        // TODO: Flip the condition and get an early return
         if (response.getStatusCodeValue() == 200) {
             // The response contains base64-encoded content, so decode it
             String content = response.getBody();
@@ -1035,7 +1031,6 @@ public class InsightsServiceImpl implements InsightsService, ConstantCodes, Insi
             // content =
             // content.substring(content.indexOf("content")+9,content.indexOf("encoding")-3);
             content = jsonUtils.parseJSONResponseAsTree(content);
-            // TODO: As the reason for double backslashes.
             content = content.replaceAll("\\s", "");
             logger.debug(content);
             String decodedContent = new String(Base64.getDecoder().decode(content), StandardCharsets.UTF_8);
