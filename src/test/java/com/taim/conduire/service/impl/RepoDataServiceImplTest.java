@@ -55,9 +55,10 @@ public class RepoDataServiceImplTest {
 
     @Test
     public void testFindByGithubRepoId_Negative() {
-        when(repository.findByGithubRepoId(2)).thenReturn(null);
+        final int dummyRepoId = 2;
+        when(repository.findByGithubRepoId(dummyRepoId)).thenReturn(null);
 
-        RepoData foundRepoData = repoDataService.findByGithubRepoId(2);
+        RepoData foundRepoData = repoDataService.findByGithubRepoId(dummyRepoId);
 
         assertNull(foundRepoData);
     }
@@ -65,7 +66,7 @@ public class RepoDataServiceImplTest {
     @Test
     public void testFindByUserId_Positive() {
         // Mocking user ID and creating a list of RepoData for that user
-        int userId = 123;
+        final int userId = 123;
         List<RepoData> repoList = new ArrayList<>();
         repoList.add(new RepoData());
         repoList.add(new RepoData());
@@ -80,7 +81,7 @@ public class RepoDataServiceImplTest {
     @Test
     public void testFindByUserId_Negative() {
         // Mocking user ID and providing an empty list of RepoData
-        int userId = 456;
+        final int userId = 456;
         List<RepoData> emptyRepoList = new ArrayList<>();
 
         when(repository.findByUserId(userId)).thenReturn(emptyRepoList);
@@ -164,7 +165,7 @@ public class RepoDataServiceImplTest {
         verify(userDataService, times(1)).getOne(anyInt());
         verify(restTemplate, times(1)).exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class));
 
-        // Assert the returned PR count matches the size of the mocked JSON array
+
         int expectedPRCount = 2; // Assuming 2 items in the mocked JSON array
         assert prCount != null;
         assert prCount.equals(expectedPRCount);
@@ -285,10 +286,7 @@ public class RepoDataServiceImplTest {
                 .thenReturn(responseEntity);
 
         String parentRepo = repoDataService.getParentRepo(forkedRepoData);
-
-        assertNotNull(parentRepo);
         assertEquals("username/parentRepo", parentRepo);
-        // Add assertions based on the expected response from the GitHub API for a forked repository
     }
 
     @Test
@@ -302,9 +300,7 @@ public class RepoDataServiceImplTest {
         // The method should return the same name as it's not a forked repository
         String parentRepo = repoDataService.getParentRepo(nonForkedRepoData);
 
-        assertNotNull(parentRepo);
         assertEquals("nonForkedRepo", parentRepo);
-        // Add assertions or handling for the scenario when the repository is not a fork
     }
 
     @Test
@@ -314,19 +310,20 @@ public class RepoDataServiceImplTest {
         repoData.setName("exampleRepo");
         repoData.setUserId(1);
 
+        final int expectedLinesOfCode = 1000;
+
         // Mocking a response from the external API for repository lines of code (LOC)
         String apiUrl = "https://api.codetabs.com/v1/loc?github=exampleRepo";
         List<Map<String, Object>> locArrMap = new ArrayList<>();
         Map<String, Object> language1 = new HashMap<>();
         language1.put("language", "Total");
-        language1.put("linesOfCode", 1000);
+        language1.put("linesOfCode", expectedLinesOfCode);
         locArrMap.add(language1);
 
         when(restTemplate.getForObject(apiUrl, List.class)).thenReturn(locArrMap);
 
         String repoLOC = repoDataService.getRepoLOC(repoData);
 
-        assertNotNull(repoLOC);
         assertEquals("1000", repoLOC);
     }
 
@@ -346,7 +343,6 @@ public class RepoDataServiceImplTest {
         String repoLOC = repoDataService.getRepoLOC(repoData);
 
         assertEquals("Repo > 500 MB", repoLOC);
-        // Add assertions or handling for the scenario when the repository size exceeds the limit or the API call fails
     }
 
     @Test
