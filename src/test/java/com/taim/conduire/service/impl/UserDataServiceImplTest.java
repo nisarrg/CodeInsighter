@@ -27,7 +27,7 @@ public class UserDataServiceImplTest {
 
     @Test
     void testFindByGithubUserId() {
-        Integer githubUserId = 123;
+        final Integer githubUserId = 123;
         UserData expectedUserData = new UserData();
         when(repository.findByGithubUserId(githubUserId)).thenReturn(expectedUserData);
 

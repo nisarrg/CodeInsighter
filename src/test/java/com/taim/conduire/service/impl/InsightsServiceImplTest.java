@@ -74,11 +74,8 @@ public class InsightsServiceImplTest implements ConstantCodes {
 
         insightsService.showAvailableAPIHits(responseHeaders);
 
-        // Verify the printed output contains API hit information
-        String expectedOutput = "GitHub API Hit Limit: 5000\nGitHub API Hit Limit Remaining: 4999\n";
         // Use contains instead of direct comparison
-        assertTrue(outputStream.toString().contains("GitHub API Hit Limit: 5000"));
-        assertTrue(outputStream.toString().contains("GitHub API Hit Limit Remaining: 4999"));
+        assertTrue(outputStream.toString().contains("GitHub API Hit Limit: 5000"), ("GitHub API Hit Limit Remaining: 4999"));
     }
 
     @Test

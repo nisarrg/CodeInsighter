@@ -114,7 +114,6 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
 
     @Override
     public Map<String, Integer> getRepositoryLanguages(RepoData repoData) {
-        // TODO: make a common function for these lines. --> not feasible in some cases.
         String repoLanguagesAPIURL = String.format("%s/repos/%s/languages", GITHUB_API_URL, repoData.getName());
         logger.debug("Languages API: " + repoLanguagesAPIURL);
 
@@ -196,7 +195,6 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
             String responseBody = e.getResponseBodyAsString();
             if (responseBody.contains("too big")) {
                 logger.debug("Repo Size > 500 MB: " + responseBody);
-                // TODO: This variable can be taken out of if-else --> DONE
             } else {
                 logger.debug("Other BadRequest Exception: " + responseBody);
             }
@@ -259,7 +257,6 @@ public class RepoDataServiceImpl implements RepoDataService, ConstantCodes {
             JsonArray jsonArray = gson.fromJson(jsonArrayString, JsonArray.class);
 
             for (JsonElement element : jsonArray) {
-                // TODO: early return expected --> not feasible for now.
                 if (element.isJsonObject()) {
                     JsonObject repoObject = element.getAsJsonObject();
                     RepoData repoData = null;
