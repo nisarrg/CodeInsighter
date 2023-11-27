@@ -9,11 +9,13 @@ Table of Contents
 * [External Dependencies](#external-dependencies)
 * [Resources Used for CodeInsighter](#resources-used-for-codeinsighter)
 * [User Scenarios](#user-scenarios)
+* [Demo Video](#demo-video)
 * [Limitations](#limitations)
 * [Contributors](#contributors)
 * [Smell Analysis Summary](#smell-analysis-summary)
 * [Member Contribution](#member-contribution)
 * [Client Team Feedback](#client-team-feedback)
+* [Submission Presentation](#submission-presentation)
 
 
 # CodeInsighter
@@ -220,6 +222,10 @@ Here, the user can efficiently locate specific code flows within any codebase.
 
 ![Advanced Code Search and Retrieval](/reports/screenshots/AdvancedCodeSearchandRetrieval.jpg)
 
+## Demo Video
+
+- [Video Attached](/reports/project_demo_video.mp4)
+
 ## Limitations
 - **Fixed Number of tokens:** 
 OpenAI API's current version allows only 4098 tokens at a time. Hence, processing of big PRs is not possible. Hence, we are filtering the PRs on the basis of tokens.
@@ -231,6 +237,7 @@ The current version of OpenAI's API used has rate limitations on the number of r
 The processing time of each insight may vary according to the complexity of PRs and the prompt.
 - **Dependency Version Compatibility feature:**
 This feature would work only with the Java project that are build using maven.
+
 ## Contributors
 - [Pooja Chauhan](https://git.cs.dal.ca/poojac) (B00971297)
 - [Pratik Sakaria](https://git.cs.dal.ca/psakaria) (B00954261)
@@ -245,6 +252,10 @@ This feature would work only with the Java project that are build using maven.
 ## Member Contribution and Client Feedbacks
 
 - [Excel File Attached](/reports/feedbacks/contribution_statement.xlsx)
+
+## Submission Presentation
+
+- [Excel File Attached](/reports/submission_presentation.pptx)
 
 
 
