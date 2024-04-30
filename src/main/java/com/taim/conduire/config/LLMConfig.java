@@ -8,7 +8,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class LLMConfig {
-    @Value("${openai.api.key}")
+    @Value("YOUR OPEN-AI API KEY")
     private String openaiApiKey;
 
     @Bean
